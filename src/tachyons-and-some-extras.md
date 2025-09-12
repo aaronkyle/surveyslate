@@ -1,11 +1,10 @@
 ```js
-md`# Tachyons CSS and some extras
+# Tachyons CSS and some extras
 
 [Tachyons CSS](http://tachyons.io/) is handy for quickly style some HTML elements. This notebook extends the default Tachyons CSS with additional utility functions
 
 Tachyons version: **${tachyonsVersion}**
-`
-```
+
 
 ```js
 toc({
@@ -44,7 +43,7 @@ toc({
 Tachyons currently don't expose values used within its utility classes as CSS variables. Here, we are exposing some common values as CSS variables. These can be used with any custom CSS styles.
 
 ```js echo
-cssVariables = () => `:root {
+const cssVariables = () => `:root {
   --spacing-none: 0;
   --spacing-extra-small: .25rem;
   --spacing-small: .5rem;
@@ -92,7 +91,7 @@ loadStyles({
 ~~~
 
 ```js echo
-colorUtils = ({colors}) => {
+const colorUtils = ({colors}) => {
   const keys = Object.keys(colors || {})
 
   if (keys.length === 0) return "";
@@ -132,7 +131,7 @@ loadStyles({
 ~~~
 
 ```js echo
-fontUtils = ({fonts}) => {
+const fontUtils = ({fonts}) => {
   const keys = Object.keys(fonts || {})
 
   if (keys.length === 0) return "";
@@ -217,7 +216,7 @@ html`<div class="overflow-hidden bg-accent">
 ```
 
 ```js echo
-spaceBetweenUtils = () => Object.keys(tokens.spaces).reduce((acc, k) => {
+const spaceBetweenUtils = () => Object.keys(tokens.spaces).reduce((acc, k) => {
   const v = tokens.spaces[k];
   return `${acc}
 .space-x-${k} > * + * {
@@ -280,19 +279,19 @@ boxShadowUtils = () => `
 ### Tracking
 
 ```js echo
-trackedUtils = () => `.tracked-light { letter-spacing: .025em; }`
+const trackedUtils = () => `.tracked-light { letter-spacing: .025em; }`
 ```
 
 ### Sticky
 
 ```js echo
-positionUtils = () => `.sticky { position: sticky }`
+const positionUtils = () => `.sticky { position: sticky }`
 ```
 
 ### No scrollbars
 
 ```js echo
-scrollUtils = () =>`.no-scrollbar {
+const scrollUtils = () =>`.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -305,27 +304,27 @@ scrollUtils = () =>`.no-scrollbar {
 ## Code
 
 ```js echo
-tachyonsVersion = "4.12.0"
+const tachyonsVersion = "4.12.0"
 ```
 
 ```js echo
-defaultOptions = ({})
+const defaultOptions = ({})
 ```
 
 ```js echo
-addElementsToDOM = (elements) => elements.forEach(n => document.querySelector("head").prepend(n));
+const addElementsToDOM = (elements) => elements.forEach(n => document.querySelector("head").prepend(n));
 ```
 
 ```js echo
-removeElementsFromDOM = (elements) => elements.forEach(n => n.parentNode && n.parentNode.removeChild(n))
+const removeElementsFromDOM = (elements) => elements.forEach(n => n.parentNode && n.parentNode.removeChild(n))
 ```
 
 ```js echo
-tachyons = loadStyles // Original name, deprecated
+const tachyons = loadStyles // Original name, deprecated
 ```
 
 ```js echo
-loadStyles = {
+const loadStyles = {
   let elements = new Set();
 
   function detach(elements) {
@@ -369,7 +368,7 @@ loadStyles = {
 ```
 
 ```js echo
-tokens = ({
+const tokens = ({
   spaces: {
     '0': '0', // none
     '1': '0.25rem', // extra-small
@@ -400,7 +399,7 @@ loadStyles({
 `tachyonsExt` is deprecated. Use `loadStyles`
 
 ```js
-tachyonsExt = loadStyles
+const tachyonsExt = loadStyles
 ```
 
 ## Demo Styles
@@ -408,7 +407,7 @@ tachyonsExt = loadStyles
 These styles are only to render the examples in this notebook.
 
 ```js echo
-demoStyles = html`<style>.box {
+const demoStyles = html`<style>.box {
   background-color: var(--brand);
   color: white;
   padding: 0.5rem;

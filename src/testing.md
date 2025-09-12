@@ -1,10 +1,7 @@
-```js
-md`# Reactive Unit Testing and Reporting Framework
+# Reactive Unit Testing and Reporting Framework
 
 <center>
-<img width="30%" src=${await FileAttachment(
-  "noun_test_2404407.svg"
-).url()}></img>
+<img width="30%" src=${await FileAttachment("noun_test_2404407.svg").url()}></img>
 </center>
 
 A test suite that updates as you fix bugs in realtime. Combines with [healthcheck](https://observablehq.com/@endpointservices/healthcheck) to create a CI.
@@ -19,22 +16,30 @@ Only matched tests are run, allowing you to focus on executing individual tests 
 
 
 Import the suite
+```
 ~~~js
     import {createSuite, expect} from '@tomlarkworthy/testing'
 ~~~
+```
 
 Create the UI
+
+```
 ~~~js
     viewof suite = createSuite({
       name: "mySuite",
       timeout_ms: 1000
     })
 ~~~
+```
 
 Create named tests using [jest expect](https://jestjs.io/docs/en/expect).
+
+```
 ~~~js
     suite.test("A passing test", () => {expect(true).toBe(true)})
 ~~~
+```
 
 See the [example here](https://observablehq.com/@tomlarkworthy/testing-example).
 
@@ -44,13 +49,13 @@ See the [example here](https://observablehq.com/@tomlarkworthy/testing-example).
 - 2021-11-10 Remove TAP link, [healthcheck](https://observablehq.com/@endpointservices/healthcheck) is better. 
 - 2020-03-23 TAP reports are now hosted by "orchestrator" cells so can be used to test serverless cell services
 - 2020-02-14 Collaberation between [@chonghorizons](https://observablehq.com/@chonghorizons) and [@tomlarkworthy](https://observablehq.com/@tomlarkworthy) to add *timeout_ms* and explicit _done_() callback
-`
-```
 
-```js
-md`## Lazy loading
+
+## Lazy loading
 
 You might not want testing to be a static dependancy, you can use something like the following to programatically load the testing library only if some condition is true. (thanks [@mootari](/@mootari) who donated this)
+
+```
 ~~~js
 testing = {
   const [{ Runtime }, { default: define }] = await Promise.all([
@@ -67,12 +72,11 @@ testing = {
   );
 }
 ~~~
-
-`
 ```
 
-```js
-createSuite = ({
+
+```js echo
+const createSuite = ({
   name = "tests", // Set to null to turn of tap report link
   timeout_ms = 30000
 } = {}) => {
@@ -220,7 +224,7 @@ createSuite = ({
 }
 ```
 
-```js
+```js echo
 function report(suite, { timeout = 10000 } = {}) {
   function tap(suite) {
     // Ugly indentation here to avoid whitespace in the TAP report.
@@ -256,35 +260,31 @@ ${Object.keys(suite.results)
 }
 ```
 
-```js
-md`## Test Suite UI`
-```
+## Test Suite UI
+
 
 ```js
-viewof suite = createSuite({
+const suite = view(createSuite({
   timeout_ms: 5000
-})
+}))
 ```
 
-```js
-md`#### The report links to an always on TAP report`
-```
+#### The report links to an always on TAP report
+
 
 ```js
 html`<pre>${await report(suite)}</pre>`
 ```
 
-```js
-md`## Some Tests`
-```
+## Some Tests
+
 
 ```js echo
 suite.test("sync pass", () => expect(true).toBe(true))
 ```
 
-```js
-md`#### Demo of what a failing test looks like`
-```
+#### Demo of what a failing test looks like
+
 
 ```js echo
 suite.test("sync fail", () => expect(true).toBe(false))
@@ -307,15 +307,13 @@ suite.test("asyncORIG - original function", async () => {
 })
 ```
 
-```js
-md`### Some more async function tests
+### Some more async function tests
 
-added by @chonghorizons, Feb2021`
-```
+added by `@chonghorizons`, Feb2021
 
-```js
-md`#### Demo of timeout`
-```
+
+#### Demo of timeout
+
 
 ```js echo
 suite.test("async0 - should fail, no resolve", async () => {
@@ -334,9 +332,8 @@ suite.test("async1 check returned data", async () => {
 })
 ```
 
-```js
-md`#### Demo of not calling _done_ will timeout`
-```
+#### Demo of not calling _done_ will timeout
+
 
 ```js echo
 suite.test("async2 function hanging example, should fail", done => {
@@ -347,9 +344,7 @@ suite.test("async2 function hanging example, should fail", done => {
 
 ```
 
-```js
-md`#### Demo of _done_ param is propogated as an error`
-```
+#### Demo of _done_ param is propogated as an error
 
 ```js echo
 suite.test("done arg is an error", done => {
@@ -359,11 +354,10 @@ suite.test("done arg is an error", done => {
 // based on "unresolved" example at https://jestjs.io/docs/en/asynchronous
 ```
 
-```js
-md`#### Demo of normal errors will fail a test with _done_`
-```
+#### Demo of normal errors will fail a test with _done_
 
-```js
+
+```js echo
 suite.test("Failure with done raises error", async done => {
   expect(true).toBe(false);
 })
@@ -388,19 +382,38 @@ suite.viewofResults.value
 ```
 
 ```js
-html = htl.html
+const html = htl.html
+```
+
+```js echo
+//import { reconcile } from "@tomlarkworthy/reconcile-nanomorph"
+//import { reconcile } from "/components/reconcile-nanomorph.js";
+import morph from "https://cdn.jsdelivr.net/npm/nanomorph@5.4.2/+esm";
+function reconcile(current, target, options) {
+  if (
+    !current ||
+    !target ||
+    current.nodeType != target.nodeType ||
+    current.nodeName != target.nodeName ||
+    current.namespaceURI != target.namespaceURI
+  ) {
+    if (current && target && current.nodeName != target.nodeName) {
+      console.log("Cannot reconcile", current.nodeName, target.nodeName);
+    }
+    return target;
+  }
+  return morph(current, target, options);
+}
+display(reconcile)
 ```
 
 ```js
-import { reconcile } from "@tomlarkworthy/reconcile-nanomorph"
+const pseudouuid = () => Math.random().toString(16).substring(3)
 ```
 
-```js
-pseudouuid = () => Math.random().toString(16).substring(3)
-```
-
-```js
-expect = {
+```js echo
+import {require} from "npm:d3-require";
+const expect = (async () => {
   console.log("loding expect");
   if (window.expect) return window.expect;
   return require(`jest-expect-standalone@${JEST_EXPECT_STANDALONE_VERSION}/dist/expect.min.js`).catch(() => {
@@ -410,11 +423,11 @@ expect = {
     console.log("then returning window.expect", window.expect)
     return window.expect;
   });
-}
+})();
 ```
 
 ```js
-JEST_EXPECT_STANDALONE_VERSION = "24.0.2"
+const JEST_EXPECT_STANDALONE_VERSION = "24.0.2"
 ```
 
 ```js
@@ -426,5 +439,5 @@ JEST_EXPECT_STANDALONE_VERSION = "24.0.2"
 ```
 
 ```js
-footer
+//footer
 ```

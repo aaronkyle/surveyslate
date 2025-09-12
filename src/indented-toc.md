@@ -1,12 +1,10 @@
-```js
-md`# Indented ToC
+# Indented ToC
 
 This notebook can generate a Table of Contents (ToC), with indentations, automatically for your notebook.
 
 Thanks to @mbostock for creating the original version of the library!
 
-_Note:_ Clicking on links in Safari doesn't work because [scrollIntoView in an iFrame doesn't really work correctly](https://www.javaer101.com/en/article/11885549.html)`
-```
+_Note:_ Clicking on links in Safari doesn't work because [scrollIntoView in an iFrame doesn't really work correctly](https://www.javaer101.com/en/article/11885549.html)
 
 ```js
 toc({

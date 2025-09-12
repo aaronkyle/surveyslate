@@ -74,21 +74,21 @@ Get up and running with the [quickstart](https://observablehq.com/@endpointservi
 
 ## Import snippet
 
+```
 ~~~js
     import {deploy, getContext} from '@endpointservices/serverless-cells'
 ~~~
+```
 
 ## Get help at the chat server
 
 Come hang out with us on the [d3 Zulip server](https://d3js.zulipchat.com/#narrow/stream/289603-serverless-cells/topic/Welcome.20to.20Serverless.20Cells)
 
 
-```js
-md`### Implementation`
-```
+### Implementation
 
 ```js echo
-deploy = function (label, handler, options) {
+const deploy = function (label, handler, options) {
   onVersionPublished; // Ensure all users of this have the onPublish hook installed
   if (typeof label !== "string")
     throw new Error(
@@ -164,7 +164,7 @@ deploy = function (label, handler, options) {
 ```
 
 ```js
-onVersionPublished = onVersion((metadata) => {
+const onVersionPublished = onVersion((metadata) => {
   // Run the cache invlidation routines when a new version is published
   // See https://observablehq.com/@endpointservices/webcode-onpublish
   fetch(
@@ -174,7 +174,7 @@ onVersionPublished = onVersion((metadata) => {
 ```
 
 ```js
-getContext = () => {
+const getContext = () => {
   if (window["@endpointservices.context"])
     return window["@endpointservices.context"];
   return {
@@ -187,7 +187,7 @@ getContext = () => {
 ```
 
 ```js
-Response = class {
+const Response = class {
   constructor(req, done) {
     this.req = req;
     this.done = done;
@@ -284,8 +284,7 @@ Response = class {
 }
 ```
 
-```js
-md`
+
 ### Change Log
   - 2021-08-07
     - URL improvements
@@ -314,11 +313,8 @@ md`
   - 2020-12-04: CDN added (Use Cache-Control headers)
   - 2020-11-18: Serverside performance increase
   - 2020-11-17: Published
-`
-```
 
-```js
-md`
+
 
 # API Reference
 
@@ -421,23 +417,17 @@ Which part of the world should run the handler. Defaults to europe-west1. Also a
 By default Serverless cells cannot be called by other Serverless cells and can only be invoked by "external" requests. If a cell is marked as "terminal" it may be called by other serverless cells but it cannot call other cells itself (even terminal ones). "orchestrator" can call other serverless cells except other _orchestrators_.
 
 
-`
-```
-
-```js
-md`## Express Routing
+## Express Routing
 
 You can attached an Express router to allow fine grained path based responses. Find out more [here](https://observablehq.com/@tomlarkworthy/api-hosting-with-express).
 
-`
+
+```js
+const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 ```
 
 ```js
-chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-```
-
-```js
-salt = window.crypto
+const salt = window.crypto
   // ~6 bits per selection, we need 120
   .getRandomValues(new Uint32Array(Math.ceil(120.0 / 5.9)))
 ```
@@ -455,7 +445,7 @@ generateSessionId = (name) => {
 ```
 
 ```js
-subdomain = (url) => {
+const subdomain = (url) => {
   url = url || html`<a href="">`.href;
   const origin = location.origin;
   let match;
@@ -468,7 +458,7 @@ subdomain = (url) => {
 ```
 
 ```js
-notebook = (url) => {
+const notebook = (url) => {
   url = url || html`<a href="">`.href;
   let match;
   if (
@@ -494,5 +484,5 @@ import { footer } from "@endpointservices/footer" // Not with backups, we don't 
 ```
 
 ```js
-footer
+// footer
 ```

@@ -1,5 +1,4 @@
-```js
-md`# CORS Proxy _fetchp_
+# CORS Proxy _fetchp_
 
 A drop in replacement for [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) that uses a proxy to get around CORS and can optionally mixin [secrets](https://observablehq.com/@endpointservices/secrets) into URL parameters and Basic Auth. Retries with exponential backoff in the case of 429 response code.
 
@@ -54,8 +53,7 @@ To see some executable examples check out the [tests](https://observablehq.com/@
 - 2020-03-23 Remove hardcoded proxy and converted to "terminal" serverless cell
 - 2020-02-12 Fixed UInt8array as body encoding problems
 - 2021-01-24 Added exponential backoff on 429s
-`
-```
+
 
 ```js
 SECRET_PARAMS = ({})

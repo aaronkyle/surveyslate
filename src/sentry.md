@@ -59,7 +59,7 @@ We customize Sentry initialization to rewrites the URL, so usage is reported aga
 
 
 ```js
-sentry = ({ DSN, namespaces } = {}) => {
+const sentry = ({ DSN, namespaces } = {}) => {
   if (!DSN) throw new Error("You must supply your DSN");
   if (!namespaces)
     throw new Error(
@@ -94,11 +94,11 @@ sentry = ({ DSN, namespaces } = {}) => {
 ```
 
 ```js
-Sentry = import("https://cdn.skypack.dev/@sentry/browser?min")
+const Sentry = import("https://cdn.skypack.dev/@sentry/browser?min")
 ```
 
 ```js
-Tracing = import("https://cdn.skypack.dev/@sentry/tracing@7.0.0?min")
+const Tracing = import("https://cdn.skypack.dev/@sentry/tracing@7.0.0?min")
 ```
 
 ```js
@@ -111,9 +111,9 @@ Because the Observable native, functions-as-a-service runtime [webcode.run](http
 
 
 ```js
-import { footer } from "@endpointservices/footer"
+//import { footer } from "@endpointservices/footer"
 ```
 
 ```js
-footer
+//footer
 ```

@@ -9,23 +9,24 @@ import {reversibleAttach} from '@tomlarkworthy/reversible-attachment'
 ```
 
 ```js
-viewof attach = Inputs.toggle({
+const attach = view(Inputs.toggle({
   label: "attach"
-})
+}))
 ```
 
 ## child view
 
 ```js
-viewof child = Inputs.text()
+const child = view(Inputs.text())
 ```
 
 ## parent view ([@tomlarkworthy/view](https://observablehq.com/@tomlarkworthy/view))
 
 ```js echo
-viewof parent = view`<div>
+// CHECK VIEW CONFIG
+const parent = view(view`<div>
 ${["child", reversibleAttach(attach, viewof child)]}
-</div>`
+</div>`)
 ```
 
 Note changes propogate to both
@@ -52,15 +53,15 @@ Inputs.button("backdrive parent", {
 ## grandparent view ([Inputs.form](https://observablehq.com/@observablehq/input-form))
 
 ```js
-viewof attach_gp = Inputs.toggle({
+const attach_gp = view(Inputs.toggle({
   label: "attach gradparent"
-})
+}))
 ```
 
 ```js echo
-viewof grand_parent = Inputs.form({
+const grand_parent = view(Inputs.form({
   parent: reversibleAttach(attach_gp, viewof parent)
-})
+}))
 ```
 
 ```js echo
@@ -79,7 +80,7 @@ Inputs.button("backdrive grand_parent", {
 ---
 
 ```js
-parents = new Map()
+const parents = new Map()
 ```
 
 ```js
@@ -109,5 +110,5 @@ import { view, bindOneWay } from "@tomlarkworthy/view"
 ```
 
 ```js echo
-footer
+//footer
 ```

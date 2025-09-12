@@ -1,5 +1,4 @@
-```js
-md`# Resize FileAttachments on the fly with [serverless-cells](https://observablehq.com/@endpointservices/serverless-cells)
+# Resize FileAttachments on the fly with [serverless-cells](https://observablehq.com/@endpointservices/serverless-cells)
 
 
 <mark>FileAttachments.image(...) supports props like width or style now, rendering this library pointless</mark> (there is some minor utility that this library does it server side so traffic is minimized, but it tends to be slow so I personally would still not use this method
@@ -9,14 +8,13 @@ Often, when copy and pasting, my FileAttachments are too big for markdown. I can
 
 All you need to do is decorate the url with "resize" which creates a new URL to an inline image service that does the resizing.
 
-~~~js
-  import {resize} from '@endpointservices/resize'
-~~~
+    ~~~js
+    import {resize} from '@endpointservices/resize'
+    ~~~
 
 
 I DON'T THINK THIS WORKS WITH FILE ATTACHMENTS ANYMORE, the URL is not stable or something
-`
-```
+
 
 ```js
 signature(resize, {

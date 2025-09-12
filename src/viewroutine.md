@@ -1,24 +1,24 @@
-```js
-md`# Composing views across time: viewroutine
+# Composing views across time: viewroutine
 
 ${await FileAttachment("viewroutine.png").image()}
 
 Sometimes you want to put a sequence of UI steps in a single cell. Using inspiration drawn from Unity and Golang ([_coroutines_](https://docs.unity3d.com/Manual/Coroutines.html) and _goroutines_) checkout the _viewroutine_. A _viewroutine_ leans on Javascript's _async generator functions_ to compose views across time.
 
+```
 ~~~
     viewroutine(generator: async function*) => viewof
 ~~~
+```
 
 The import:-
 
+```
 ~~~js
 import {viewroutine, ask} from '@tomlarkworthy/viewroutine'
 ~~~
-`
 ```
 
-```js
-md`## What is a view again?
+## What is a view again?
 
 A view
 
@@ -28,11 +28,8 @@ A view
 - Like all cells, the viewof cell can be a generator as well and be its own stream
 
 (see also https://observablehq.com/@observablehq/introduction-to-views)
-`
-```
 
-```js
-md`## What is an async generator?
+## What is an async generator?
 
 Async generators
 - Have a signature like _async foo*()_
@@ -43,11 +40,7 @@ Async generators
 
 (see also https://observablehq.com/@observablehq/introduction-to-generators)
 
-`
-```
-
-```js
-md`## Putting it together
+## Putting it together
 
 The broad idea of a viewroutine, is that an async generator yields a stream of visual components, and we update an overarching span by setting its only child to be those stream of values. Thus, the span becomes a view that doesn't invalidate when the generator yields.
 
@@ -58,30 +51,28 @@ You can compose generators by using the _yield*_ syntax making things compose ni
 You can on demand and programatically drive the sequence, wait for user input, make choices _etc._ You could probably build an entire app in this way, and it can be decomposed into functional pieces.
 
 One other important aspect of views is programmatic control over when an input event is raised. The viewroutine will emit an event if yielded.  
-`
-```
 
-```js
-md`### Pattern we are trying to fix
+
+### Pattern we are trying to fix
 
 We want to avoid stuffing a model into a mutable and asynchronously updating that from a dedicated input cell. It takes up too many cells and the use of mutable has lots of unexpected implications such as not working when imported from other notebooks
-`
-```
+
 
 ```js echo
+//VERIFY MUTABLE
 mutable nameOfThing = undefined
 ```
 
 ```js echo
-viewof newName = Inputs.text({
+const newName = view(Inputs.text({
   label: "please enter the name of the thing to create",
   submit: true,
   minlength: 1
-})
+}))
 ```
 
 ```js echo
-sideEffect = {
+const sideEffect = {
   yield md`<mark>updating`;
   await new Promise(r => setTimeout(r, 1000));
   mutable nameOfThing = newName;
@@ -90,9 +81,7 @@ sideEffect = {
 }
 ```
 
-```js
-md`## The viewroutine`
-```
+## The viewroutine
 
 ```js echo
 function viewroutine(generator) {
@@ -129,13 +118,9 @@ function viewroutine(generator) {
 }
 ```
 
-```js
-md`### Example`
-```
+### Example
 
-```js
-md`_ask_ wraps any input. It yields the passed in input to be its visual representation, but its final return is the value submitted, which ends the routine (allowing an enclosing generator to continue with the sequence)`
-```
+_ask_ wraps any input. It yields the passed in input to be its visual representation, but its final return is the value submitted, which ends the routine (allowing an enclosing generator to continue with the sequence)
 
 ```js
 async function* ask(input) {
@@ -147,12 +132,10 @@ async function* ask(input) {
 }
 ```
 
-```js
-md`Now we can do the same thing without a mutable, even carrying the inputed name in the first step to steps further along.`
-```
+Now we can do the same thing without a mutable, even carrying the inputed name in the first step to steps further along.
 
 ```js echo
-viewof example1 = viewroutine(async function*() {
+const example1 = view(viewroutine(async function*() {
   let newName = undefined;
   while (true) {
     newName = yield* ask(
@@ -167,26 +150,24 @@ viewof example1 = viewroutine(async function*() {
     await new Promise(r => setTimeout(r, 1000)); // Mock async action
     yield* ask(htl.html`${md`<mark>updated`} ${Inputs.button("Again?")}`);
   }
-})
+}))
 ```
 
 ```js echo
 example1
 ```
 
-```js
-md`## Animation Example with return values
+## Animation Example with return values
 
 Mixing HTML with SVG and composing animations
-`
-```
+
 
 ```js echo
 choice
 ```
 
 ```js echo
-viewof choice = viewroutine(async function*() {
+const choice = view(viewroutine(async function*() {
   while (true) {
     const choice = yield* choose();
     if (choice == 'square') yield* flashSquare();
@@ -212,7 +193,7 @@ async function* choose() {
   return await new Promise(function(_resolve) {
     resolve = _resolve;
   });
-}
+})
 ```
 
 ```js
@@ -250,9 +231,9 @@ async function* flashStar() {
 ```
 
 ```js echo
-import { footer } from "@tomlarkworthy/footer"
+//import { footer } from "@tomlarkworthy/footer"
 ```
 
 ```js echo
-footer
+//footer
 ```

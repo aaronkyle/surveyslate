@@ -3,11 +3,11 @@
 
 This notebook offers a set of documentation helpers.
 
-```
-~~~js
-import {signature, getPinnedSlug} from '${PINNED_LIB}'
-~~~
-```
+//```
+//~~~js
+//import {signature, getPinnedSlug} from '${PINNED_LIB}'
+//~~~
+//```
 
 
 Features:
@@ -27,7 +27,16 @@ import { DOM } from '/components/DOM.js'
 ```
 
 ```js
+import {html} from "npm:htl";
+```
+
+```js
 //import * as Promises from "/components/promises.js";
+```
+
+```js
+//import {view, Promises} from "observablehq:stdlib";
+import {Promises} from "observablehq:stdlib";
 ```
 
 
@@ -38,16 +47,16 @@ import markdownit from "npm:markdown-it";
 ```js echo
 const Markdown = new markdownit({html: true});
 
-function md(strings) {
-  let string = strings[0];
-  for (let i = 1; i < arguments.length; ++i) {
-    string += String(arguments[i]);
-    string += strings[i];
+function md(strings, ...values) {
+  let s = strings.raw[0];
+  for (let i = 0; i < values.length; ++i) {
+    s += String(values[i]) + strings.raw[i + 1];
   }
-  const template = document.createElement("template");
-  template.innerHTML = Markdown.render(string);
-  return template.content.cloneNode(true);
+  const t = document.createElement("template");
+  t.innerHTML = Markdown.render(s);
+  return t.content.cloneNode(true);
 }
+
 ```
 
 
@@ -129,7 +138,7 @@ function signature(fn, options = {}) {
     open = true,
     
     tests = {},
-    runTests = RUN_TESTS.promise,
+    runTests = false, // safe default
     testRunner = defaultTestRunner,
     
     scope = DOM.uid('css-scope').id,
@@ -139,15 +148,18 @@ function signature(fn, options = {}) {
     signatureParser = defaultSignatureParser,
   } = options;
   
+  const runSignal = runTests === false && typeof RUN_TESTS !== 'undefined' ? RUN_TESTS.promise : runTests;
+
   const sig = typeof fn !== 'function' ? fn : signatureParser(fn, name);
   let testList = null;
   
-  if(runTests && tests && Object.keys(tests).length) {
+if (runSignal && tests && Object.keys(tests).length) {
     const {list, run} = testRunner(tests);
-    const button = html`<button>Run tests`, cta = html`<p class=cta>${button} to view results`;
-    testList = html`<div class=tests>${[md`Test results:`, cta]}`;
-    Promise.race([Promise.resolve(runTests), new Promise(r => button.onclick = r)])
-      .then(() => (cta.replaceWith(list), run()));
+    const button = html`<button>Run tests</button>`;
+    const cta = html`<p class="cta">${button} to view results</p>`;
+    testList = html`<div class="tests">${[md`Test results:`, cta]}</div>`;
+    Promise.race([Promise.resolve(runSignal), new Promise(r => button.onclick = r)])
+    .then(() => (cta.replaceWith(list), run()));
   }
   
   return formatter({
@@ -216,11 +228,18 @@ import {foo} from "\${PINNED}"
 ```
 
 ```js echo
-const PINNED = (() => {
-  const match = document.baseURI.match(regIdentifier);
-  if(!match) return '(error: name not detectable)';
-  const {id, user, slug} = match.groups;
-  return getPinnedSlug(id || `@${user}/${slug}`);
+//const PINNED = (() => {
+//  const match = document.baseURI.match(regIdentifier);
+//  if(!match) return '(error: name not detectable)';
+//  const {id, user, slug} = match.groups;
+//  return getPinnedSlug(id || `@${user}/${slug}`);
+//})();
+
+const PINNED = await (async () => {
+const match = document.baseURI.match(regIdentifier);
+if (!match) return '(error: name not detectable)';
+const {id, user, slug} = match.groups;
+return getPinnedSlug(id || `@${user}/${slug}`);
 })();
 ```
 
@@ -240,12 +259,22 @@ return code(myCss, {
 ```
 
 ```js echo
-function code(text, {type = 'javascript', trim = true, className = 'code'} = {}) {
-  const out = md`\`\`\`${type}\n${!trim ? text : text.replace(/^\s*\n|\s+?$/g, '')}\n\`\`\``;
-  if(className) out.classList.add('code');
-  return out;  
-}
+//function code(text, {type = 'javascript', trim = true, className = 'code'} = {}) {
+//  const out = md`\`\`\`${type}\n${!trim ? text : text.replace(/^\s*\n|\s+?$/g, '')}\n\`\`\``;
+//  if(className) out.classList.add('code');
+//  return out;  
+//}
+function code(text, { language = 'javascript', type, trim = true, className = 'code' } = {}) {
+  const lang = type ?? language;
+  const rendered = md`\`\`\`${lang}\n${!trim ? text : text.replace(/^\s*\n|\s+?$/g, '')}\n\`\`\``;
 
+  // Wrap the fragment in a container element so it always has classList
+  const out = document.createElement('div');
+  out.appendChild(rendered);
+
+  if (className) out.classList.add(className);
+  return out;
+}
 ```
 
 ```js echo
@@ -263,7 +292,7 @@ RUN_TESTS
 ```js echo
 const RUN_TESTS = view((() => {
   const s = createStepper();
-  const view = html`<div><button>Run all tests`;
+  const view = html`<div><button>Run all tests</button></div>`;
   view.onclick = e => { e.stopPropagation(); s.next(); };
   view.value = s;
   return view;
@@ -352,35 +381,56 @@ function createStepper() {
 
 ```js
 function defaultFormatter({signature, description, examples, testList}, {name, open, scope, css}) {
-  return html`<${open == null ? 'div' : `details ${open ? 'open' : ''}`} class="${scope}">${[
-    !css ? '' : scope == null ? css : scopedStyle('.' + scope, css),
-    html`<${open == null ? 'div' : 'summary'} class=signature>${signature}${
-!name || !name.length ? '' : html`<a class=link href="#${name}">`
-}`,
-    description == null ? '' : html`<div class=description>${description}`,
-    !examples.length ? '' : html`<div class=examples>${[
+  const globalStyle = !css
+    ? ''
+    : (scope == null ? html`<style>${css}</style>` : scopedStyle('.' + scope, css));
+
+  const body = html.fragment(
+    globalStyle,
+    (open == null
+      ? html`<div class="signature">
+          ${signature}
+          ${!name || !name.length ? '' : html`<a class="link" href="#${name}"></a>`}
+        </div>`
+      : html`<summary class="signature">
+          ${signature}
+          ${!name || !name.length ? '' : html`<a class="link" href="#${name}"></a>`}
+        </summary>`
+    ),
+    description == null ? '' : html`<div class="description">${description}</div>`,
+    !examples.length ? '' : html`<div class="examples">${[
       examples.length < 2 ? md`Example:` : md`Examples:`,
       ...examples
-    ]}`,
-    testList || '',
-  ]}`;
+    ]}</div>`,
+    testList || ''
+  );
+
+  return (open == null)
+    ? html`<div class=${scope ?? undefined}>${body}</div>`
+    : html`<details class=${scope ?? undefined} open=${open ? true : undefined}>${body}</details>`;
 }
+
 ```
 
 ```js
 function defaultTestRunner(tests, options = {}) {
   const {
     assert = (cond, msg = 'error') => { if(!cond) throw msg },
-    formatList = items => html`<table><thead><tr><th>Name</th><th>Result</th></tr><body>${items}`,
+    formatList = items => html`<table>
+      <thead><tr><th>Name</th><th>Result</th></tr></thead>
+      <tbody>${items}</tbody>
+    </table>`,
     formatItem = (name, status, msg) => {
       const state = status == null ? 'pending' : status ? 'success' : 'error';
       const icon = { pending: '⌛', success: '✅', error: '❗'}[state];
       return html`<tr data-status=${state}>
         <td>${DOM.text(name)}</td>
-        <td><span title=${state}>${icon}</span> ${msg||''}</td>`;
+        <td><span title=${state}>${icon}</span> ${msg || ''}</td>
+      </tr>`;
     },
     run = (fn, name) => fn.call(null, assert),
   } = options;
+
   
   const runners = Object.entries(tests).map(([name, fn]) => ({
     name,
@@ -403,38 +453,35 @@ function defaultTestRunner(tests, options = {}) {
 ```js
 function defaultSignatureParser(fn, name = null) {
   const src = fn.toString();
-  let end = 0, r = 0;
+  let end = 0, depth = 0;
   const next = c => {
-    switch(c) {
-      case '(': ++r; break;
-      case ')': --r; break;
+    switch (c) {
+      case '(': ++depth; break;
+      case ')': --depth; break;
       case '{':
-      case '=': if(r === 0) return false;
+      case '=': if (depth === 0) return false;
     }
     return true;
-  }
-  while(end < src.length && next(src[end++]));
-  
-  const sig = src.substring(0, end - 1).trim(),
-        [prefix, mAsync, mFunc, mGen] = sig.match(/^(async\s*)?(function\s*)?(\*)?/),
-        mName = mFunc
-          ? (sig.substring(prefix.length).match(/^[^(]*/) || [])[0]
-          : null,
-        fnName = name !== null ? name.trim()
-          : mName !== null ? mName.trim()
-          : '',
-        offset = prefix.length + (mName !== null ? mName.length : 0),
-        suffix = sig.substring(offset).trim();
+  };
+  while (end < src.length && next(src[end++]));
 
-  return `${
-    mAsync ? 'async ' : ''
-  }function${
-    mGen ? '*' : ''
-  }${
-    fnName.length ? ` ${fnName}` : ''
-  }${
-    suffix[0] === '(' ? suffix : `(${suffix})`
-  }`;
+  const sig = src.substring(0, end - 1).trim();
+
+  // Safe: the match may be null
+  const m = sig.match(/^(async\s*)?(function\s*)?(\*)?/);
+  const prefix = m?.[0] ?? "";
+  const hasAsync = !!m?.[1];
+  const hasFunc  = !!m?.[2];
+  const hasGen   = !!m?.[3];
+
+  const after = sig.slice(prefix.length);
+  const parsedName = hasFunc ? (after.match(/^[^(]*/)?.[0] ?? "") : "";
+
+  const fnName = (name ?? parsedName).trim();
+  const offset = prefix.length + (hasFunc ? parsedName.length : 0);
+  const suffix = (sig.substring(offset).trim()) || "()"; // guard empty
+
+  return `${hasAsync ? "async " : ""}function${hasGen ? "*" : ""}${fnName ? ` ${fnName}` : ""}${suffix.startsWith("(") ? suffix : `(${suffix})`}`;
 }
 ```
 
@@ -465,19 +512,27 @@ const regIdentifier = new RegExp('^'
 ```
 
 ```js
-const parseFrontmatter = v1Source => {
+const parseFrontmatter = (v1Source) => {
   const match = v1Source.match(/^(?:[^\n]+\n){4}/);
-  if(!match) return null;
+  if (!match) return null;
   const lines = match[0].slice(0, -1).split(/\n/);
-  return Object.fromEntries(lines.map(s => {
-    const [, key, value] = s.match(/\/\/ ([^:]+):\s+(.+)$/);
-    return [key.toLowerCase(), value];
-  })
-)}
+  return Object.fromEntries(
+    lines
+      .map((s) => {
+        const m = s.match(/\/\/ ([^:]+):\s+(.+)$/);
+        if (!m) return null;               // drop non-matches
+        const [, key, value] = m;
+        return [key.toLowerCase(), value]; // valid entry
+      })
+      .filter(Boolean)                     // remove nulls
+  );
+};
+
 ```
 
 ```js
-const PINNED_LIB = getPinnedSlug('@mootari/signature')
+//const PINNED_LIB = getPinnedSlug('@mootari/signature')
+const PINNED_LIB = await getPinnedSlug('@mootari/signature');
 ```
 
 

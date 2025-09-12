@@ -70,7 +70,7 @@ Not persisted or shared outside of your local network. Paste an unencrypted JSON
 
 
 ```js echo
-const manualCredentials = () => view(() => {
+const manualCredentials = (() => {
   const existingCreds = localStorage.getItem(
     `AWS_CREDS_${btoa(htl.html`<a href>`.href.split("?")[0])}`
   );
@@ -83,7 +83,8 @@ const manualCredentials = () => view(() => {
     value: existingCreds
   });
 
-  const wrapped = htl.html`<div class="pmnuxzjxzr">
+  // Just wrap and return
+  return htl.html`<div class="pmnuxzjxzr">
     <style>
       .pmnuxzjxzr > form > div > textarea {
         ${
@@ -92,15 +93,15 @@ const manualCredentials = () => view(() => {
               color: transparent;
               text-shadow: 0 0 4px rgba(0,0,0,0.5);
             `
-            : ''
+            : ""
         }
       }
     </style>
-    ${control}`;
+    ${control}
+  </div>`;
+})();
 
-  Inputs.bind(wrapped, control);
-  return wrapped;
-});
+display(manualCredentials);
 ```
 
 ```js echo
@@ -110,7 +111,7 @@ const saveCreds = htl.html`<span style="display: flex">${Inputs.button(
     reduce: () =>
       localStorage.setItem(
         `AWS_CREDS_${btoa(htl.html`<a href>`.href.split("?")[0])}`,
-        manualCredentials
+        manualCredentials.querySelector("textarea").value
       )
   }
 )} ${Inputs.button("Clear stored creds", {
@@ -119,6 +120,8 @@ const saveCreds = htl.html`<span style="display: flex">${Inputs.button(
       `AWS_CREDS_${btoa(htl.html`<a href>`.href.split("?")[0])}`
     )
 })}</span>`
+
+display(saveCreds);
 ```
 
 ## Credentials
@@ -454,20 +457,24 @@ const createInvalidation = (distributionId, paths = []) => {
 ---
 
 
-```js
-import { expect } from '/exports/testing/index.js'
+```js echo
+//import { expect } from '/exports/testing/index.js'
+import { expect } from '/components/testing.js'
 ```
 
-```js
-import { randomId } from '/exports/randomid.tgz'
+```js echo
+//import { randomId } from '/exports/randomid.tgz'
+import { randomId } from '/components/randomid.js'
 ```
 
 ```js
 import { resize } from '/exports/resize.tgz'
 ```
 
-```js
-import { localStorage } from "/exports/safe-local-storage.tgz"
+```js echo
+//import { localStorage } from "/exports/safe-local-storage.tgz"
+import { localStorage } from "/components/safe-local-storage.js";
+display(localStorage)
 ```
 
 ```js

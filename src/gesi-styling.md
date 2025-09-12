@@ -1,5 +1,4 @@
-```js
-md`# Survey Slate | Styling
+# Survey Slate | Styling
 
 _Exposing a method to take survey information and wrap it in HTML for display._
 `
@@ -10,8 +9,7 @@ md`
 <div style="max-width: ${width/1.75}px; margin: 30px 0; padding: 15px 30px; background-color: #e0ffff; font: 700 18px/24px sans-serif;">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
 
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
-`
-```
+
 
 ```js
 md`test credentials for demoEditor

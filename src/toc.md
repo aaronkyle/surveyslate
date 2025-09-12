@@ -1,5 +1,4 @@
-```js
-md`# TOC
+# TOC
 
 This notebook can generate a table of contents automatically for your notebook.
 
@@ -7,8 +6,7 @@ This notebook can generate a table of contents automatically for your notebook.
 import {toc} from "@bryangingechen/toc"
 \`\`\`
 
-Here’s an example:`
-```
+Here’s an example:
 
 ```js echo
 toc()

@@ -1,19 +1,23 @@
-```js
-md`# Copier
+# Copier
+<!-- https://observablehq.com/@mbostock/copier -->
+
 
 <p style="background: #fffced; box-sizing: border-box; padding: 10px 20px;">***Update Sep. 2021:*** *Buttons are now available as part of [**Observable Inputs**](/@observablehq/inputs), and you can use <code>navigator.clipboard.writeText</code> to copy text to the clipboard! This notebook will remain for history, but please upgrade.*</p>
 
 A button to help copy snippets of text to the clipboard. To use in your notebook:
 
+```
 ~~~js
 import {Copier} from "@mbostock/copier"
 ~~~
-
-${Copier("Copy import", {value: `import {Copier} from "@mbostock/copier"`})}`
 ```
 
+
+${Copier("Copy import", {value: `import {Copier} from "@mbostock/copier"`})}
+
+
 ```js
-Inputs.textarea({placeholder: "Now try pasting here."})
+view(Inputs.textarea({placeholder: "Now try pasting here."}))
 ```
 
 ```js echo
@@ -28,24 +32,24 @@ Copier([
 ], {label: "Snippets"})
 ```
 
-```js
-md`---
+---
 
-## Implementation`
-```
+## Implementation
 
 ```js echo
-{
+(() => {
   let count = 0;
   return Object.assign(
     html`<button>Click me to copy text!`,
-    {onclick: () => pbcopy(`Hello, world! ${++count}`)}
+    {
+      onclick: () => pbcopy(`Hello, world! ${++count}`)
+    }
   );
-}
+})()
 ```
 
 ```js echo
-pbcopy = text => navigator.clipboard.writeText(text)
+const pbcopy = text => navigator.clipboard.writeText(text)
 ```
 
 ```js echo
@@ -56,5 +60,5 @@ function Copier(content = "Copy code", options) {
 ```
 
 ```js echo
-copy = pbcopy // Deprecated alias
+const copy = pbcopy // Deprecated alias
 ```

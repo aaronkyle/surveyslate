@@ -78,7 +78,7 @@ function installStyles({ invalidation }) {
 
 // The code is base on @mootar's https://observablehq.com/@mootari/environment#isHosted
 
-isRunningStandalone = {
+const isRunningStandalone = {
   const baseURL = new URL(document.baseURI);
   return !(
     document.location.hostname.endsWith(".observableusercontent.com") ||
@@ -89,7 +89,7 @@ isRunningStandalone = {
 
 ```js
 // From https://github.com/hankchizljaw/modern-css-reset/blob/master/dist/reset.css
-reset = `/* Box sizing rules */
+const reset = `/* Box sizing rules */
 *,
 *::before,
 *::after {
@@ -166,7 +166,7 @@ select {
 ```
 
 ```js
-main = `:root {
+const main = `:root {
 	/* From Observable */
 	--max-width-page: 76rem;
 
@@ -252,7 +252,7 @@ substratum({ debug, invalidation })
 ```
 
 ```js
-viewof debug = Inputs.toggle({ label: "Debug", value: false })
+const  debug = view(Inputs.toggle({ label: "Debug", value: false }))
 ```
 
 ## Attributions

@@ -1,31 +1,33 @@
-```js
-md`# Composing viewofs with the _view_ literal
+# Composing viewofs with the _view_ literal
 
 Lets make custom UIs on Observable _easy_ by composing views.
 
 We wrap the amazing [hypertext literal](https://observablehq.com/@observablehq/htl) with a interceptor that looks for _[key, view]_ arguments. It uses the key to determine what field to map the view's value to in the container.
 
+```
 ~~~js
 viewof container = view\`<div>
   \${["child1", Inputs.text()]}
   \${["child2", Inputs.range()]}\`
 ~~~
+```
 
 The syntax of a 2 element array is inspired by [Object.entries(...)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries).
 
 By reusing the [hypertext literal](https://observablehq.com/@observablehq/htl) you are able to build your custom ui view using HTML, the best abstraction for layout. Because _view_ itself is a viewof, finally, we can hierarchically build up custom views from standard library views like [@observablehq/inputs](https://observablehq.com/@observablehq/inputs)
 
+```
 ~~~js
      import {view} from '@tomlarkworthy/view'
 ~~~
+````
 
 #### How to use the view-literal in UI development
 
 There is a substantial guide to [scaling UI development](https://observablehq.com/@tomlarkworthy/ui-development) which uses on this view literal quite heavily, and also has some weighty examples than the reference documentation here.
 
 
-`
-```
+
 
 Known Issues:
 - https://observablehq.com/@tomlarkworthy/dynamic-controls-example cannot bind to arrayView (DocumentFragment does not emit events)
@@ -34,8 +36,7 @@ Known Issues:
 toc()
 ```
 
-```js
-md`## Change log
+## Change log
 
 - 2021-03-03 *bindOneWay* has *onlyDefined* option added
 - 2021-12-09 Bugfix for *arrayView* not bubbling events.
@@ -45,19 +46,13 @@ md`## Change log
 - 2021-07-05, _array_ binding is now dynamic
 - 2021-06-21, added _singleton_, _array_ and _object_ collection support
 
-`
-```
 
-```js
-md`## About
+## About
 
 The original need for a UI composition helper was noted by [@mootari](/@mootari) in a [Github issue](https://github.com/observablehq/inputs/issues/73). [@mbostock](/@mbostock) wrote some very nice composition tactics and greatly clarified desired behavior and, finally, I added the template syntax and passthrough API. It took us several months to get to this!
-`
-```
 
-```js
-md`#### Demo`
-```
+
+#### Demo
 
 ```js echo
 viewof composite = view`<div style="display: flex; justify-content:space-between; ">
@@ -76,12 +71,10 @@ viewof composite = view`<div style="display: flex; justify-content:space-between
 `
 ```
 
-```js
-md`## Back-writable
+## Back-writable
 
 You can write the values back into the component by setting 'value'. This works for sub-components too, as long as everything is following [reusability guidlines](https://observablehq.com/@tomlarkworthy/ui-linter).
-`
-```
+
 
 ```js echo
 htl.html`<button onclick=${() => {
@@ -94,12 +87,10 @@ htl.html`<button onclick=${() => {
 }}> randomize composite`
 ```
 
-```js
-md`## Singletons
+## Singletons
 
   Sometimes you want to just wrap an existing view with some HTML. Use the spread operators for this
-`
-```
+
 
 ```js echo
 viewof singleton = view`<div><h4>My control</h4>${['...', Inputs.range()]}`
@@ -112,15 +103,12 @@ singleton
 ```js echo
 viewof singleton
 ```
-
-```js
-md`## Collections -- Arrays
+## Collections -- Arrays
 
   You can bind an array of views to a single parameter with _\[string, ArrayOfViews]_. 
 
 If you supply a third argument, a build function of _data => view_ the list can be dynamically resized  _\[label, ArrayOfViews, (data) => view]_
-`
-```
+
 
 ```js echo
 viewof arrayCollection = view`<div>${[
@@ -133,9 +121,7 @@ viewof arrayCollection = view`<div>${[
 viewof arrayCollection.elements
 ```
 
-```js
-md`Array bindings are mutable, you can write DOM components to the viewof layer`
-```
+Array bindings are mutable, you can write DOM components to the viewof layer
 
 ```js echo
 Inputs.button("Add a slider", {
@@ -158,12 +144,10 @@ arrayCollection.elements
 arrayCollection
 ```
 
-```js
-md`### Dynamic Arrays
+### Dynamic Arrays
 
 If you provide a rowBuilder function as the third argument the view will build new UI elements in response to reassignments at the data layer. It's decribed in detail in [@tomlarkworthy/ui-development#dynamic_lists](https://observablehq.com/@tomlarkworthy/ui-development#dynamic_lists)
-`
-```
+
 
 ```js echo
 viewof dynamicArrayCollection = view`<div>${[
@@ -215,12 +199,10 @@ viewof objectCollection = view`${[
 objectCollection
 ```
 
-```js
-md`### Dynamic Objects
+### Dynamic Objects
 
 If you supply a view builder, _(data) => view_ as the third argument, you can dynamically add and remove entries to your view by assigning the a whole new object.
-`
-```
+
 
 ```js echo
 viewof dynamicObjectCollection = view`<div>${[
@@ -269,14 +251,12 @@ Inputs.button("Delete a random key", {
 viewof dynamicObjectCollection.value
 ```
 
-```js
-md`## Hidden views
+## Hidden views
 
   If you wish to bind a value to the view but not add it to the DOM, prefix the label with "_". This can be useful for bringing another view's value into the model without pruning its currently location.
 
 known issues: does not work well with singletons.|
-`
-```
+
 
 ```js echo
 viewof hiddenView = view`<div><h4>My hidden control</h4>${[
@@ -292,20 +272,16 @@ viewof hiddenView = view`<div><h4>My hidden control</h4>${[
 }
 ```
 
-```js
-md`## Extras`
-```
+## Extras
 
-```js
-md`### Cautious Wrapper
+### Cautious Wrapper
 
 You might not want changes to propagate immediately. For this usecase wrap with _cautious_.
 
 *Contributed by [@mootari](/@mootari) and [@jobleonard](/@jobleonard). _isTrusted_ backwriting bypass yoinked from [@mbostock](/@mbostock) in a [talk thread](https://talk.observablehq.com/t/what-is-the-best-way-to-make-range-slider-update-only-on-release/5112/4). Name of feature yoinked from [@tmcw/inputs](https://observablehq.com/@tmcw/inputs/2)*
 
 By default it wraps the inner node with a SPAN. This is usually the safest thing to do but not always, you can turn off this behaviour with the option _nospan: false_. Note: this will use the topmost node to hold the value.
-`
-```
+
 
 ```js
 function cautious(
@@ -357,9 +333,7 @@ function cautious(
 }
 ```
 
-```js
-md`#### Cautious demo`
-```
+#### Cautious demo
 
 ```js
 cautiousNestedDemo
@@ -393,8 +367,7 @@ viewof cautiousNestedDemo = view`
 `
 ```
 
-```js
-md`### bindOneWay
+### bindOneWay
 
 As views become composite heirarchies, its useful to transform their values as you connect their parts unidirectionally.
 
@@ -404,8 +377,6 @@ Transform allows you to alter the data as it passed between from source to targe
 
 The signature follows Observables precedence (https://github.com/observablehq/inputs#bind)
 
-`
-```
 
 ```js
 viewof slider = Inputs.range([0, 10], { value: 0, label: "Try increasing me" })

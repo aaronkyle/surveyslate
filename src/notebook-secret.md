@@ -1,49 +1,49 @@
-```js
-md`# How to password protect a Notebook secret
+# How to password protect a Notebook secret
 
 I sometimes wish to hide a secret in a public notebook, for example, a [service account to run billable cloud commands](https://observablehq.com/@endpointservices/cache-bigquery). This notebook provides functionality to generate a password-protected encrypted payload, which is safe to save in a public notebook.
 
+```
 ~~~js
 import {encrypt} from '@endpointservices/notebook-secret'
 ~~~
+```
 
 Also provided is a _decrypt_ UI control, which can read an encrypted payload and prompt the user for a password. If the correct password is provided the value resolves to the original secret. 
 
+```
 ~~~js
 import {decrypt} from '@endpointservices/notebook-secret'
 ~~~
+```
 
 This is allows the notebook author to run some privileged commands that other viewers cannot. If you want regular viewers also to be able to run privileged operations, consider using [serverless secrets](https://observablehq.com/@endpointservices/how-to-keep-an-api-key-secret-in-a-public-notebook) where the secret is never exposed to a client browser.
 
 If you want to encode a secret for programatic use, use decode instead
 
+```
 ~~~js
 import {decode} from '@endpointservices/notebook-secret'
 ~~~
-`
 ```
 
-```js
-md`## Step 1, generate an encrypted payload
+
+## Step 1, generate an encrypted payload
 
 Configure the password and the secret
-`
+
+
+```js
+const pass = view(html`${Text({"label":"Password"})}`)
 ```
 
 ```js
-viewof pass = html`${Text({"label":"Password"})}`
+const secret = view(Textarea({label: "Secret", rows: 6}))
 ```
 
-```js
-viewof secret = Textarea({label: "Secret", rows: 6})
-```
-
-```js
-md`This generates a encrypted payload which is safe to put in a public place`
-```
+This generates a encrypted payload which is safe to put in a public place
 
 ```js echo
-encrypt = async ({
+const encrypt = async ({
   secret, password
 } = {}) => {
   const salt = window.crypto.getRandomValues(new Uint8Array(12));
@@ -67,18 +67,16 @@ encrypt = async ({
 ```
 
 ```js
-encryptedSecret = encrypt({
+const encryptedSecret = encrypt({
   password: pass,
   secret
 })
 ```
 
-```js
-md`You will probably need to pass this to the _decrypt_ function so you can click the following button to copy it to the clipboard`
-```
+You will probably need to pass this to the _decrypt_ function so you can click the following button to copy it to the clipboard
 
 ```js
-toClipboard = {
+const toClipboard = {
   const msg = html`Copy encrypted payload`;
   
   function click() {
@@ -98,43 +96,38 @@ toClipboard = {
 }
 ```
 
-```js
-md`## Step 2, create a _decrypt_ control
+## Step 2, create a _decrypt_ control
 
 The _decrypt_ UI control takes an encrypted payload as an argument, and prompts the reader for a password. Only when the password is correct, the control can resolve a value which is the decrypted secret.
 
+```
 ~~~js
 viewof decryptedSecret = decrypt(<encrypted payload>)
 ~~~
-`
 ```
 
-```js
-md`In the following example the password is "12345"`
-```
+In the following example the password is "12345"
 
 ```js echo
-viewof decryptedSecret = decrypt({
+const decryptedSecret = view(decrypt({
   "name": "AES-GCM",
   "salt": "R6IPpW0u06A+sObp",
   "iv": "8Qo+fJwwOUBz+UuU",
   "ciphertext": "D2Hw1RK41fNnYL3MEbJVSdjkQJK2BfjV4hYwavJqdjsbFl5G8QJQUANHri1hE2eLvADXrkFp8tRt7Yk="
-})
+}))
 ```
 
 ```js
-html`<a href=${decryptedSecret}>${decryptedSecret}</a>`
-```
+html`<a href=${decryptedSecret}>${decryptedSecret}</a>
 
-```js
-md`### Implementation Notes
+### Implementation Notes
 
 We use "PBKDF2" to derive a high quality key from a low quality one like a user password.
 
-We use "AES-GCM" to encrypt the secret payload, which is a notable for being an [authenticated encryption](https://en.wikipedia.org/wiki/Authenticated_encryption) algorithm that is available in the browser.
-
-`
+We use "AES-GCM" to encrypt the secret payload, which is a notable for being an [authenticated encryption](https://en.wikipedia.org/wiki/Authenticated_encryption) algorithm that is available in the browser.`
 ```
+
+
 
 ```js
 function decrypt(encryptedSecret) {
@@ -192,7 +185,7 @@ async function decode(password, encryptedSecret) {
 ```
 
 ```js
-deriveKey = async (password, salt) => {
+const deriveKey = async (password, salt) => {
   const material = await window.crypto.subtle.importKey(
       "raw", 
       enc.encode(password), 
@@ -216,33 +209,35 @@ deriveKey = async (password, salt) => {
 ```
 
 ```js
-enc = new TextEncoder()
+const enc = new TextEncoder()
 ```
 
 ```js
-encode64 = (buffer) => btoa(String.fromCharCode(...new Uint8Array(buffer)));
+const encode64 = (buffer) => btoa(String.fromCharCode(...new Uint8Array(buffer)));
 ```
 
 ```js
-decode64 = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+const decode64 = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0))
 ```
 
 ```js
-import {html} from '@observablehq/htl'
+//import {html} from '@observablehq/htl'
 ```
 
 ```js
-import {Textarea, Text} from "@observablehq/inputs"
+//import {Textarea, Text} from "@observablehq/inputs"
+import {Textarea, Text} from "./inputs.js"
 ```
 
 ```js
-import {pbcopy} from "@mbostock/pbcopy"
+//import {pbcopy} from "@mbostock/pbcopy"
+import {pbcopy} from "./copier.js"
 ```
 
 ```js
-import { footer } from "@endpointservices/footer-with-backups"
+//import { footer } from "@endpointservices/footer-with-backups"
 ```
 
 ```js
-footer
+//footer
 ```

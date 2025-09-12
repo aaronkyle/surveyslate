@@ -1,4 +1,5 @@
-# 01. Inputs (Refactored)
+# Inputs (Original)
+
 <!--
 Jeremy Ashkenas
 https://observablehq.com/@jashkenas/inputs
@@ -61,9 +62,8 @@ Wares we have on offer:
 
 -->
 
-
 ```js
-// ADDITION: Used to support the md template literal
+//ADDING: Needed to render Markdown template literal
 //https://observablehq.observablehq.cloud/pangea/party/markdown-it
 import markdownit from "markdown-it";
 import matter from "npm:gray-matter";
@@ -257,7 +257,7 @@ import {select} from "@jashkenas/inputs"
 
 ```js echo
 // invalidbinding
-const dd = view(select(["Spring", "Summer", "Fall", "Winter"]))
+const dd = view(() => select(["Spring", "Summer", "Fall", "Winter"]))
 ```
 
 ```js echo
@@ -265,7 +265,7 @@ dd
 ```
 
 ```js echo
-const dd1 = view(select({
+const dd1 = view(() => select({
   title: "Stooges",
   description: "Please pick your favorite stooge.",
   options: ["Curly", "Larry", "Moe", "Shemp"],
@@ -278,7 +278,7 @@ dd1
 ```
 
 ```js echo
-const dd2 = view(select({
+const dd2 = view(() => select({
   description: "As a child, which vegetables did you refuse to eat?",
   options: ["Spinach", "Broccoli", "Brussels Sprouts", "Cauliflower", "Kale", "Turnips", "Green Beans", "Asparagus"],
   multiple: true
@@ -290,28 +290,25 @@ dd2
 ```
 
 ```js echo
-const dd3raw = select({
-  title: "How are you feeling today?",
-  options: [
-    { label: "🤷", value: "shrug" },
-    { label: "😂", value: "tears-of-joy" },
-    { label: "😍", value: "loving-it" },
-    { label: "🤔", value: "hmmm" },
-    { label: "😱", value: "yikes", disabled: true },
-    { label: "😈", value: "mischievous" },
-    { label: "💩", value: "poo" }
-  ],
-  value: "hmmm"
-});
-
-dd3raw.input.style.fontSize = "30px";
-dd3raw.input.style.marginTop = "8px";
+const dd3 = view({
+  const dd3 = select({
+    title: "How are you feeling today?",
+    options: [
+      { label: "🤷", value: "shrug" },
+      { label: "😂", value: "tears-of-joy" },
+      { label: "😍", value: "loving-it" },
+      { label: "🤔", value: "hmmm" },
+      { label: "😱", value: "yikes", disabled: true },
+      { label: "😈", value: "mischievous" },
+      { label: "💩", value: "poo" }
+    ],
+    value: "hmmm"
+  });
+  dd3.input.style.fontSize = "30px";
+  dd3.input.style.marginTop = "8px";
+  return dd3;
+})
 ```
-
-```js
-const dd3 = view(dd3raw);
-```
-
 
 
 
@@ -330,34 +327,40 @@ function select(config = {}) {
     multiple,
     size,
     options
-  } = Array.isArray(config) ? {options: config} : config;
-  options = options.map((o) =>
-    typeof o === "object" ? o : {value: o, label: o}
+  } = Array.isArray(config) ? { options: config } : config;
+  options = options.map(o =>
+    typeof o === "object" ? o : { value: o, label: o }
   );
   const form = input({
     type: "select",
     title,
     description,
     submit,
-    attributes: {disabled},
-    getValue: (input) => {
+    attributes: { disabled },
+    getValue: input => {
       const selected = Array.prototype.filter
-        .call(input.options, (i) => i.selected)
-        .map((i) => i.value);
+        .call(input.options, i => i.selected)
+        .map(i => i.value);
       return multiple ? selected : selected[0];
     },
-    form: html`<form>
-        <select name="input" multiple=${multiple} size=${multiple ? size || options.length : undefined}>
-          ${options.map(
-            ({value, label, disabled}) =>
-              html`<option value=${value} selected=${
-                Array.isArray(formValue)
-                  ? formValue.includes(value)
-                  : formValue === value
-              } disabled=${disabled}>${label}</option>`
+    form: html`
+      <form>
+        <select name="input" ${
+          multiple ? `multiple size="${size || options.length}"` : ""
+        }>
+          ${options.map(({ value, label,disabled }) =>
+            Object.assign(html`<option>`, {
+              value,
+              selected: Array.isArray(formValue)
+                ? formValue.includes(value)
+                : formValue === value,
+              disabled : disabled ? disabled : false,
+              textContent: label
+            })
           )}
         </select>
-      </form>`
+      </form>
+    `
   });
   form.output.remove();
   return form;
@@ -375,7 +378,7 @@ import {autoSelect} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const as = view(autoSelect({
+const as = view(() => autoSelect({
   options: usa.objects.states.geometries.map(d => d.properties.name),
   placeholder: "Search for a US state . . ."
 }))
@@ -392,19 +395,48 @@ function autoSelect(config = {}) {
     title,
     description,
     disabled,
+    autocomplete = "off",
     placeholder,
+    size,
     options,
-    // TODO size
-    // TODO autocomplete = "off"
-    // TODO list = "options"
-  } = Array.isArray(config) ? {options: config} : config;
-  return Inputs.text({
-    value,
-    label: title === undefined ? description : title,
-    disabled,
-    placeholder,
-    datalist: options
+    list = "options"
+  } = Array.isArray(config) ? { options: config } : config;
+
+  const optionsSet = new Set(options);
+
+  const form = input({
+    type: "text",
+    title,
+    description,
+    attributes: { disabled },
+    action: fm => {
+      fm.value = fm.input.value = value || "";
+      fm.onsubmit = e => e.preventDefault();
+      fm.input.oninput = function(e) {
+        e.stopPropagation();
+        fm.value = fm.input.value;
+        if (!fm.value || optionsSet.has(fm.value))
+          fm.dispatchEvent(new CustomEvent("input"));
+      };
+    },
+    form: html`
+      <form>
+         <input name="input" type="text" autocomplete="off" 
+          placeholder="${placeholder ||
+            ""}" style="font-size: 1em;" list=${list}>
+          <datalist id="${list}">
+              ${options.map(d =>
+                Object.assign(html`<option>`, {
+                  value: d
+                })
+              )}
+          </datalist>
+      </form>
+      `
   });
+
+  form.output.remove();
+  return form;
 }
 ```
 
@@ -420,11 +452,11 @@ import {color} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const c = view(color())
+const c = view(() => color())
 ```
 
 ```js
-const c1 = view(color({
+const c1 = view(() => color({
   value: "#0000ff",
   title: "Background Color",
   description: "This color picker starts out blue"
@@ -463,7 +495,7 @@ import {coordinates} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const coords1 = view(coordinates())
+const coords1 = view(() => coordinates())
 ```
 
 ```js echo
@@ -471,7 +503,7 @@ coords1
 ```
 
 ```js echo
-const coords2 = view(coordinates({
+const coords2 = view(() => coordinates({
   title: "Hometown",
   description: "Enter the coordinates of where you were born",
   value: [-122.27, 37.87],
@@ -488,69 +520,36 @@ function coordinates(config = {}) {
   const { value = [], title, description, submit } = Array.isArray(config)
     ? { value: config }
     : config;
-
-  let [lon = "", lat = ""] = value;
-
-  const lonEl = document.createElement("input");
-  lonEl.type = "number";
-  lonEl.name = "lon";
-  lonEl.min = -180;
-  lonEl.max = 180;
-  lonEl.step = "any";
-  lonEl.value = lon;
-  lonEl.style.width = "80px";
-
-  const latEl = document.createElement("input");
-  latEl.type = "number";
-  latEl.name = "lat";
-  latEl.min = -90;
-  latEl.max = 90;
-  latEl.step = "any";
-  latEl.value = lat;
-  latEl.style.width = "80px";
-
-  const form = document.createElement("form");
-  const wrapper = document.createElement("div");
-  wrapper.style.display = "flex";
-  wrapper.style.gap = "10px";
-
-  wrapper.appendChild(lonEl);
-  wrapper.appendChild(latEl);
-  form.appendChild(wrapper);
-
-  if (title) {
-    const label = document.createElement("div");
-    label.style.fontWeight = "bold";
-    label.textContent = title;
-    form.prepend(label);
-  }
-
-  if (description) {
-    const desc = document.createElement("div");
-    desc.style.fontStyle = "italic";
-    desc.textContent = description;
-    form.appendChild(desc);
-  }
-
-  form.input = [lonEl, latEl];
-  form.value = [
-    lonEl.valueAsNumber || null,
-    latEl.valueAsNumber || null
-  ];
-
-  const update = () => {
-    const lonVal = lonEl.valueAsNumber;
-    const latVal = latEl.valueAsNumber;
-    form.value = [
-      isNaN(lonVal) ? null : lonVal,
-      isNaN(latVal) ? null : latVal
-    ];
-    form.dispatchEvent(new CustomEvent("input"));
-  };
-
-  lonEl.addEventListener("input", update);
-  latEl.addEventListener("input", update);
-
+  let [lon, lat] = value;
+  lon = lon != null ? lon : "";
+  lat = lat != null ? lat : "";
+  const lonEl = html`<input name="input" type="number" autocomplete="off" min="-180" max="180" style="width: 80px;" step="any" value="${lon}" />`;
+  const latEl = html`<input name="input" type="number" autocomplete="off" min="-90" max="90" style="width: 80px;" step="any" value="${lat}" />`;
+  const form = input({
+    type: "coordinates",
+    title,
+    description,
+    submit,
+    getValue: () => {
+      const lon = lonEl.valueAsNumber;
+      const lat = latEl.valueAsNumber;
+      return [isNaN(lon) ? null : lon, isNaN(lat) ? null : lat];
+    },
+    form: html`
+      <form>
+        <label style="display: inline-block; font: 600 0.8rem sans-serif; margin: 6px 0 3px;">
+          <span style="display: inline-block; width: 70px;">Longitude:</span>
+          ${lonEl}
+        </label>
+        <br>
+        <label style="display: inline-block; font: 600 0.8rem sans-serif; margin: 0 0 6px;">
+          <span style="display: inline-block; width: 70px;">Latitude:</span>
+          ${latEl}
+        </label>
+      </form>
+    `
+  });
+  form.output.remove();
   return form;
 }
 ```
@@ -575,7 +574,7 @@ import {worldMapCoordinates} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const worldMap1 = view(worldMapCoordinates([-122.27, 37.87]))
+const worldMap1 = view(() => worldMapCoordinates([-122.27, 37.87]))
 ```
 
 ```js echo
@@ -667,7 +666,7 @@ import {usaMapCoordinates} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const usaMap1 = view(usaMapCoordinates([-122.27, 37.87]))
+const usaMap1 = view(() => usaMapCoordinates([-122.27, 37.87]))
 ```
 
 ```js echo
@@ -675,7 +674,7 @@ usaMap1
 ```
 
 ```js echo
-const usaMap2 = view(usaMapCoordinates({
+const usaMap2 = view(() => usaMapCoordinates({
   title: "A Mini Map",
   description: "Defaults to New York City",
   width: 200,
@@ -776,12 +775,12 @@ import {date} from "@jashkenas/inputs"
 ~~~`
 ```
 
-```js echo
-const d = view(date())
+```js
+const d = View(() => date())
 ```
 
-```js echo
-const d1 = view(date({
+```js
+const d1 = view(() => date({
   title: "2017", 
   min: "2017-01-01",
   max: "2017-12-31",
@@ -790,7 +789,7 @@ const d1 = view(date({
 }))
 ```
 
-```js echo
+```js
 function date(config = {}) {
   const { min, max, value, title, description, disabled, display } =
     typeof config === "string" ? { value: config } : config;
@@ -817,7 +816,7 @@ import {time} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const t = view(time())
+const t = view(() => time())
 ```
 
 ```js echo
@@ -825,7 +824,7 @@ t
 ```
 
 ```js echo
-const t1 = view(time({
+const t1 = view(() => time({
   title: "Afternoon",
   min: "12:00:00",
   max: "23:59:59",
@@ -865,11 +864,11 @@ const fileDemo = md`---
 ```
 
 ```js echo
-const e = view(file())
+const e = view(() => file())
 ```
 
-```js echo
-const e1 = view(file({
+```js
+const e1 = view(() => file({
   title: "Photographs",
   description: "Only .jpg files are allowed in this example. Choose some images, and they’ll appear in the cell below.",
   accept: ".jpg",
@@ -878,7 +877,7 @@ const e1 = view(file({
 ```
 
 
-```js echo
+```js
 //added
 import { Files } from "@observablehq/stdlib";
 ```
@@ -928,11 +927,11 @@ import {text} from "@jashkenas/inputs"
 ```
 
 ```js
-const f = view(text())
+const f = view(() => text())
 ```
 
 ```js
-const f1 = view(text({title: "A Text Input", placeholder: "Placeholder text", description: "Note that text inputs don’t show output on the right"}))
+const f1 = view(() => text({title: "A Text Input", placeholder: "Placeholder text", description: "Note that text inputs don’t show output on the right"}))
 ```
 
 ```js
@@ -940,7 +939,7 @@ f1
 ```
 
 ```js
-const f2 = view(text({placeholder: "Placeholder text", description: "This input only changes value on submit", submit: "Go"}))
+const f2 = view(() => text({placeholder: "Placeholder text", description: "This input only changes value on submit", submit: "Go"}))
 ```
 
 ```js
@@ -948,7 +947,6 @@ f2
 ```
 
 ```js
-// differently refactored
 function text(config = {}) {
   const {
     value,
@@ -997,7 +995,7 @@ import {textarea} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const g = view(textarea())
+const g = view(() =>textarea())
 ```
 
 ```js echo
@@ -1005,7 +1003,7 @@ g
 ```
 
 ```js echo
-const g1 = view(textarea({
+const g1 = view(() =>textarea({
   title: "Your Great American Novel", 
   placeholder: "Insert story here...", 
   spellcheck: true,
@@ -1019,75 +1017,6 @@ const g1 = view(textarea({
 g1
 ```
 
-```js echo
-function textarea(config = {}) {
-  const {
-    value = "",
-    title,
-    description,
-    autocomplete,
-    cols = 45,
-    rows = 3,
-    width,
-    height,
-    maxlength,
-    placeholder,
-    spellcheck,
-    wrap,
-    disabled
-  } = typeof config === "string" ? { value: config } : config;
-
-  const container = document.createElement("div");
-  const textarea = document.createElement("textarea");
-
-  // Apply attributes
-  if (autocomplete != null) textarea.autocomplete = autocomplete;
-  if (cols != null) textarea.cols = cols;
-  if (rows != null) textarea.rows = rows;
-  if (maxlength != null) textarea.maxLength = maxlength;
-  if (placeholder != null) textarea.placeholder = placeholder;
-  if (spellcheck != null) textarea.spellcheck = spellcheck;
-  if (wrap != null) textarea.wrap = wrap;
-  if (disabled != null) textarea.disabled = disabled;
-  if (width != null) textarea.style.width = width;
-  if (height != null) textarea.style.height = height;
-
-  textarea.value = value;
-
-  if (title) {
-    const label = document.createElement("div");
-    label.style.fontWeight = "bold";
-    label.textContent = title;
-    container.appendChild(label);
-  }
-
-  container.appendChild(textarea);
-
-  if (description) {
-    const desc = document.createElement("div");
-    desc.style.fontStyle = "italic";
-    desc.textContent = description;
-    container.appendChild(desc);
-  }
-
-  container.value = textarea.value;
-
-  textarea.addEventListener("input", () => {
-    container.value = textarea.value;
-    container.dispatchEvent(new CustomEvent("input"));
-  });
-
-  Object.defineProperty(container, "input", {
-    get: () => textarea
-  });
-
-  return container;
-}
-```
-
-<!--
-```
-ORIGINAL
 ```js
 function textarea(config = {}) {
   const {
@@ -1132,10 +1061,8 @@ function textarea(config = {}) {
   return form;
 }
 ```
-```
--->
 
-```js echo
+```js
 const radioDemo = md`---
 ## Radio Buttons
 
@@ -1144,16 +1071,16 @@ import {radio} from "@jashkenas/inputs"
 ~~~`
 ```
 
-```js echo
-const r = view(radio(["Lust", "Gluttony", "Greed", "Sloth", "Wrath", "Envy", "Pride"]))
+```js
+const r = view(() =>radio(["Lust", "Gluttony", "Greed", "Sloth", "Wrath", "Envy", "Pride"]))
 ```
 
 ```js
 r
 ```
 
-```js echo
-const r1 = view(radio({
+```js
+const r1 = view(() =>radio({
   title: 'Contact Us',
   description: 'Please select your preferred contact method',
   options: [
@@ -1171,22 +1098,49 @@ r1
 
 ```js
 function radio(config = {}) {
-  const {
-    value,
+  let {
+    value: formValue,
     title,
     description,
+    submit,
     options,
-    disabled,
-    // TODO submit
-  } = Array.isArray(config) ? {options: config} : config;
-  return Inputs.radio(options, {
-    value,
-    label: title === undefined ? description : title,
-    format: o => typeof o === "object" ? o.label : o,
-    keyof: o => typeof o === "object" ? o.label : o,
-    valueof: o => typeof o === "object" ? o.value : o,
-    disabled: disabled || options.filter(o => typeof o === "object" && o.disabled).map(o => o.value)
+    disabled
+  } = Array.isArray(config) ? { options: config } : config;
+  options = options.map(o =>
+    typeof o === "string" ? { value: o, label: o } : o
+  );
+  const form = input({
+    type: "radio",
+    title,
+    description,
+    submit,
+    getValue: input => {
+      if (input.checked) return input.value;
+      const checked = Array.prototype.find.call(input, radio => radio.checked);
+      return checked ? checked.value : undefined;
+    },
+    form: html`
+      <form>
+        ${options.map(({ value, label }, i) => {
+          const input = html`<input type=radio name=input ${
+            value === formValue ? "checked" : ""
+          } style="vertical-align: top; ${
+            i === 0 ? `margin-left: 1px;` : ``
+          }" />`;
+          input.setAttribute("value", value);
+          if (disabled) input.setAttribute("value", disabled);
+          const tag = html`
+          <label style="display: inline-block; margin: 5px 10px 3px 0; font-size: 0.85em;">
+           ${input}
+           ${label}
+          </label>`;
+          return tag;
+        })}
+      </form>
+    `
   });
+  form.output.remove();
+  return form;
 }
 ```
 
@@ -1200,7 +1154,7 @@ import {checkbox} from "@jashkenas/inputs"
 ```
 
 ```js echo
-const ch = view(checkbox(["Lust", "Gluttony", "Greed", "Sloth", "Wrath", "Envy", "Pride"]))
+const ch = view(() =>checkbox(["Lust", "Gluttony", "Greed", "Sloth", "Wrath", "Envy", "Pride"]))
 ```
 
 ```js echo
@@ -1208,7 +1162,7 @@ ch
 ```
 
 ```js echo
-const ch1 = view(checkbox({
+const ch1 = view(() =>checkbox({
   title: "Colors",
   description: "Please select your favorite colors",
   options: [
@@ -1230,7 +1184,7 @@ ch1
 ```
 
 ```js echo
-const ch3 = view(checkbox({
+const ch3 = view(() =>checkbox({
   description: "Just a single checkbox to toggle",
   options: [{ value: "toggle", label: "On" }],
   value: "toggle"
@@ -1241,25 +1195,52 @@ const ch3 = view(checkbox({
 ch3
 ```
 
-```js echo
+```js
 function checkbox(config = {}) {
   let {
-    value,
+    value: formValue,
     title,
     description,
+    submit,
     disabled,
-    options,
-    // TODO submit
-    // TODO false / value when only a single option?
-  } = Array.isArray(config) ? {options: config} : config;
-  return Inputs.checkbox(options, {
-    value,
-    label: title === undefined ? description : title,
-    format: o => typeof o === "object" ? o.label : o,
-    keyof: o => typeof o === "object" ? o.label : o,
-    valueof: o => typeof o === "object" ? o.value : o,
-    disabled: disabled || options.filter(o => typeof o === "object" && o.disabled).map(o => o.value)
+    options
+  } = Array.isArray(config) ? { options: config } : config;
+  options = options.map(o =>
+    typeof o === "string" ? { value: o, label: o } : o
+  );
+  const form = input({
+    type: "checkbox",
+    title,
+    description,
+    submit,
+    getValue: input => {
+      if (input.length)
+        return Array.prototype.filter
+          .call(input, i => i.checked)
+          .map(i => i.value);
+      return input.checked ? input.value : false;
+    },
+    form: html`
+      <form>
+        ${options.map(({ value, label }, i) => {
+          const input = html`<input type=checkbox name=input ${
+            (formValue || []).indexOf(value) > -1 ? "checked" : ""
+          } style="vertical-align: top; ${
+            i === 0 ? `margin-left: 1px;` : ``
+          }" />`;
+          input.setAttribute("value", value);
+          if (disabled) input.setAttribute("disabled", disabled);
+          const tag = html`<label style="display: inline-block; margin: 5px 10px 3px 0; font-size: 0.85em;">
+           ${input}
+           ${label}
+          </label>`;
+          return tag;
+        })}
+      </form>
+    `
   });
+  form.output.remove();
+  return form;
 }
 ```
 
@@ -1273,7 +1254,7 @@ import {number} from "@jashkenas/inputs"
 ```
 
 ```js
-const h = view(number())
+const h = view(() => number())
 ```
 
 ```js
@@ -1281,7 +1262,7 @@ h
 ```
 
 ```js
-const h1 = view(number({placeholder: "13+", title: "Your Age", submit: true}))
+const h1 = view(() => number({placeholder: "13+", title: "Your Age", submit: true}))
 ```
 
 ```js

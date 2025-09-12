@@ -53,8 +53,19 @@ function md(strings) {
 
 
 ```js echo
-signature(signature, {
-  description: md`
+const __optionsList = Object.entries({
+  description: 'Rendered as Markdown if a string, otherwise passed through.',
+  example:  'Single value or array of values. String values are formatted as Javascript code, everything else gets passed through.',
+  name: 'Anchor name to link to. Defaults to function name.',
+  scope: 'Class name to scope CSS selectors. Defaults to unique string.',
+  css: 'The theme CSS. If `scope` is used, the CSS should start every selector with `:scope`. Defaults to `signature_theme`.',
+  open: 'Boolean that controls the toggle state of the details wrapper. Set to `null` to disable collapsing.',
+  tests: 'Object map of test functions, keyed by test name. Each function receives `assert(condition, assertion)`   as argument. Async functions are supported.',
+  runTests: 'Boolean or Promise, controls test execution. Set to `false` to disable test output.',
+  testRunner: 'Executes tests and builds results markup. See [`defaultTestRunner()`](#defaultTestRunner) for details.',
+}).map(([k,v]) => `- \`${k}:\` ${v}\n`).join('');
+
+const __desc = `
 Documentation template for functions. Extracts the function head from the function passed to **\`fn\`**:
 - If \`fn\` is a named function, the head is returned as written. If \`name\` was set, it will replace the function name.
 - If \`fn\` is an arrow function, the declaration will be reformatted and the \`function\` keyword injected. If \`name\` was set, it will be injected as the function name.
@@ -63,17 +74,11 @@ Documentation template for functions. Extracts the function head from the functi
 **Note:** Javascript may infer the function name from the variable to which a function was first assigned.
 
 All settings are optional. Available **\`options\`**:
-${Object.entries({
-      description: 'Rendered as Markdown if a string, otherwise passed through.',
-      example:  'Single value or array of values. String values are formatted as Javascript code, everything else gets passed through.',
-      name: 'Anchor name to link to. Defaults to function name.',
-      scope: 'Class name to scope CSS selectors. Defaults to unique string.',
-      css: 'The theme CSS. If \`scope\` is used, the CSS should start every selector with \`:scope\`. Defaults to \`signature_theme\`.',
-      open: 'Boolean that controls the toggle state of the details wrapper. Set to \`null\` to disable collapsing.',
-      tests: 'Object map of test functions, keyed by test name. Each function receives \`assert(condition, assertion)\`   as argument. Async functions are supported.',
-      runTests: 'Boolean or Promise, controls test execution. Set to \`false\` to disable test output.',
-      testRunner: 'Executes tests and builds results markup. See [\`defaultTestRunner()\`](#defaultTestRunner) for details.',
-    }).map(([k,v]) => `- \`${k}:\` ${v}\n`)}`,
+${__optionsList}
+`;
+
+signature(signature, {
+  description: md`${__desc}`,
   example: [`
 // Basic use
 signature(myUsefulFunc, {
@@ -241,11 +246,12 @@ return code(myCss, {
 
 ```js echo
 function code(text, {type = 'javascript', trim = true, className = 'code'} = {}) {
-  const out = md`\`\`\`${type}\n${!trim ? text : text.replace(/^\s*\n|\s+?$/g, '')}\n\`\`\``;
-  if(className) out.classList.add('code');
-  return out;  
+  const body = !trim ? text : text.replace(/^\s*\n|\s+?$/g, '');
+  const out = md`\`\`\`${type}\n${body}\n\`\`\``;
+  const pre = out.querySelector && out.querySelector('pre');
+  if (pre && className) pre.classList.add(className);
+  return out;
 }
-
 ```
 
 ```js echo
