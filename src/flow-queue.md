@@ -1,9 +1,9 @@
 # Convert cell computation to a Promise with cell *flowQueue*
 
 
-~~~js
-import {flowQueue} from '@tomlarkworthy/flow-queue'
-~~~
+      ~~~js
+      import {flowQueue} from '@tomlarkworthy/flow-queue'
+      ~~~
 
 ${await FileAttachment("flowQuery@1.svg").image({style: 'width:640px; max-width:100%'})}
 
@@ -17,41 +17,45 @@ The following video demonstrates its use during development of a webhook. Note a
 
 In other words, __*flowQueue* provides dataflow programming with a functional interface__. Consider the following
 
-~~~js
-aysnc doWork(arg) {
-  const r1 = await step1(arg)
-  const r2 = await step2(r1);
-  return r2;
-}
-~~~
+      ~~~js
+      aysnc doWork(arg) {
+        const r1 = await step1(arg)
+        const r2 = await step2(r1);
+        return r2;
+      }
+      ~~~
 
 Using a *flowQueue* you can spread the asynchronous steps into different cells. To spread *doWork* across cells we first create a *flowQueue*, whose messages are *doWork*'s args.
 
-~~~js
-viewof head = flowQueue()
-~~~
+    ~~~js
+    viewof head = flowQueue()
+    ~~~
 
 The refactored version of *doWork* will forward its *arg* to the *flowQueue* and returns the promise. (note: viewof)
-~~~js
-doWork = (arg) => viewof head.send(arg)
-~~~
+
+      ~~~js
+      doWork = (arg) => viewof head.send(arg)
+      ~~~
 
 Now we unroll the body of *doWork* across several cells. Cell *r1* calls function *step1* and makes a dataflow dependency to *head* of the *flowQueue*. So when *head* updates, *r1* will too.
-~~~js
-r1 = step1(head)
-~~~
+
+    ~~~js
+    r1 = step1(head)
+    ~~~
 
 The next step *r2* depends on the previous step.
-~~~js
-r2 = step2(r1)
-~~~
+
+    ~~~js
+    r2 = step2(r1)
+    ~~~
 
 To return a result, we call *resolve* to the *flowQueue*. This will resolve the *send* promise earlier, and allow the next  to run. (note: viewof)
-~~~js
-{
-  viewof head.resolve(r2)
-}
-~~~
+
+    ~~~js
+    {
+      viewof head.resolve(r2)
+    }
+    ~~~
 
 ### Optimizations
 
@@ -70,7 +74,7 @@ Every *send* should lead to a call to *resolve*. If you call *resolve* an extra 
 2022-04-13 Bugfix: queue was not recovering after timeout properly.
 
 ```js echo
-flowQueue = ({ name, timeout_ms = 1000 } = {}) => {
+const flowQueue = ({ name, timeout_ms = 1000 } = {}) => {
   let runningResolve = undefined;
   let runningReject = undefined;
   const q = [];
@@ -144,15 +148,15 @@ flowQueue = ({ name, timeout_ms = 1000 } = {}) => {
 - Testing, as you can write clear expected starting and ending criteria on a dataflow subgraph.
 
 ```js echo
-viewof sqrt = flowQueue()
+const sqrt = view(flowQueue())
 ```
 
 ```js echo
-viewof sqrt.resolve(Math.sqrt(sqrt))
+sqrt.resolve(Math.sqrt(sqrt))
 ```
 
-```js
-testing = {
+```js echo
+const testing = (async () => {
   flowQueue; // load after implementation
   const [{ Runtime }, { default: define }] = await Promise.all([
     import(
@@ -166,16 +170,17 @@ testing = {
       ["expect", "createSuite"].map((n) => module.value(n).then((v) => [n, v]))
     )
   );
-}
+})();
+display(testing)
 ```
 
-```js
-viewof suite = testing.createSuite({
+```js echo
+const suite = view(testing.createSuite({
   name: "Unit Tests"
-})
+}))
 ```
 
-```js
+```js echo
 suite.test("resolve after send resolves", async () => {
   const q = flowQueue();
   const prom = q.send("send val");
@@ -186,22 +191,22 @@ suite.test("resolve after send resolves", async () => {
 });
 ```
 
-```js
-viewof maybeReply = flowQueue({ timeout_ms: 100 })
+```js echo
+const maybeReply = view(flowQueue({ timeout_ms: 100 }))
 ```
 
-```js
-maybeReplyReplier = {
-  if (maybeReply === "reply") viewof maybeReply.resolve("reply");
+```js echo
+const maybeReplyReplier = () => {
+  if (maybeReply === "reply") maybeReply.resolve("reply");
 }
 ```
 
 ```js
 suite.test("Unreplied queues recover after timeout_ms", async (done) => {
   try {
-    await viewof maybeReply.send("no reply");
+    await maybeReply.send("no reply");
   } catch (err) {
-    const result = await viewof maybeReply.send("reply");
+    const result = await maybeReply.send("reply");
     testing.expect(result).toEqual("reply");
     done();
   }
@@ -239,7 +244,7 @@ suite.test("missing resolve rejects with timout", async () => {
 ```js
 suite.test("works in a real notebook", async () => {
   // Here we call a flowQueue that resides in the cells underneath, and collect the result.
-  const result = viewof sqrt.send(4);
+  const result = sqrt.send(4);
   await testing.expect(result).resolves.toBe(2);
 })
 ```
@@ -249,5 +254,5 @@ suite.test("works in a real notebook", async () => {
 ```
 
 ```js
-footer
+//footer
 ```

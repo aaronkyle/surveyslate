@@ -2,29 +2,29 @@
 
 I sometimes wish to hide a secret in a public notebook, for example, a [service account to run billable cloud commands](https://observablehq.com/@endpointservices/cache-bigquery). This notebook provides functionality to generate a password-protected encrypted payload, which is safe to save in a public notebook.
 
-```
-~~~js
-import {encrypt} from '@endpointservices/notebook-secret'
-~~~
-```
+    ```
+    ~~~js
+    import {encrypt} from '@endpointservices/notebook-secret'
+    ~~~
+    ```
 
 Also provided is a _decrypt_ UI control, which can read an encrypted payload and prompt the user for a password. If the correct password is provided the value resolves to the original secret. 
 
-```
-~~~js
-import {decrypt} from '@endpointservices/notebook-secret'
-~~~
-```
+    ```
+    ~~~js
+    import {decrypt} from '@endpointservices/notebook-secret'
+    ~~~
+    ```
 
 This is allows the notebook author to run some privileged commands that other viewers cannot. If you want regular viewers also to be able to run privileged operations, consider using [serverless secrets](https://observablehq.com/@endpointservices/how-to-keep-an-api-key-secret-in-a-public-notebook) where the secret is never exposed to a client browser.
 
 If you want to encode a secret for programatic use, use decode instead
 
-```
-~~~js
-import {decode} from '@endpointservices/notebook-secret'
-~~~
-```
+    ```
+    ~~~js
+    import {decode} from '@endpointservices/notebook-secret'
+    ~~~
+    ```
 
 
 ## Step 1, generate an encrypted payload
@@ -32,11 +32,11 @@ import {decode} from '@endpointservices/notebook-secret'
 Configure the password and the secret
 
 
-```js
+```js echo
 const pass = view(html`${Text({"label":"Password"})}`)
 ```
 
-```js
+```js echo
 const secret = view(Textarea({label: "Secret", rows: 6}))
 ```
 
@@ -66,7 +66,7 @@ const encrypt = async ({
 }
 ```
 
-```js
+```js echo
 const encryptedSecret = encrypt({
   password: pass,
   secret
@@ -75,7 +75,7 @@ const encryptedSecret = encrypt({
 
 You will probably need to pass this to the _decrypt_ function so you can click the following button to copy it to the clipboard
 
-```js
+```js echo
 const toClipboard = {
   const msg = html`Copy encrypted payload`;
   
@@ -100,11 +100,11 @@ const toClipboard = {
 
 The _decrypt_ UI control takes an encrypted payload as an argument, and prompts the reader for a password. Only when the password is correct, the control can resolve a value which is the decrypted secret.
 
-```
-~~~js
-viewof decryptedSecret = decrypt(<encrypted payload>)
-~~~
-```
+    ```
+    ~~~js
+    viewof decryptedSecret = decrypt(<encrypted payload>)
+    ~~~
+    ```
 
 In the following example the password is "12345"
 
@@ -117,19 +117,16 @@ const decryptedSecret = view(decrypt({
 }))
 ```
 
-```js
-html`<a href=${decryptedSecret}>${decryptedSecret}</a>
+<a href=${decryptedSecret}>${decryptedSecret}</a>
 
 ### Implementation Notes
 
 We use "PBKDF2" to derive a high quality key from a low quality one like a user password.
 
-We use "AES-GCM" to encrypt the secret payload, which is a notable for being an [authenticated encryption](https://en.wikipedia.org/wiki/Authenticated_encryption) algorithm that is available in the browser.`
-```
+We use "AES-GCM" to encrypt the secret payload, which is a notable for being an [authenticated encryption](https://en.wikipedia.org/wiki/Authenticated_encryption) algorithm that is available in the browser.
 
 
-
-```js
+```js echo
 function decrypt(encryptedSecret) {
   function input(evt) {
       evt.stopPropagation()
@@ -184,7 +181,7 @@ async function decode(password, encryptedSecret) {
 }
 ```
 
-```js
+```js echo
 const deriveKey = async (password, salt) => {
   const material = await window.crypto.subtle.importKey(
       "raw", 
@@ -208,30 +205,38 @@ const deriveKey = async (password, salt) => {
 }
 ```
 
-```js
-const enc = new TextEncoder()
+```js echo
+const enc = new TextEncoder();
+display(enc)
 ```
 
-```js
-const encode64 = (buffer) => btoa(String.fromCharCode(...new Uint8Array(buffer)));
+```js echo
+const encode64 = (buffer) => btoa(String.fromCharCode(...new Uint8Array(buffer)));;
+display(encode64)
 ```
 
-```js
-const decode64 = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0))
+```js echo
+const decode64 = (b64) => Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+display(decode64)
 ```
 
-```js
+```js echo
 //import {html} from '@observablehq/htl'
+import {html} from '/components/htl.js';
+display(html)
 ```
 
-```js
+```js echo
 //import {Textarea, Text} from "@observablehq/inputs"
-import {Textarea, Text} from "./inputs.js"
+import {textarea as Textarea, text as Text} from "/components/inputs_observable.js";
+display(Textarea);
+display(Text)
 ```
 
-```js
+```js echo
 //import {pbcopy} from "@mbostock/pbcopy"
-import {pbcopy} from "./copier.js"
+import {pbcopy} from "/components/copier.js";
+display(pbcopy)
 ```
 
 ```js

@@ -1,22 +1,45 @@
 # Composing views across time: viewroutine
 
+```js echo
+import {Promises} from "/components/promises.js"
+```
+
+```js
+import markdownit from "npm:markdown-it";
+```
+
+```js
+const Markdown = new markdownit({html: true});
+
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
 ${await FileAttachment("viewroutine.png").image()}
 
 Sometimes you want to put a sequence of UI steps in a single cell. Using inspiration drawn from Unity and Golang ([_coroutines_](https://docs.unity3d.com/Manual/Coroutines.html) and _goroutines_) checkout the _viewroutine_. A _viewroutine_ leans on Javascript's _async generator functions_ to compose views across time.
 
-```
-~~~
-    viewroutine(generator: async function*) => viewof
-~~~
-```
+    ```
+    ~~~
+        viewroutine(generator: async function*) => viewof
+    ~~~
+    ```
 
 The import:-
 
-```
-~~~js
-import {viewroutine, ask} from '@tomlarkworthy/viewroutine'
-~~~
-```
+    ```
+    ~~~js
+    import {viewroutine, ask} from '@tomlarkworthy/viewroutine'
+    ~~~
+    ```
 
 ## What is a view again?
 
@@ -60,7 +83,8 @@ We want to avoid stuffing a model into a mutable and asynchronously updating tha
 
 ```js echo
 //VERIFY MUTABLE
-mutable nameOfThing = undefined
+//mutable nameOfThing = undefined
+const nameOfThing = Mutable(undefined)
 ```
 
 ```js echo
@@ -71,11 +95,16 @@ const newName = view(Inputs.text({
 }))
 ```
 
+<!--
+MUTABLE HERE LIKELY HITTING ERRORS
+NEED NEW SETTER
+--->
+
 ```js echo
-const sideEffect = {
+const sideEffect = async function* (newName) {
   yield md`<mark>updating`;
   await new Promise(r => setTimeout(r, 1000));
-  mutable nameOfThing = newName;
+  nameOfThing.value = newName;
 
   yield md`<mark>updated!!!`;
 }
@@ -173,10 +202,10 @@ const choice = view(viewroutine(async function*() {
     if (choice == 'square') yield* flashSquare();
     if (choice == 'star') yield* flashStar();
   }
-})
+}))
 ```
 
-```js
+```js echo
 async function* choose() {
   let resolve;
   yield Object.defineProperty(
@@ -193,10 +222,10 @@ async function* choose() {
   return await new Promise(function(_resolve) {
     resolve = _resolve;
   });
-})
+}
 ```
 
-```js
+```js echo
 async function* flashSquare() {
   for (let index = 0; index < 360; index += 5) {
     yield Object.defineProperty(
@@ -212,7 +241,7 @@ async function* flashSquare() {
 }
 ```
 
-```js
+```js echo
 async function* flashStar() {
   for (let index = 0; index < 360; index += 5) {
     yield Object.defineProperty(

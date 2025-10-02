@@ -1,4 +1,14 @@
 # Signature - A Documentation Toolkit
+
+<div class="tip">
+This notebook ports a notebook by Fabian Iwand [@mootari] called [Signature - A Documentation Toolkit](https://observablehq.com/@mootari/signature).  All mistakes and deviations from the original are my own.
+</div>
+
++--------------------------------------------------------------+
+|  — The following text/narrative is from the original —       |
++--------------------------------------------------------------+
+
+
 <!-- keywords: javadoc docgen docblock -->
 
 This notebook offers a set of documentation helpers.
@@ -27,7 +37,7 @@ import { DOM } from '/components/DOM.js'
 ```
 
 ```js
-//import * as Promises from "/components/promises.js";
+import * as Promises from "/components/promises.js";
 ```
 
 
@@ -240,12 +250,11 @@ return code(myCss, {
 ```
 
 ```js echo
-function code(text, {type = 'javascript', trim = true, className = 'code'} = {}) {
-  const out = md`\`\`\`${type}\n${!trim ? text : text.replace(/^\s*\n|\s+?$/g, '')}\n\`\`\``;
-  if(className) out.classList.add('code');
-  return out;  
+function code(text, {type = 'javascript', trim = true} = {}) {
+  return md`\`\`\`${type}
+${!trim ? text : text.replace(/^\s*\n|\s+?$/g, '')}
+\`\`\``;
 }
-
 ```
 
 ```js echo
@@ -351,20 +360,46 @@ function createStepper() {
 ```
 
 ```js
+
+//function defaultFormatter({signature, description, examples, testList}, {name, open, scope, css}) {
+//  return html`<${open == null ? 'div' : `details ${open ? 'open' : ''}`} class="${scope}">${[
+//    !css ? '' : scope == null ? css : scopedStyle('.' + scope, css),
+//    html`<${open == null ? 'div' : 'summary'} class=signature>${signature}${
+//!name || !name.length ? '' : html`<a class=link href="#${name}">`
+//}`,
+//    description == null ? '' : html`<div class=description>${description}`,
+//    !examples.length ? '' : html`<div class=examples>${[
+//      examples.length < 2 ? md`Example:` : md`Examples:`,
+//      ...examples
+//    ]}`,
+//    testList || '',
+//  ]}`;
+//}
+
+
 function defaultFormatter({signature, description, examples, testList}, {name, open, scope, css}) {
-  return html`<${open == null ? 'div' : `details ${open ? 'open' : ''}`} class="${scope}">${[
+  const header =
+    open == null
+      ? html`<div class=signature>${signature}${!name || !name.length ? '' : html`<a class=link href="#${name}">`}`
+      : html`<summary class=signature>${signature}${!name || !name.length ? '' : html`<a class=link href="#${name}">`}`;
+
+  const body = [
     !css ? '' : scope == null ? css : scopedStyle('.' + scope, css),
-    html`<${open == null ? 'div' : 'summary'} class=signature>${signature}${
-!name || !name.length ? '' : html`<a class=link href="#${name}">`
-}`,
+    header,
     description == null ? '' : html`<div class=description>${description}`,
     !examples.length ? '' : html`<div class=examples>${[
       examples.length < 2 ? md`Example:` : md`Examples:`,
       ...examples
     ]}`,
     testList || '',
-  ]}`;
+  ];
+
+  return open == null
+    ? html`<div class="${scope}">${body}`
+    : html`<details class="${scope}" ?open=${open}>${body}`;
 }
+
+
 ```
 
 ```js

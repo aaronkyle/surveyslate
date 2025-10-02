@@ -1,4 +1,3 @@
-```js
 # Tachyons CSS and some extras
 
 [Tachyons CSS](http://tachyons.io/) is handy for quickly style some HTML elements. This notebook extends the default Tachyons CSS with additional utility functions
@@ -16,22 +15,28 @@ toc({
 ## Usage
 
 ### 1. Import
-~~~js
-     import {loadStyles} from '@categorise/tachyons-and-some-extras'
-~~~
+
+```
+      ~~~js
+          import {loadStyles} from '@categorise/tachyons-and-some-extras'
+      ~~~
+```
 
 ### 2. Initialize
 
-~~~js
-     loadStyles({ /* options */})
-~~~
+```
+      ~~~js
+          loadStyles({ /* options */})
+      ~~~
+```
 
 ### 3. 💅 Style some stuff
 
-~~~js
-     html`<h1 class="sans-serif f1 f-headline-l fw9 tracked-tight light-purple hover-accent">Hey!</h1>`
-~~~
-
+```
+      ~~~js
+          html`<h1 class="sans-serif f1 f-headline-l fw9 tracked-tight light-purple hover-accent">Hey!</h1>`
+      ~~~
+```
 ...and, get this
 
 <h1 class="sans-serif f1 f-headline-l fw9 tracked-tight light-purple hover-accent">Hey!</h1>
@@ -67,28 +72,33 @@ const cssVariables = () => `:root {
 Provide extra colors like brand or accent as options to `loadStyles()`. This notebook will generate all color related Tachyon classes like color, background-color, and border-color.
 
 **Example:**
-~~~js
-loadStyles({
-  colors: {
-    brand: "#0099D8",
-    accent: "#8DC63F"
-  }
-})
-~~~
+
+```
+      ~~~js
+      loadStyles({
+        colors: {
+          brand: "#0099D8",
+          accent: "#8DC63F"
+        }
+      })
+      ~~~
+```
 
 ... will generate classnames like:
 
-~~~css
-.brand { /* ... */ } 
-.hover-brand:hover { /* ... */ } 
-.bg-brand { /* ... */ }
-.b--brand { /* ... */ }
+```
+      ~~~css
+      .brand { /* ... */ } 
+      .hover-brand:hover { /* ... */ } 
+      .bg-brand { /* ... */ }
+      .b--brand { /* ... */ }
 
-.accent { /* ... */ } 
-.hover-accent:hover { /* ... */ } 
-.bg-accent { /* ... */ }
-.b--accent { /* ... */ }
-~~~
+      .accent { /* ... */ } 
+      .hover-accent:hover { /* ... */ } 
+      .bg-accent { /* ... */ }
+      .b--accent { /* ... */ }
+      ~~~
+```
 
 ```js echo
 const colorUtils = ({colors}) => {
@@ -116,19 +126,24 @@ ${keys.reduce((acc,k) => `${acc}--${k}: ${colors[k]};`, "")}
 ### Font family
 
 **Example:**
-~~~js
-loadStyles({
-  fonts: {
-    roboto: `"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`
-  }
-})
-~~~
+
+```
+      ~~~js
+      loadStyles({
+        fonts: {
+          roboto: `"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`
+        }
+      })
+      ~~~
+```
 
 ... will generate classname like:
 
-~~~css
-.roboto { font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; } 
-~~~
+```
+      ~~~css
+      .roboto { font-family: "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; } 
+      ~~~
+```
 
 ```js echo
 const fontUtils = ({fonts}) => {
@@ -249,7 +264,7 @@ html`<div class="flex pa2">
 ```
 
 ```js echo
-boxShadowUtils = () => `
+const boxShadowUtils = () => `
 .solid-shadow-1 {
   box-shadow: 0.125rem 0.125rem rgba(0,0,0,0.08);
 }
@@ -324,7 +339,7 @@ const tachyons = loadStyles // Original name, deprecated
 ```
 
 ```js echo
-const loadStyles = {
+const loadStyles = () => {
   let elements = new Set();
 
   function detach(elements) {
@@ -434,7 +449,8 @@ import {toc} from "@nebrius/indented-toc"
 ---
 
 ```js
-import { substratum } from "@categorise/substratum"
+//import { substratum } from "@categorise/substratum"
+import { substratum } from "/components/substratum.js"
 ```
 
 ```js

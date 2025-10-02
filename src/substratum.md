@@ -6,20 +6,39 @@ An opinionated set of base styles for exported Observable Notebooks. The styles 
 
 Import `substratum` into your notebook:
 
-```js
-import { substratum } from "@categorise/substratum"
-```
+      ```
+      import { substratum } from "@categorise/substratum"
+      ```
 
 ... in another cell, call the function with option,
 [`invalidation`](https://github.com/observablehq/stdlib/#invalidation) promise.
 
-```js
+```js echo
 substratum({ invalidation })
 ```
 
 You should see the base styles applied when the notebook is run using downloaded code.
 
 ## Implementation
+
+```js
+import markdownit from "npm:markdown-it";
+```
+
+```js
+const Markdown = new markdownit({html: true});
+
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
 
 ```js echo
 function substratum({
@@ -78,7 +97,7 @@ function installStyles({ invalidation }) {
 
 // The code is base on @mootar's https://observablehq.com/@mootari/environment#isHosted
 
-const isRunningStandalone = {
+const isRunningStandalone = () => {
   const baseURL = new URL(document.baseURI);
   return !(
     document.location.hostname.endsWith(".observableusercontent.com") ||
@@ -252,7 +271,7 @@ substratum({ debug, invalidation })
 ```
 
 ```js
-const  debug = view(Inputs.toggle({ label: "Debug", value: false }))
+const debug = view(Inputs.toggle({ label: "Debug", value: false }))
 ```
 
 ## Attributions

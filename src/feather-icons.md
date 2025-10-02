@@ -3,6 +3,25 @@
 [Feather Icons](https://feathericons.com/) is a open source collection of SVG icons.
 
 ```js
+import markdownit from "npm:markdown-it";
+```
+
+```js
+const Markdown = new markdownit({html: true});
+
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+```js
 md`## Usage
 
 ### 1. Import
@@ -37,7 +56,7 @@ to get colored icon: <span style="color: orange">${getIconSvg(
 ```
 
 ```js echo
-{
+() => {
   let iconRows = "";
 
   for (const [name, icon] of Object.entries(icons)) {
@@ -55,7 +74,7 @@ ${iconRows}`;
 ```
 
 ```js echo
-getIconSvg = (name, size = 24, attrs = {}) => {
+const getIconSvg = (name, size = 24, attrs = {}) => {
   const icon = icons[name];
 
   if (icon) {
@@ -65,17 +84,17 @@ getIconSvg = (name, size = 24, attrs = {}) => {
 ```
 
 ```js echo
-version = "4.28.0"
+const version = "4.28.0"
 ```
 
 ## Imports
 
 ```js
-featherIcons = import(`https://cdn.skypack.dev/feather-icons@${version}?min`)
+const featherIcons = import(`https://cdn.skypack.dev/feather-icons@${version}?min`)
 ```
 
 ```js
-icons = featherIcons.icons
+const icons = featherIcons.icons
 ```
 
 ## Credits

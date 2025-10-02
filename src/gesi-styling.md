@@ -11,31 +11,27 @@ md`
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
 
 
-```js
-md`test credentials for demoEditor
-~~~js
-{
-  "accessKeyId": "AKIAQO7DBPIFDAUBK4SL",
-  "secretAccessKey": "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"
-}
-~~~
-`
-```
+test credentials for demoEditor
+    ~~~js
+    {
+      "accessKeyId": "AKIAQO7DBPIFDAUBK4SL",
+      "secretAccessKey": "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"
+    }
+    ~~~
+
 
 ```js
-viewof manualCredentials
+manualCredentials
 ```
 
 ```js
 saveCreds
 ```
 
-```js
-md`### Choose Survey Source for demo data`
-```
+### Choose Survey Source for demo data`
 
 ```js
-viewof survey
+survey
 ```
 
 ```js
@@ -47,26 +43,26 @@ import {styles as componentStyles, pagination} from '@categorise/survey-componen
 ```
 
 ```js
-loaders = initialQuestionLoader, initialLayoutLoader, load_config
+const loaders = initialQuestionLoader, initialLayoutLoader, load_config
 ```
 
 ## Brand
 
 ```js
-viewof brand = Inputs.color({label: "Brand Color", value: mainColors[900]})
+const brand = view(Inputs.color({label: "Brand Color", value: mainColors[900]}))
 ```
 
 ```js
-viewof accent = Inputs.color({label: "Accent Color", value: accentColors[900]})
+const accent = view(Inputs.color({label: "Accent Color", value: accentColors[900]}))
 ```
 
 ```js
-viewof font = Inputs.textarea({label: "Font Stack", value: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"'})
+const font = view(Inputs.textarea({label: "Font Stack", value: '"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"'}))
 ```
 
 ```js echo
 // This config needs to be part of account or survey config
-brandConfig = ({
+const brandConfig = ({
   colors: {
     brand: brand, // or, provide and color hex code
     accent: accent, // or, provide and color hex code
@@ -79,12 +75,10 @@ brandConfig = ({
 })
 ```
 
-```js
-md`### Config`
-```
+### Config
 
 ```js echo
-script = ({
+const script = ({
   hashPrefix = ''
 } = {}) => html`<script>
   ${updateMenu}
@@ -96,21 +90,19 @@ script = ({
 ### Enable Javascript Snippet
 
 ```js
-enableJavascriptContent = md`⚠️ Javascript is required to run this application. Please enable Javascript on your browser to continue.`
+const enableJavascriptContent = md`⚠️ Javascript is required to run this application. Please enable Javascript on your browser to continue.`
 ```
 
 ```js echo
-enableJavasscriptSnippet = html`<noscript class="noscript">
+const enableJavasscriptSnippet = html`<noscript class="noscript">
    ${enableJavascriptContent.outerHTML}
 </noscript>`
 ```
 
-```js
-md`## Survey View`
-```
+## Survey View
 
 ```js echo
-surveyView = (questions, layout, config, answers, options) => {
+const surveyView = (questions, layout, config, answers, options) => {
   const sections = d3.group(layout, d => d['menu'])
   const survey = view`
     ${custom_css()}
@@ -127,21 +119,19 @@ surveyView = (questions, layout, config, answers, options) => {
 ```
 
 ```js
-viewof exampleSurvey = surveyView(questions, layout.data, surveyConfig, new Map(), {
+const exampleSurvey = view(surveyView(questions, layout.data, surveyConfig, new Map(), {
   hashPrefix: 'foo|'
-})
+}))
 ```
 
 ```js echo
 exampleSurvey
 ```
 
-```js
-md`#### Custom CSS`
-```
+#### Custom CSS
 
 ```js echo
-custom_css = () => html`
+const custom_css = () => html`
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,700;1,400&display=swap');
   body {
@@ -182,12 +172,10 @@ custom_css = () => html`
 ```
 
 ```js echo
-navActiveClasses = ["bg-accent", "active"] // 'active' not used for styling. It's retained just in case it is used JS
+const navActiveClasses = ["bg-accent", "active"] // 'active' not used for styling. It's retained just in case it is used JS
 ```
 
-```js
-md`## Body Header`
-```
+## Body Header
 
 ```js echo
 header(d3.group(layout.data, d => d['menu']), surveyConfig, {
@@ -197,7 +185,7 @@ header(d3.group(layout.data, d => d['menu']), surveyConfig, {
 ```
 
 ```js echo
-header = (sections, config, {
+const header = (sections, config, {
   hashPrefix = '',
   layout = "sticky-top"
 } = {}) => html`<header class="[ ${layout} nav-custom shadow-1 ][ w-100 ]">
@@ -209,16 +197,14 @@ ${pageMenu(sections, config, {
 </header>`
 ```
 
-```js
-md`## Menu`
-```
+## Menu
 
 ```js
 pageMenu(d3.group(layout.data, d => d['menu']), surveyConfig)
 ```
 
 ```js echo
-pageMenu = (sections, config, {
+const pageMenu = (sections, config, {
   hashPrefix = ''
 } = {}) => {
   // organize
@@ -259,11 +245,11 @@ pageMenu = (sections, config, {
 ```
 
 ```js echo
-organizeSections = (sections) => d3.rollup([...sections.keys()].map(path => path.split("/")), (children) => children.map(child => child[1]).filter(_ => _), d => d[0])
+const organizeSections = (sections) => d3.rollup([...sections.keys()].map(path => path.split("/")), (children) => children.map(child => child[1]).filter(_ => _), d => d[0])
 ```
 
 ```js echo
-addMenuBehaviour = {
+const addMenuBehaviour = {
   window.addEventListener('hashchange', updateMenu);
   invalidation.then(() => window.removeEventListener('hashchange', updateMenu));
   updateMenu()
@@ -272,7 +258,7 @@ addMenuBehaviour = {
 ```
 
 ```js echo
-updateMenu = (dom = document) => {
+const updateMenu = (dom = document) => {
   if (!dom.querySelectorAll) dom = document;
   
   // The top layer of the menu is always visible, but only one tab is highlighted
@@ -344,7 +330,7 @@ async function resolveObject(obj) {
 ```
 
 ```js echo
-images = resolveObject({
+const images = resolveObject({
   "mainstream": FileAttachment("core_mainstream@1.jpg").url(),
   "operation": FileAttachment("core_operation@1.jpg").url(),
   "intro": FileAttachment("intro@3.jpg").url(),
@@ -366,15 +352,13 @@ function imageFor(section) {
 }
 ```
 
-```js
-md`## Content
+## Content
 
 Note you need a menu option selected for the example below to render
-`
-```
+
 
 ```js echo
-viewof sectionViewExample = sectionsView(questions, layout.data, surveyConfig, d3.group(layout.data, d => d['menu']))
+const sectionViewExample = view(sectionsView(questions, layout.data, surveyConfig, d3.group(layout.data, d => d['menu'])))
 ```
 
 ```js echo
@@ -382,7 +366,7 @@ sectionViewExample
 ```
 
 ```js echo
-sectionsView = (questions, layout, config, sections, answers = new Map(), {
+const sectionsView = (questions, layout, config, sections, answers = new Map(), {
     hashPrefix = '',
     putFile,
     getFile
@@ -421,10 +405,10 @@ sectionsView = (questions, layout, config, sections, answers = new Map(), {
 ```
 
 ```js echo
-viewof exampleSectionView = sectionView(surveyConfig, 
+const exampleSectionView = view(sectionView(surveyConfig, 
   new Map([...questions.entries()].map(([id, q]) => [id, createQuestion(q)])), 
   d3.group(layout.data, d => d['menu']),
-  "extended_survey/internal_operations")
+  "extended_survey/internal_operations"))
 ```
 
 ```js echo
@@ -432,7 +416,7 @@ exampleSectionView
 ```
 
 ```js echo
-sectionView = (config, cells, sections, sectionKey, {
+const sectionView = (config, cells, sections, sectionKey, {
     hashPrefix = ''
   } = {}) => {
   const suffix = sectionKey.split("/").pop();
@@ -480,7 +464,7 @@ sectionView = (config, cells, sections, sectionKey, {
 ```
 
 ```js echo
-paginationKeys = (sections, key) => {
+const paginationKeys = (sections, key) => {
   const tree = organizeSections(sections);
   const keys = [...tree.keys()].reduce((acc, parent) => {
     const subsections = tree.get(parent);
@@ -515,11 +499,9 @@ paginationKeys = (sections, key) => {
 questions
 ```
 
-```js
-md`
+
 ---
-`
-```
+
 
 ```js echo
 {
@@ -529,7 +511,7 @@ md`
 ```
 
 ```js echo
-initializeStyles = () => tachyonsExt(brandConfig)
+const initializeStyles = () => tachyonsExt(brandConfig)
 ```
 
 ## Styles for the demos in this notebook
@@ -551,39 +533,46 @@ a[href].nav:hover {
 }`
 ```
 
-```js
+```js echo
 function getDownloadUrlForHtml(html) {
   const blob = new Blob([html], { type: 'text/html' });
   return URL.createObjectURL(blob);
 }
 ```
 
-```js
+```js echo
 import {button, text} from "@jashkenas/inputs"
 ```
 
-```js
+```js echo
 import {view} from '@tomlarkworthy/view'
 ```
 
-```js
-import {mainColors, accentColors} from "@categorise/brand"
+```js echo
+//import {mainColors, accentColors} from "@categorise/brand"
+import {mainColors, accentColors} from "/components/brand.js";
+display(mainColors);
+display(accentColors);
+
 ```
 
-```js
-import {tachyonsExt} from '@categorise/tachyons-and-some-extras'
+```js echo
+//import {tachyonsExt} from '@categorise/tachyons-and-some-extras'
+import {tachyonsExt} from '/components/tachyons-and-some-extras.js';
+display(tachyonsExt);
 ```
 
-```js
+```js echo
 import {pageHeader, pageFooter} from "@categorise/common-components"
 ```
 
 ---
 
-```js
-import { substratum } from "@categorise/substratum"
+```js echo
+//import { substratum } from "@categorise/substratum"
+import { substratum } from "/components/substratum.js"
 ```
 
-```js
+```js echo
 substratum({ invalidation })
 ```

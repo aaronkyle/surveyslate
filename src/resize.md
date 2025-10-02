@@ -45,12 +45,16 @@ function resize(
 }
 ```
 
-```js
-import {signature} from '@mootari/signature'
+```js echo
+//import {signature} from '@mootari/signature'
+import {signature} from '/components/signature.js'
+display(signature)
 ```
 
-```js
-import {deploy} from '@endpointservices/serverless-cells'
+```js echo
+//import {deploy} from '@endpointservices/serverless-cells'
+import {deploy} from '/components/serverless-cells.js'
+display(deploy)
 ```
 
 ```js echo
@@ -91,9 +95,28 @@ md`
 ```
 
 ```js
-import { footer } from "@endpointservices/endpoint-services-footer"
+//import { footer } from "@endpointservices/endpoint-services-footer"
 ```
 
 ```js
-footer
+//footer
+```
+
+
+```js
+import markdownit from "npm:markdown-it";
+
+// --- Markdown helper -------------------------------------------------------------------------
+const Markdown = new markdownit({html: true});
+
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
 ```

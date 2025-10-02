@@ -1,164 +1,194 @@
 # Indented ToC
 
+
+
+```js
+import * as DOM from "/components/DOM.js"
+```
+
 This notebook can generate a Table of Contents (ToC), with indentations, automatically for your notebook.
 
-Thanks to @mbostock for creating the original version of the library!
+This notebook is a fork of [Bryan Hughes’s Intended ToC](https://observablehq.com/@nebrius/indented-toc) with option to **exclude headings from selected DOM elements.**
 
-_Note:_ Clicking on links in Safari doesn't work because [scrollIntoView in an iFrame doesn't really work correctly](https://www.javaer101.com/en/article/11885549.html)
+_Note:_ Clicking on links in Safari doesn't work because [scrollIntoView in an iFrame doesn't really work correctly](https://www.javaer101.com/en/article/11885549.html)`
+
 
 ```js
 toc({
   headers: "h2,h3,h4",
-  skip: ["Implementation"]
+  hideStartingFrom: "Implementation"
 })
 ```
 
-```js
-md`## Usage`
-```
+## Usage
 
-```js
-md`Import this notebook with:
-\`\`\`js
-import {toc} from "@nebrius/indented-toc"
-\`\`\`
-`
-```
+Import this notebook with:
 
-```js
-md`### Basic Example
+      \`\`\`js
+      import {toc} from "@saneef/indented-toc"
+      \`\`\`
+
+
+### Basic Example
 
 You can create the table of contents for a notebook with the following call:
 
-\`\`\`JavaScript
-toc()
-\`\`\`
+      \`\`\`JavaScript
+      toc()
+      \`\`\`
 
 This call produces the following ToC for this notebook:
-`
-```
+
 
 ```js
 toc()
 ```
 
-```js
-md`### Customizing Included Header Levels
+### Customizing Included Header Levels
 If you don't like which header levels are included in the ToC by default, you can customize which header levels to include:
 
-\`\`\`JavaScript
-toc("h2,h3,h4")
-\`\`\`
+      \`\`\`JavaScript
+      toc("h2,h3,h4")
+      \`\`\`
 
 or:
 
-\`\`\`JavaScript
-toc({
-  headers: "h2,h3,h4"
-})
-\`\`\`
+      \`\`\`JavaScript
+      toc({
+        headers: "h2,h3,h4"
+      })
+      \`\`\`
 
 This call produces the following ToC for this notebook:
-`
-```
+
 
 ```js
-toc({
+const selected_headers_toc = toc({
   headers: "h2,h3,h4"
 })
 ```
 
+${selected_headers_toc}
+
+### Hiding an Appendix
+If your notebooks are like mine, you might have a section titled "appendix," "implementation," or similar section to house implementation details. You can hide this section with the following call:
+
+      \`\`\`JavaScript
+      toc({
+        hideStartingFrom: "Implementation"
+      })
+      \`\`\`
+
+This call produces the following ToC for this notebook:
+
+
 ```js
-toc({
+const hide_appednix_toc = toc({
   hideStartingFrom: "Implementation"
 })
 ```
 
-```js
-md`### Customizing or Hiding the Title
+${hide_appednix_toc}
+
+
+### Customizing or Hiding the Title
 If you would like to change the title, you can change it with:
 
-\`\`\`JavaScript
-toc({
-  title: "My Table of Contents"
-})
-\`\`\`
+      \`\`\`JavaScript
+      toc({
+        title: "My Table of Contents"
+      })
+      \`\`\`
 
 This call produces the following ToC for this notebook:
-`
-```
+
 
 ```js
-toc({
+const retitled_toc = toc({
   title: "My Table of Contents"
 })
 ```
 
-```js
-md`
+${retitled_toc}
+
+
 You can also hide the title by passing in \`null\` for the title value:
 
-\`\`\`JavaScript
-toc({
-  title: null
-})
-\`\`\`
+      \`\`\`JavaScript
+      toc({
+        title: null
+      })
+      \`\`\`
 
 This call produces the following ToC for this notebook:
-`
-```
 
-```js
-toc({
+
+```js echo
+const hide_title_toc = toc({
   title: null
 })
 ```
 
-### Skipping a section
-In some cases, you may want to omit a section (for example, if you use `##` to create a subtitle for your notebook). To skip a section, pass a string or array of strings to be omitted:
+${hide_title_toc}
+
+### Excluding headings with a DOM element
+If you would like to ignore headings with a DOM element.
+      \`\`\`html
+      <div class="ignore-in-toc">
+        <h2>Not important heading</h2>
+      </div>
+      \`\`\`
+
+      \`\`\`JavaScript
+      toc({
+        exclude: ".ignore-in-toc"
+      })
+      \`\`\`
+
+This call produces the following ToC for this notebook:
+
 
 ```js echo
-toc({ skip: "API" })
+const exclude_toc = toc({
+  exclude: ".ignore-in-toc"
+})
 ```
 
-```js echo
-toc({ skip: ["API", "Usage"] })
-```
+${exclude_toc}
 
-```js
-md`### Bringing it All Together
+### Bringing it All Together
 All of the options can be combined together to create a more highly customized ToC
 
-\`\`\`JavaScript
-toc({
-  headers: "h2,h3,h4",
-  title: "My ToC",
-  hideStartingFrom: "Implementation"
-})
-\`\`\`
+    \`\`\`JavaScript
+    toc({
+      headers: "h2,h3,h4",
+      title: "My ToC",
+      hideStartingFrom: "Implementation"
+    })
+    \`\`\`
 
 This call produces the following ToC for this notebook:
-`
-```
 
-```js
-toc({
+
+```js echo
+const combined_toc = toc({
   headers: "h2,h3,h4",
   title: "My ToC",
   hideStartingFrom: "Implementation"
 })
 ```
 
-```js
-md`## API
+${combined_toc}
+
+## API
 
 The \`toc\` method has the following signature:
 
-\`\`\`TypeScript
-function toc(
-  options?: string | { headers?: string, title?: string | null, hideStartingFrom?: string }
-): MutationObserver
-\`\`\`
+    \`\`\`TypeScript
+    function toc(
+      options?: string | { headers?: string, title?: string | null, hideStartingFrom?: string, exclude?: string}
+    ): MutationObserver
+    \`\`\`
 
 Note: This signature is written using TypeScript syntax.
 
@@ -166,130 +196,131 @@ Options has the following defaults:
 - headers = "h1,h2,h3",
 - hideStartingFrom = null,
 - title = "Table of Contents"
-`
-```
 
-```js
-md`## Hiding an Appendix (deprecated)
-_Suggestion:_ use the \`skip\` option above.
 
-If your notebooks are like mine, you might have a section titled "appendix," "implementation," or similar section to house implementation details. You can hide this section with the following call:
+## Implementation
 
-\`\`\`JavaScript
-toc({
-  hideStartingFrom: "Implementation"
-})
-\`\`\`
-
-This call produces the following ToC for this notebook:
-`
-```
-
-```js
-md`## Implementation`
-```
-
-```js
+```js echo
 function toc(options = {}) {
-  if (typeof options === "string") {
-    options = {
-      headers: options
-    };
-  }
+  if (typeof options === "string") options = { headers: options };
+
   const {
     headers = "h1,h2,h3",
     hideStartingFrom = null,
     title = "Table of Contents",
-    skip = []
+    exclude
   } = options;
-  // Allow skip to be specified as a string or an array
-  const skipArr = typeof skip === "string" ? [skip] : skip;
+
   return Generators.observe((notify) => {
     let previousHeadings = [];
     let renderedEmptyToC = false;
 
-    function observed() {
-      const currentHeadings = Array.from(
-        document.querySelectorAll(headers)
-      ).filter((d) => skipArr.indexOf(String(d.textContent)) === -1);
+    const ensureId = (el) => {
+      if (el.id) return el.id;
+      const base = (el.textContent || "").trim().toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9\-]/g, "")
+        .replace(/\-+/g, "-")
+        .replace(/^\-|\-$/g, "") || "section";
+      let id = base, i = 1;
+      while (document.getElementById(id)) id = `${base}-${i++}`;
+      el.id = id;
+      return id;
+    };
 
-      // CHeck if there's anything to render
+    function observed() {
+      let currentHeadings = Array.from(document.querySelectorAll(headers));
+
+      if (exclude) {
+        currentHeadings = currentHeadings.filter((h) => !h.closest(exclude));
+      }
+
+      // Nothing to render
       if (!currentHeadings.length) {
         if (!renderedEmptyToC) {
-          notify(html`Unable to generate ToC: no headings found`);
+          notify(html`<div>Unable to generate ToC: no headings found</div>`);
           renderedEmptyToC = true;
         }
         return;
       }
 
-      // Check if anything changed from the previous render, and if not, bail
+      // Bail if unchanged
       if (
         currentHeadings.length === previousHeadings.length &&
         !currentHeadings.some((h, i) => previousHeadings[i] !== h)
-      ) {
-        return;
-      }
+      ) return;
+
       renderedEmptyToC = false;
+      previousHeadings = currentHeadings.slice();
 
-      // The start indentation specifies the top-most header tag that will
-      // be "unindented" in the ToC, and is effective the "2" in "h2"
-      let startIndentation = headers
+      // Determine the leftmost level (e.g., 2 for h2)
+      const startIndentation = headers
         .split(",")
-        .map((h) => parseInt(h.replace(/h/g, "")))
-        .sort()[0];
+        .map((h) => parseInt(h.replace(/h/gi, ""), 10))
+        .filter((n) => !Number.isNaN(n))
+        .sort((a, b) => a - b)[0] ?? 1;
 
-      // The current indentation tracks what level of indentation we're at,
-      // so we can add <ul> and </ul> tags as needed to get the ToC to
-      // indend/unindent properly
+      // Build the nested list
+      const container = document.createElement("div");
+      const frag = document.createDocumentFragment();
+
+      if (title) frag.append(html`<b>${DOM.text(title)}</b>`);
+
       let currentIndentation;
-      previousHeadings = currentHeadings;
-      const entries = [];
-      for (const h of Array.from(previousHeadings)) {
-        if (hideStartingFrom && h.textContent === hideStartingFrom) {
-          break;
-        }
-        let nodeIndentiation = parseInt(h.tagName[1], 10);
+      let ulStack = [];
+
+      const openUl = () => {
+        const ul = document.createElement("ul");
+        (ulStack[ulStack.length - 1] ?? frag).appendChild(ul);
+        ulStack.push(ul);
+      };
+      const closeUl = () => { ulStack.pop(); };
+
+      for (const h of currentHeadings) {
+        if (hideStartingFrom && h.textContent === hideStartingFrom) break;
+
+        const nodeIndentation = parseInt(h.tagName[1], 10);
+
         if (typeof currentIndentation === "undefined") {
-          // Add indentations as needed in case the initial header tag
-          // isn't the top-level specified for this ToC
           currentIndentation = startIndentation;
-          while (nodeIndentiation > currentIndentation) {
+          // open lists until we reach the first heading level
+          while (nodeIndentation > currentIndentation) {
+            openUl();
             currentIndentation++;
-            entries.push("<ul>");
           }
+          if (ulStack.length === 0) openUl(); // at least one UL
         } else {
-          while (currentIndentation < nodeIndentiation) {
-            entries.push("<ul>");
+          while (currentIndentation < nodeIndentation) {
+            openUl();
             currentIndentation++;
           }
-          while (currentIndentation > nodeIndentiation) {
-            entries.push("</ul>");
+          while (currentIndentation > nodeIndentation) {
+            closeUl();
             currentIndentation--;
           }
+          if (ulStack.length === 0) openUl(); // safety
         }
-        entries.push(
-          Object.assign(
-            html`<li><a href="#">${DOM.text(h.textContent)}</a></li>`,
-            {
-              onclick: (e) => {
-                e.preventDefault();
-                h.scrollIntoView();
-              }
-            }
-          )
-        );
+
+        const id = ensureId(h);
+        const li = html`<li><a href="#${id}">${DOM.text(h.textContent)}</a></li>`;
+        li.onclick = (e) => {
+          // preserve anchor while making scrolling smooth
+          // (browser default jump works too if you prefer)
+          e.preventDefault();
+          document.getElementById(id)?.scrollIntoView();
+          history.replaceState(null, "", `#${id}`);
+        };
+        ulStack[ulStack.length - 1].append(li);
       }
-      while (currentIndentation > startIndentation) {
-        entries.push("</ul>");
+
+      // Close down to the start level
+      while ((currentIndentation ?? startIndentation) > startIndentation) {
+        closeUl();
         currentIndentation--;
       }
-      let content;
-      if (title) {
-        content = html`<b>${DOM.text(title)}</b><ul>${entries}`;
-      } else {
-        content = html`<ul>${entries}`;
-      }
-      notify(content);
+
+      container.append(frag);
+      notify(container);
     }
 
     const observer = new MutationObserver(observed);
@@ -298,4 +329,12 @@ function toc(options = {}) {
     return () => observer.disconnect();
   });
 }
+```
+
+## Appendix
+
+```js
+html`<div class="ignore-in-toc">
+  <h2>A level 2 heading</h2>
+</div>`
 ```

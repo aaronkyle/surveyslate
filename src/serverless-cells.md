@@ -88,6 +88,12 @@ Come hang out with us on the [d3 Zulip server](https://d3js.zulipchat.com/#narro
 ### Implementation
 
 ```js echo
+import {html} from "npm:htl";
+display(html)
+```
+
+```js echo
+
 const deploy = function (label, handler, options) {
   onVersionPublished; // Ensure all users of this have the onPublish hook installed
   if (typeof label !== "string")
@@ -330,68 +336,68 @@ The deployment label, must be unique. Maybe later this will become a URL path
 
 Express style web handler of the form 
 
-~~~js
-function(request, response, context)
-~~~
+    ~~~js
+    function(request, response, context)
+    ~~~
 where
 
 #### handler _request_
 
 contains the following fields. See https://expressjs.com/en/api.html#req
 
-~~~js
-{
-    baseUrl
-    url
-    headers
-    ip
-    method
-    query
-    body
-    cookies
-}
-~~~
+    ~~~js
+    {
+        baseUrl
+        url
+        headers
+        ip
+        method
+        query
+        body
+        cookies
+    }
+    ~~~
 
 #### handler _response_
 
 has the following methods. See https://expressjs.com/en/api.html#res
 
-~~~js
-{
-  send(arg)
-  json(arg)
-  status(number)
-  header(key, value)
-  redirect(code, location)
-  write(chunk)
-  end()
-}
-~~~
+    ~~~js
+    {
+      send(arg)
+      json(arg)
+      status(number)
+      header(key, value)
+      redirect(code, location)
+      write(chunk)
+      end()
+    }
+    ~~~
 
 #### handler _context_
 
 Context allows the server environment to add additional private information
 
-~~~js
-{
-  notebook: "serverless-cells",
-  namespace: "endpointservices", // subdomain source e.g. tomlarkworthy
-  secrets: {} // map of secret values
-}
-~~~
+    ~~~js
+    {
+      notebook: "serverless-cells",
+      namespace: "endpointservices", // subdomain source e.g. tomlarkworthy
+      secrets: {} // map of secret values
+    }
+    ~~~
 
 ### _options_
 
-~~~js
-{
-  cell,
-  host,
-  hostNotebook
-  secrets: [...]
-  region
-  modifiers: ["terminal", "external", "orchestrator"]
-}
-~~~
+    ~~~js
+    {
+      cell,
+      host,
+      hostNotebook
+      secrets: [...]
+      region
+      modifiers: ["terminal", "external", "orchestrator"]
+    }
+    ~~~
 
 #### cell
 
@@ -423,17 +429,19 @@ You can attached an Express router to allow fine grained path based responses. F
 
 
 ```js
-const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+display(chars)
 ```
 
 ```js
 const salt = window.crypto
   // ~6 bits per selection, we need 120
-  .getRandomValues(new Uint32Array(Math.ceil(120.0 / 5.9)))
+  .getRandomValues(new Uint32Array(Math.ceil(120.0 / 5.9)));
+display(salt)
 ```
 
 ```js
-generateSessionId = (name) => {
+const generateSessionId = (name) => {
   const letters = new Uint32Array(salt);
   for (let i = 0; i < name.length; i++) {
     letters[i] = salt[i] ^ name.charCodeAt(i % name.length);
@@ -441,7 +449,8 @@ generateSessionId = (name) => {
   return letters
     .reduce((acc, n) => acc.concat(chars[n % chars.length]), [])
     .join("");
-}
+};
+display(generateSessionId)
 ```
 
 ```js
@@ -454,7 +463,8 @@ const subdomain = (url) => {
   if (match = /^https:\/\/observablehq.com\/@([^/]*)/.exec(origin)) return match[1]
   if (match = /^https:\/\/([^.]*).static.observableusercontent.com/.exec(origin)) return match[1]
   return undefined;
-}
+};
+display(subdomain)
 ```
 
 ```js
@@ -472,15 +482,18 @@ const notebook = (url) => {
   if ((match = /^https:\/\/(next\.)?observablehq.com\/(d\/[^/?#]*)/.exec(url)))
     return match[2];
   throw new Error("Cannot determine notebook name");
-}
+};
+display(notebook)
 ```
 
 ```js
-import { onVersion } from "@endpointservices/onversion"
+//import { onVersion } from "@endpointservices/onversion"
+import { onVersion } from "/components/onversion.js";
+display(onVersion)
 ```
 
 ```js
-import { footer } from "@endpointservices/footer" // Not with backups, we don't want to bring in webcode dependancies.
+// import { footer } from "@endpointservices/footer" // Not with backups, we don't want to bring in webcode dependancies.
 ```
 
 ```js

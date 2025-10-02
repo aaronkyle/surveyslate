@@ -2,14 +2,14 @@
 
 Generic services to apply to all Endpoint Service notebooks, e.g. error monitoring, analytics. Footer with backups is https://observablehq.com/@endpointservices/footer-with-backups
 
-```js
-import { footer } from "@endpointservices/endpoint-services-footer"
----
-footer
-```
+    ```js
+    import { footer } from "@endpointservices/endpoint-services-footer"
+    ---
+    footer
+    ```
 
 ```js
-graphic = md`<small>
+const graphic = md`<small>
 [WEBCode.run](https://webcode.run) is a developer focussed serverless environment for [Observable](observablehq.com) notebooks. Signup for the [webcode newsletter on Substack](https://webcode.substack.com/).
 
 *Endpoint Services collects anonymous usage metrics through [Plausible Analytics](https://observablehq.com/@endpointservices/plausible-analytics). Notebooks are monitored for errors using [sentry.io](https://sentry.io).* </small>
@@ -17,7 +17,7 @@ graphic = md`<small>
 ```
 
 ```js
-footer = {
+const footer = {
   plausible_analytics;
   const Sentry = sentry({
     DSN:
@@ -38,7 +38,7 @@ localStorage
 ```
 
 ```js echo
-plausible_analytics = {
+const plausible_analytics = {
   const DATA_DOMAIN = window.origin.replace("https://", "");
   const DATA_API = "https://plausible.io";
   var a = html`<a href="${document.baseURI.replace(
@@ -108,7 +108,8 @@ plausible_analytics = {
 ```
 
 ```js
-import { localStorage } from "@mbostock/safe-local-storage"
+//import { localStorage } from "@mbostock/safe-local-storage"
+import { localStorage } from "/components/safe-local-storage.js"
 ```
 
 ### Error Monitoring: Sentry

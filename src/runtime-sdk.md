@@ -2,17 +2,18 @@
 
 Tools for observation and manipulation of the Observable Runtime.
 
-```js
-import {runtime, thisModule, observe, variables, descendants, lookupVariable, toObject} from '@tomlarkworthy/runtime-sdk'
-```
+
+    ```js
+    import {runtime, thisModule, observe, variables, descendants, lookupVariable, toObject} from '@tomlarkworthy/runtime-sdk'
+    ```
 
 ### viewof variables
 
 the live view of variables in a runtime
 
-```js
+```js echo
 // live view of all the variables
-variables = function (runtime) {
+const variables = function (runtime) {
   const view = Inputs.input(runtime._variables);
   observeSet(runtime._variables, () => {
     // There is a delay before the variable names are updated
@@ -25,11 +26,11 @@ variables = function (runtime) {
 }
 ```
 
-```js
-viewof runtime_variables = variables(runtime)
+```js echo
+const runtime_variables = view(variables(runtime))
 ```
 
-```js
+```js echo
 runtime_variables
 ```
 
@@ -37,8 +38,8 @@ runtime_variables
 
 live view of a variable (s) and all its dataflow successors
 
-```js
-descendants = function (...variables) {
+```js echo
+const descendants = function (...variables) {
   const results = new Set(variables);
   const queue = variables;
   do {
@@ -53,8 +54,8 @@ descendants = function (...variables) {
 }
 ```
 
-```js
-decendants_example = [...descendants(lookupVariable("runtime", main))].map(
+```js echo
+const decendants_example = [...descendants(lookupVariable("runtime", main))].map(
   toObject
 )
 ```
@@ -62,8 +63,8 @@ decendants_example = [...descendants(lookupVariable("runtime", main))].map(
 ### lookupVariable
 lookup a variable by module
 
-```js
-lookupVariable = (name, module) => module._scope.get(name)
+```js echo
+const lookupVariable = (name, module) => module._scope.get(name)
 ```
 
 ### observe(variable)
@@ -72,12 +73,12 @@ This was monstrously difficult to develop. Taps a variable, intercepting all obs
 
 Currently unobserved variables are marked as reachable and become active.
 
-```js
-trace_variable = "---"
+```js echo
+const trace_variable = "---"
 ```
 
-```js
-no_observer = {
+```js echo
+const no_observer = {
   const variable = main.variable();
   const symbol = variable._observer;
   variable.delete();
@@ -85,7 +86,7 @@ no_observer = {
 }
 ```
 
-```js
+```js echo
 function observe(v, observer, { invalidation, detachNodes = false } = {}) {
   const cancels = new Set();
   const onCancel = () => cancels.forEach((f) => f());
@@ -185,8 +186,8 @@ function observe(v, observer, { invalidation, detachNodes = false } = {}) {
 
 Keep a named cell evaluated. Useful to keep background tasks alive even after importing.
 
-```js
-keepalive = (module, variable_name) => {
+```js echo
+const keepalive = (module, variable_name) => {
   if (variable_name === undefined) debugger;
   const name = `dynamic observe ${variable_name}`;
   console.log(`keepalive: ${name}`);
@@ -199,7 +200,7 @@ keepalive = (module, variable_name) => {
 ## isOnObservableCom
 
 ```js echo
-isOnObservableCom = () =>
+const isOnObservableCom = () =>
   location.href.includes("observableusercontent.com") &&
   !location.href.includes("blob:")
 ```
@@ -207,16 +208,17 @@ isOnObservableCom = () =>
 ## viewof thisModule
 
 Use like this
-```
-viewof notebookModule = thisModule()
-```
+
+      ```
+      viewof notebookModule = thisModule()
+      ```
 
 ```js
-viewof myModule = thisModule()
+const myModule = view(thisModule())
 ```
 
-```js
-thisModule = async () => {
+```js echo
+const thisModule = async () => {
   const view = new EventTarget();
   view.tag = Symbol();
   let module = undefined;
@@ -233,8 +235,8 @@ thisModule = async () => {
 }
 ```
 
-```js
-find_with_tag = (tag) => {
+```js echo
+const find_with_tag = (tag) => {
   return new Promise((resolve) => {
     [...runtime._variables].map((v) => {
       if (v?._value?.tag == tag) {
@@ -251,7 +253,7 @@ find_with_tag = (tag) => {
 Helper for syncing two arrays
 
 ```js echo
-unorderedSync = (goal, current, identityFn = _.isEqual) => ({
+const unorderedSync = (goal, current, identityFn = _.isEqual) => ({
   add: _.differenceWith(goal, current, identityFn),
   remove: _.differenceWith(current, goal, (a, b) => identityFn(b, a))
 })
@@ -286,7 +288,7 @@ async function getPromiseState(p) {
 
 ### Reposition set
 
-```js
+```js echo
 function repositionSetElement(set, element, newPosition) {
   if (!set.has(element)) {
     throw new Error("Element not found in the set.");
@@ -308,9 +310,9 @@ function repositionSetElement(set, element, newPosition) {
 }
 ```
 
-```js
+```js echo
 // https://github.com/observablehq/inspector/blob/dba0354491fae7873d72f7cba485c356bac7c8fe/src/index.js#L66C10-L69C2
-isnode = (value) => {
+const isnode = (value) => {
   return (
     (value instanceof Element || value instanceof Text) &&
     value instanceof value.constructor
@@ -318,11 +320,12 @@ isnode = (value) => {
 }
 ```
 
-```js
-import { runtime, main } from "@mootari/access-runtime"
+```js echo
+//import { runtime, main } from "@mootari/access-runtime"
+import { runtime, main } from "/components/access-runtime.js"
 ```
 
-```js
+```js echo
 function observeSet(set, callback) {
   const originalAdd = set.add;
   set.add = function (value) {
@@ -349,7 +352,7 @@ function observeSet(set, callback) {
 }
 ```
 
-```js
-toObject = (v) =>
+```js echo
+const toObject = (v) =>
   Object.fromEntries(Object.getOwnPropertyNames(v).map((p) => [p, v[p]]))
 ```

@@ -1,7 +1,22 @@
 # Detect notebook runtime errors with *catchAll((cellName, reason) => {...})*
 
+
+<div class="tip">
+This notebook ports a notebook by Tom Larkworthy [@tomlarkworthy] called [Detect notebook runtime errors with catchAll((cellName, reason) => {...})](https://observablehq.com/@tomlarkworthy/catch-all).  All mistakes and deviations from the original are my own.
+</div>
+
++--------------------------------------------------------------+
+|  — The following text/narrative is from the original —       |
++--------------------------------------------------------------+
+
+
+
+
 <span style="font-size: 300px; padding-left: 100px">🚨</span>
 
+<!--
+https://observablehq.com/@tomlarkworthy/catch-all
+-->
 
 
 *catchAll* registers a callback that will be informed of any uncaught cell errors in the notebook. 
@@ -26,29 +41,51 @@ You can pass an *invalidation* promise as the 2nd argument to clean up the obser
 
 ### Demo
 
-```js
-const errorTrigger = view(Inputs.button(html`throw an error`, { required: true }))
+<!--
+// FIGURE OUT HOW TO LINK TO MUTABLE SO THAT ITS VALUE CHANGES
+// const errorTriggerEl = Mutable(null);
+-->
+
+```js echo
+//viewof errorTrigger = Inputs.button(md`throw an error`, { required: true })
+const errorTriggerInput = Inputs.button(html`throw an error`, { required: true })
+
+const errorTrigger = Generators.input(errorTriggerInput);
 ```
 
 ```js
-view(Inputs.table(errorLog))
+display(errorTriggerInput);
+display(errorTrigger)
 ```
 
 ```js echo
-const errorCell = () =>{
+const errorCell = (() => {
   errorTrigger;
   // Errors thrown here are picked up by catchAll
   throw new Error("An error " + Math.random().toString(16).substring(3));
+})();
+display(errorCell)
+```
+
+
+
+### Implementation
+
+```js echo
+const errorLog = Mutable([]);
+
+const catchAll = (handler, invalidation) => {
+  const listener = () => handler("unknown", error.value);
+  error.addEventListener("input", listener);
+  if (invalidation)
+    invalidation.then(() => {
+      error.removeEventListener(listener);
+    });
 }
-```
 
-```js echo
-let errorLog = Mutable([])
-```
-
-```js echo
+// update the mutable using .value
 catchAll((cellName, reason) => {
-  const errorLog = errorLog.concat({
+  let errorLog = errorLog.concat({
     cellName,
     reason
   });
@@ -57,10 +94,36 @@ catchAll((cellName, reason) => {
 
 
 
-### Implementation
+```js echo
+display(catchAll);
+```
 
 ```js echo
-const error = display(() => {
+display(errorLog)
+```
+
+```js echo
+view(Inputs.table(errorLog))
+```
+
+
+
+
+```js echo
+// re-including outside of mutable definition for testing
+display(catchAll((cellName, reason) => {
+  let errorLog = errorLog.concat({
+    cellName,
+    reason
+  });
+}, invalidation));
+```
+
+
+
+
+```js echo
+const errorElement = (() => {
   const view = Inputs.input();
 
   const notify = (event) => {
@@ -90,19 +153,20 @@ const error = display(() => {
     invalidation.then(observer.disconnect);
   }
   return view;
-})
+})();
+
+let error = Generators.input(errorElement)
 ```
 
 ```js echo
-const catchAll = (handler, invalidation) => {
-  const listener = () => handler("unknown", error.value);
-  error.addEventListener("input", listener);
-  if (invalidation)
-    invalidation.then(() => {
-      error.removeEventListener(listener);
-    });
-}
+display(errorElement);
 ```
+
+```js echo
+display(error);
+```
+
+
 
 ### Tests and CI
 
@@ -111,6 +175,25 @@ We load the testing framework asynchronously to avoid statically depending on te
 Continuous integration is important for a library like this where API changes in Observable can easily break the implementation.
 
 ```js echo
+/// FIX THIS
+
+///const testing = {
+///  viewof errorTrigger, catchAll;
+///  const [{ Runtime }, { default: define }] = await Promise.all([
+///    import(
+///      "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js"
+///    ),
+///    import(`https://api.observablehq.com/@tomlarkworthy/testing.js?v=3`)
+///  ]);
+///  const module = new Runtime().module(define);
+///  return Object.fromEntries(
+///    await Promise.all(
+///      ["expect", "createSuite"].map((n) => module.value(n).then((v) => [n, v]))
+///    )
+///  );
+///}
+
+
 const testing = await (async () => {
   // import modules
   const [{ Runtime }, { default: define }] = await Promise.all([
@@ -136,32 +219,24 @@ display(testing)
 const suite = view(testing.createSuite())
 ```
 
+<!---
+Investigate MUTABLE
+--->
+
 ```js echo
 suite.test("Errors are logged", async (done) => {
-  const numErrors = mutable errorLog.length;
+//  const numErrors = mutable errorLog.length;
+  const numErrors = errorLog.length;
   errorTrigger.dispatchEvent(new Event("input")); // trigger an error
   setTimeout(() => {
-    const newNumErrors = mutable errorLog.length;
+//    const newNumErrors = mutable errorLog.length;
+    const newNumErrors = errorLog.length;
     testing.expect(newNumErrors - numErrors).toBeGreaterThan(0);
     done();
   }, 500);
 })
-```
 
-```js echo
-//EXPERIMENTAL: 
-//  within Observable Framework define(runtime, observer)
-define("errorsLoggedTest", ["suite", "mutable errorLog", "errorTrigger", "testing"], function(suite, $0, errorTrigger, testing) {
-  suite.test("Errors are logged", async () => {
-    const numErrors = $0.value.length;
-    errorTrigger.dispatchEvent(new Event("input"));
-    await new Promise(resolve => setTimeout(resolve, 500));
-    const newNumErrors = $0.value.length;
-    testing.expect(newNumErrors - numErrors).toBeGreaterThan(0);
-  });
-});
 ```
-
 
 
 ```js

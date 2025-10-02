@@ -284,7 +284,7 @@ const suite = createSuite({
 
 const JEST_EXPECT_STANDALONE_VERSION = "24.0.2"
 
-const expect = (async () => {
+export const expect = (async () => {
   console.log("loding expect");
   if (window.expect) return window.expect;
   return require(`jest-expect-standalone@${JEST_EXPECT_STANDALONE_VERSION}/dist/expect.min.js`).catch(() => {

@@ -1,7 +1,7 @@
 # Starting [Github Action](https://docs.github.com/en/actions) Workflows From [Observable](https://observablehq.com/)
 
 ```js
-Octokit = await import("https://cdn.skypack.dev/@octokit/core@2.1.0")
+const Octokit = await import("https://cdn.skypack.dev/@octokit/core@2.1.0")
 ```
 
 ```js
@@ -25,7 +25,7 @@ import { endpoint, subdomain } from "@endpointservices/webcode"
 ```
 
 ```js
-dispatchProxyName = ({ owner, repo, event_type }) =>
+const dispatchProxyName = ({ owner, repo, event_type }) =>
   "dispatch_" + owner + "_" + repo + "_" + event_type
 ```
 
@@ -102,9 +102,9 @@ function createDispatchProxy({
 ```
 
 ```js
-import { footer } from "@endpointservices/footer"
+//import { footer } from "@endpointservices/footer"
 ```
 
 ```js
-footer
+//footer
 ```

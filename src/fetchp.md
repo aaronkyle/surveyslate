@@ -4,37 +4,37 @@ A drop in replacement for [fetch](https://developer.mozilla.org/en-US/docs/Web/A
 
 When you import _fetchp_, you are actually statically defining a [serverless-cell](https://observablehq.com/@endpointservices/serverless-cells) proxy in the consuming notebook on a unique URL. So you need to publish or link share your notebook before it works. 
 
-~~~js
-    import {fetchp} from '@tomlarkworthy/fetchp'
-    ...
-    const response = await fetchp(url, options)
-~~~
+    ~~~js
+        import {fetchp} from '@tomlarkworthy/fetchp'
+        ...
+        const response = await fetchp(url, options)
+    ~~~
 
 
 You can restrict the allowed domains the proxy can call and inject [secrets](https://observablehq.com/@endpointservices/secrets) so you can narrow the flexibility of the proxy to just your use case for that notebook.
 
-~~~js
-    secrets = ({ API_KEY: 'tomlarkworthy_API_KEY' })
-    ---
-    trusted_domain = ['endpointservice.web.app']
-    ---
-    import { fetchp } with {
-       trusted_domain as ALLOW_DOMAINS,
-       secrets as SECRET_PARAMS
-    } from '@tomlarkworthy/fetchp'
-~~~
+    ~~~js
+        secrets = ({ API_KEY: 'tomlarkworthy_API_KEY' })
+        ---
+        trusted_domain = ['endpointservice.web.app']
+        ---
+        import { fetchp } with {
+          trusted_domain as ALLOW_DOMAINS,
+          secrets as SECRET_PARAMS
+        } from '@tomlarkworthy/fetchp'
+    ~~~
 
 If *fetchp* is called within a serverless environment (where CORS is allowed), and does not need access to secrets, then it will skip using a proxy and go direct.
 
 You can ask fetchp to add headers to the response, e.g. to set cache control, by setting the option _responseHeaders_
 
-~~~js
-    fetchp(<URL>, {
-      responseHeaders: {
-        "Cache-control": "public, max-age=3600"
-      }
-    })
-~~~
+    ~~~js
+        fetchp(<URL>, {
+          responseHeaders: {
+            "Cache-control": "public, max-age=3600"
+          }
+        })
+    ~~~
 
 To see some executable examples check out the [tests](https://observablehq.com/@tomlarkworthy/fetchp-tests)
 
@@ -56,27 +56,27 @@ To see some executable examples check out the [tests](https://observablehq.com/@
 
 
 ```js
-SECRET_PARAMS = ({})
+const SECRET_PARAMS = ({})
 ```
 
 ```js
-ALLOW_DOMAINS = null
+const ALLOW_DOMAINS = null
 ```
 
 ```js
-BASIC_AUTH = null
+const BASIC_AUTH = null
 ```
 
 ```js
-MODIFIERS = ['terminal']
+const MODIFIERS = ['terminal']
 ```
 
 ```js
-id = hash([ALLOW_DOMAINS, SECRET_PARAMS, BASIC_AUTH, MODIFIERS]).substring(30)
+const id = hash([ALLOW_DOMAINS, SECRET_PARAMS, BASIC_AUTH, MODIFIERS]).substring(30)
 ```
 
 ```js
-fetchp = async (url, options) => {
+const fetchp = async (url, options) => {
   options = options || {};
   let retries = options.retries || 10;
   let response = null;
@@ -153,25 +153,21 @@ fetchp = async (url, options) => {
 }
 ```
 
-```js
-md` Use like normal [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). The implementation just serialize the two parameters and executed on a remote headless Chrome that has had CORS disabled.
+Use like normal [fetch](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API). The implementation just serialize the two parameters and executed on a remote headless Chrome that has had CORS disabled.
 
-~~~js
-response = await fetchp("https://google.com", {
-  method: ...
-  headers: {...}
-});
-~~~
+    ~~~js
+    response = await fetchp("https://google.com", {
+      method: ...
+      headers: {...}
+    });
+    ~~~
 
-`
-```
 
-```js
-md`### Serverside Implementation`
-```
+### Serverside Implementation
+
 
 ```js echo
-proxy = deploy(
+const proxy = deploy(
   `proxy_${id}`, // Each proxy gets unique ID so they are not confused in notebooks with many
   async (req, res, ctx) => {
     try {
@@ -276,25 +272,31 @@ proxy = deploy(
 )
 ```
 
-```js
-tryme = { // Press it really quickly and see the 429 errors hidden from caller
+```js echo
+const tryme = () => { // Press it really quickly and see the 429 errors hidden from caller
   const button = html`<button>try me</button>`
   button.onclick = async () => {
     const response = await fetchp("https://google.com");
     console.log("Response " + response.status);
   }
   return button;
-}
+};
+display(tryme)
 ```
 
-```js
-hash = require('object-hash')
+```js echo
+import hash from 'npm:object-hash';
+display(hash)
 ```
 
-```js
-array = value => (value ? [value] : [])
+```js echo
+const array = value => (value ? [value] : []);
+display(array)
 ```
 
-```js
-import { deploy, getContext } from "@tomlarkworthy/serverless-cells";
+```js echo
+//import { deploy, getContext } from "@tomlarkworthy/serverless-cells";
+import { deploy, getContext } from "/components/serverless-cells.js";;
+display(deploy);
+display(getContext)
 ```

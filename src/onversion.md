@@ -2,9 +2,9 @@
 
 Execute a JS callback function when a notebook version is created (note the code will be executed on a remote machine). Could be useful for wiring up Observable as the front end to a CRM or for a Continuous Delivery process. Publishing a notebook always causes a version bump.
 
-~~~js
-import { onVersion } from "@endpointservices/onversion"
-~~~
+     ~~~js
+     import { onVersion } from "@endpointservices/onversion"
+     ~~~
 
 A good initial hook is to call a [request logging service](https://observablehq.com/@endpointservices/realtime-request-log) so you can confirm the hook is firing. 
 
@@ -53,7 +53,7 @@ For our example we called an external [request log](https://observablehq.com/@en
 <img width=500 src=${await FileAttachment("image@1.png").url()}></img>
 
 ```js
-nonce = 3
+const nonce = 3
 ```
 
 ```js echo
@@ -69,7 +69,7 @@ onVersion((metadata) => {
 We check to see if the URL is prefixed with /thumbnail
 
 ```js echo
-extractMetadata = (pathname) => {
+const extractMetadata = (pathname) => {
   const match = /^\/thumbnail\/(\S+)@(\d+)/.exec(pathname);
   if (!match) return undefined;
   return {
@@ -80,7 +80,7 @@ extractMetadata = (pathname) => {
 ```
 
 ```js echo
-onVersion = async (work) => {
+const onVersion = async (work) => {
   const metadata = extractMetadata(html`<a href="#">`.pathname);
   if (metadata) {
     work(metadata);
@@ -90,9 +90,9 @@ onVersion = async (work) => {
 ```
 
 ```js
-import { footer } from "@endpointservices/footer"
+//import { footer } from "@endpointservices/footer"
 ```
 
 ```js
-footer
+//footer
 ```

@@ -458,17 +458,25 @@ const createInvalidation = (distributionId, paths = []) => {
 
 
 ```js echo
-//import { expect } from '/exports/testing/index.js'
-import { expect } from '/components/testing.js'
+//import * as expect from '/exports/testing/index.js'
+import { expect } from '/components/testing.js';
+display(expect)
 ```
 
 ```js echo
 //import { randomId } from '/exports/randomid.tgz'
-import { randomId } from '/components/randomid.js'
+//import { randomId } from '/exports/randomid/index.js'
+//import * as randomId from '/exports/randomid/index.js'
+import { randomId } from '/components/randomid.js';
+display(randomId)
 ```
 
-```js
-import { resize } from '/exports/resize.tgz'
+```js echo
+//import { resize } from '/exports/resize.tgz'
+//import { resize } from '/exports/resize/index.js';
+//import * as resize from '/exports/resize/index.js';
+import { resize } from '/components/resize.js';
+display(resize)
 ```
 
 ```js echo
@@ -477,8 +485,11 @@ import { localStorage } from "/components/safe-local-storage.js";
 display(localStorage)
 ```
 
-```js
-import { signature } from '/exports/signature.tgz'
+```js echo
+//import { signature } from '/exports/signature.tgz'
+//  import * as signature from '/exports/signature/index.js'
+import { signature } from '/components/signature.js'
+display(signature)
 ```
 
 

@@ -5,11 +5,12 @@ Based on an idea by Bryan Gin-ge Chen (which he explores in his notebook [Dirty 
 *Related discussion: [Check if a cell is defined](https://talk.observablehq.com/t/check-if-a-cell-is-defined/4351/3)*
 
 Suggested imports:
-```
-~~~js
-import {runtime, main, observed} from '@mootari/access-runtime'
-~~~
-```
+
+      ```
+      ~~~js
+      import {runtime, main, observed} from '@mootari/access-runtime'
+      ~~~
+      ```
 
 
 <style>
@@ -39,11 +40,13 @@ import {runtime, main, observed} from '@mootari/access-runtime'
 
 ```js echo
 //const runtime = recomputeTrigger, captureRuntime
-const runtime = captureRuntime
+const runtime = captureRuntime;
+display(runtime)
 ```
 
 ```js echo
-const main = Array.from(modules).find(d => d[1] === 'main')[0]
+const main = Array.from(modules).find(d => d[1] === 'main')[0];
+display(main)
 ```
 
 ```js echo
@@ -69,7 +72,8 @@ const modules = () => {
   ];
   
   return new Map(labels);
-}
+};
+display(modules)
 ```
 
 ### Utilities
@@ -81,7 +85,8 @@ function observed(variable = null) {
   const vars = new Set();
   for(const v of runtime._variables) _observed(v) && vars.add(v);
   return vars;
-}
+};
+display(observed)
 ```
 
 ```js echo
@@ -90,7 +95,8 @@ const no_observer = () => {
   const o = v._observer;
   v.delete();
   return o;
-}
+};
+display(no_observer)
 ```
 
 ### Internals
@@ -108,7 +114,8 @@ const captureRuntime = new Promise(resolve => {
   };
   //mutable recomputeTrigger = mutable recomputeTrigger + 1;
   set_recomputeTrigger(recomputeTrigger + 1)
-})
+});
+display(captureRuntime)
 ```
 
 ```js echo
@@ -118,7 +125,8 @@ const set_recomputeTrigger = (t) => recomputeTrigger.value = t;
 ```
 
 ```js
-recomputeTrigger
+recomputeTrigger;
+display(recomputeTrigger)
 ```
 
 ---
@@ -128,6 +136,7 @@ recomputeTrigger
 
 ```js echo
 const ex_refresh = view(Inputs.button('Refresh'))
+display(ex_refresh)
 ```
 
 ### Defined variables
@@ -144,6 +153,7 @@ const ex_vars = (() => {
     outputs: v._outputs.size
   }));
 })();
+display(ex_vars)
 ```
 
 ```js echo
@@ -168,7 +178,7 @@ const ex_vars_filters = () => view(() => {
     })
   });
 });
-
+display(ex_vars_filters)
 ```
 
 ```js echo
@@ -187,7 +197,8 @@ const ex_vars_table = () => {
     && (!outputs || d.outputs)
   );
   return Inputs.table(data);
-}
+};
+display(ex_vars_table)
 ```
 
 ### Dependency matrix
@@ -216,7 +227,8 @@ const ex_deps = () => {
     }
   );
   
-}
+};
+display(ex_deps)
 ```
 
 ---

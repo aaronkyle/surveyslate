@@ -1,26 +1,52 @@
 # Composing viewofs with the _view_ literal
 
+<!--NOTE: This is a complex notebook to convert. -->
+
+```js
+import { DOM } from "/components/DOM.js"
+```
+
+```js
+import markdownit from "npm:markdown-it";
+```
+
+```js
+const Markdown = new markdownit({html: true});
+
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+
 Lets make custom UIs on Observable _easy_ by composing views.
 
 We wrap the amazing [hypertext literal](https://observablehq.com/@observablehq/htl) with a interceptor that looks for _[key, view]_ arguments. It uses the key to determine what field to map the view's value to in the container.
 
-```
-~~~js
-viewof container = view\`<div>
-  \${["child1", Inputs.text()]}
-  \${["child2", Inputs.range()]}\`
-~~~
-```
+      ```
+      ~~~js
+      viewof container = view\`<div>
+        \${["child1", Inputs.text()]}
+        \${["child2", Inputs.range()]}\`
+      ~~~
+      ```
 
 The syntax of a 2 element array is inspired by [Object.entries(...)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/entries).
 
 By reusing the [hypertext literal](https://observablehq.com/@observablehq/htl) you are able to build your custom ui view using HTML, the best abstraction for layout. Because _view_ itself is a viewof, finally, we can hierarchically build up custom views from standard library views like [@observablehq/inputs](https://observablehq.com/@observablehq/inputs)
 
-```
-~~~js
-     import {view} from '@tomlarkworthy/view'
-~~~
-````
+      ```
+      ~~~js
+          import {view} from '@tomlarkworthy/view'
+      ~~~
+      ````
 
 #### How to use the view-literal in UI development
 
@@ -55,7 +81,7 @@ The original need for a UI composition helper was noted by [@mootari](/@mootari)
 #### Demo
 
 ```js echo
-viewof composite = view`<div style="display: flex; justify-content:space-between; ">
+const composite = view`<div style="display: flex; justify-content:space-between; ">
 <div style="display: flex-column;">
   <div>${["r1", Inputs.range([0, 10])]}</div>
   <div>${["r2", Inputs.range([0, 3])]}</div>
@@ -76,14 +102,16 @@ viewof composite = view`<div style="display: flex; justify-content:space-between
 You can write the values back into the component by setting 'value'. This works for sub-components too, as long as everything is following [reusability guidlines](https://observablehq.com/@tomlarkworthy/ui-linter).
 
 
+
 ```js echo
 htl.html`<button onclick=${() => {
-  viewof composite.value = {
+//  viewof composite.value = {
+  composite.value = {
     r1: Math.random() * 10,
     r2: Math.random() * 3,
     text: `${Math.random()}`
   };
-  viewof composite.dispatchEvent(new Event('input'));
+  composite.dispatchEvent(new Event('input'));
 }}> randomize composite`
 ```
 
@@ -93,7 +121,8 @@ htl.html`<button onclick=${() => {
 
 
 ```js echo
-viewof singleton = view`<div><h4>My control</h4>${['...', Inputs.range()]}`
+// NOTE:  We need to reconcile this with how views work in Framework
+const singleton = view(view`<div><h4>My control</h4>${['...', Inputs.range()]}`)
 ```
 
 ```js echo
@@ -101,8 +130,9 @@ singleton
 ```
 
 ```js echo
-viewof singleton
+// viewof singleton
 ```
+
 ## Collections -- Arrays
 
   You can bind an array of views to a single parameter with _\[string, ArrayOfViews]_. 
@@ -111,27 +141,32 @@ If you supply a third argument, a build function of _data => view_ the list can 
 
 
 ```js echo
-viewof arrayCollection = view`<div>${[
+// This was defined as a view in the original notebook.
+const arrayCollection = view(view`<div>${[
   "elements",
   Array.from({ length: 5 }, () => Inputs.range())
-]}`
+]}`)
 ```
 
 ```js echo
-viewof arrayCollection.elements
+arrayCollection.elements
 ```
 
 Array bindings are mutable, you can write DOM components to the viewof layer
 
 ```js echo
+// This needs to be reconciled with how views work in Framework.
 Inputs.button("Add a slider", {
   reduce: () => {
-    viewof arrayCollection.elements = [
-      ...viewof arrayCollection.elements,
+    //viewof arrayCollection.elements = [
+    arrayCollection.elements = [
+    //  ...viewof arrayCollection.elements,
+      ...arrayCollection.elements,
       Inputs.range() // Add another viewof
     ];
     // dispatch the input event so dataflow gets updated
-    viewof arrayCollection.dispatchEvent(new Event("input"));
+    //viewof arrayCollection.dispatchEvent(new Event("input"));
+    arrayCollection.dispatchEvent(new Event("input"));
   }
 })
 ```
@@ -150,11 +185,12 @@ If you provide a rowBuilder function as the third argument the view will build n
 
 
 ```js echo
-viewof dynamicArrayCollection = view`<div>${[
+// viewof dynamicArrayCollection = view`<div>${[
+const dynamicArrayCollection = view(view`<div>${[
   'elements',
   [],
   val => Inputs.range([0, 1], { value: val }) // rowBuilder
-]}`
+]}`)
 ```
 
 ```js echo
@@ -162,7 +198,8 @@ Inputs.button("Add a slider", {
   reduce: () => {
     dynamicArrayCollection.elements.push(Math.random());
     // dispatch the input event so dataflow gets updated
-    viewof dynamicArrayCollection.elements.dispatchEvent(new Event("input"));
+    //viewof dynamicArrayCollection.elements.dispatchEvent(new Event("input"));
+    dynamicArrayCollection.elements.dispatchEvent(new Event("input"));
   }
 })
 ```
@@ -172,13 +209,14 @@ Inputs.button("Remove a slider", {
   reduce: () => {
     dynamicArrayCollection.elements.pop();
     // dispatch the input event so dataflow gets updated
-    viewof dynamicArrayCollection.elements.dispatchEvent(new Event("input"));
+    //viewof dynamicArrayCollection.elements.dispatchEvent(new Event("input"));
+    dynamicArrayCollection.elements.dispatchEvent(new Event("input"));
   }
 })
 ```
 
 ```js
-objects = md`## Collections -- Objects
+const objects = md`## Collections -- Objects
 
   You can bind an object of [string, view] to many parameters with the special spread key '_..._'
 
@@ -186,13 +224,14 @@ objects = md`## Collections -- Objects
 ```
 
 ```js echo
-viewof objectCollection = view`${[
+// viewof objectCollection = view`${[
+const objectCollection = view(view`${[
   '...',
   {
     number: Inputs.range(),
     text: Inputs.text()
   }
-]}`
+]}`)
 ```
 
 ```js echo
@@ -205,11 +244,12 @@ If you supply a view builder, _(data) => view_ as the third argument, you can dy
 
 
 ```js echo
-viewof dynamicObjectCollection = view`<div>${[
+// viewof dynamicObjectCollection = view`<div>${[
+const dynamicObjectCollection = view(view`<div>${[
   '...',
   {},
   txt => Inputs.text({ value: txt })
-]}`
+]}`)
 ```
 
 ```js echo
@@ -217,7 +257,7 @@ dynamicObjectCollection
 ```
 
 ```js echo
-viewof dynamicObjectCollection
+// viewof dynamicObjectCollection
 ```
 
 ```js echo
@@ -236,11 +276,15 @@ Inputs.button("Pick one of three keys and randomize their value", {
 ```js echo
 Inputs.button("Delete a random key", {
   reduce: () => {
-    const copy = { ...viewof dynamicObjectCollection.value };
+    //const copy = { ...viewof dynamicObjectCollection.value };
+    const copy = { ...dynamicObjectCollection.value };
     const key = "k" + Math.floor(Math.random() * 3);
     delete copy[key];
-    viewof dynamicObjectCollection.value = copy;
-    viewof dynamicObjectCollection.dispatchEvent(
+    //viewof dynamicObjectCollection.value = copy;
+    dynamicObjectCollection.value = copy;
+    //viewof dynamicObjectCollection.dispatchEvent(
+    dynamicObjectCollection.dispatchEvent(
+
       new Event('input', { bubbles: true })
     );
   }
@@ -248,7 +292,8 @@ Inputs.button("Delete a random key", {
 ```
 
 ```js echo
-viewof dynamicObjectCollection.value
+//viewof dynamicObjectCollection.value
+dynamicObjectCollection.value
 ```
 
 ## Hidden views
@@ -259,16 +304,22 @@ known issues: does not work well with singletons.|
 
 
 ```js echo
-viewof hiddenView = view`<div><h4>My hidden control</h4>${[
+//viewof hiddenView = view`<div><h4>My hidden control</h4>${[
+const hiddenView = view(view`<div><h4>My hidden control</h4>${[
   '_hidden',
-  viewof singleton
-]}`
+//  viewof singleton
+singleton
+
+]}`)
 ```
 
 ```js echo
 {
-  viewof hiddenView.hidden.value = 0.60;
-  viewof hiddenView.hidden.dispatchEvent(new Event("input", { bubble: true }));
+  //viewof hiddenView.hidden.value = 0.60;
+  //viewof hiddenView.hidden.dispatchEvent(new Event("input", { bubble: true }));
+  hiddenView.hidden.value = 0.60;
+  hiddenView.hidden.dispatchEvent(new Event("input", { bubble: true }));
+
 }
 ```
 
@@ -335,12 +386,13 @@ function cautious(
 
 #### Cautious demo
 
-```js
+```js echo
 cautiousNestedDemo
 ```
 
 ```js echo
-viewof cautiousNestedDemo = view`
+//viewof cautiousNestedDemo = view`
+const cautiousNestedDemo = view(view`
   ${[
     "c1",
     cautious(
@@ -364,7 +416,7 @@ viewof cautiousNestedDemo = view`
     )
   ]}
 
-`
+`)
 ```
 
 ### bindOneWay
@@ -379,28 +431,34 @@ The signature follows Observables precedence (https://github.com/observablehq/in
 
 
 ```js
-viewof slider = Inputs.range([0, 10], { value: 0, label: "Try increasing me" })
+//viewof slider = Inputs.range([0, 10], { value: 0, label: "Try increasing me" })
+const slider = view(Inputs.range([0, 10], { value: 0, label: "Try increasing me" }))
 ```
 
 ```js echo
-viewof levels = bindOneWay(
+//viewof levels = bindOneWay(
+const levels = view(bindOneWay(
   Inputs.radio(["0", "low", "high"], { disabled: true }),
-  viewof slider,
+//  viewof slider,
+slider,
   {
     transform: v => (v === 0 ? "0" : v < 5 ? "low" : "high")
   }
-)
+))
 ```
 
 ```js echo
-viewof levelsText = bindOneWay(Inputs.text({ disabled: true }), viewof levels, {
+//viewof levelsText = bindOneWay(Inputs.text({ disabled: true }), viewof levels, {
+const levelsText = view(bindOneWay(Inputs.text({ disabled: true }), 
+//viewof levels, {
+levels, {
   transform: l => `The level is ${l}`
-})
+}))
 ```
 
-```js
+```js echo
 // Copied from https://github.com/observablehq/inputs/blob/main/src/bind.js
-bindOneWay = {
+const bindOneWay = () =>{
   function disposal(element) {
     return new Promise((resolve) => {
       requestAnimationFrame(() => {
@@ -521,7 +579,7 @@ function variable(value, { name = "variable" } = {}) {
 ```
 
 ```js echo
-exmple_variable = variable(5)
+const exmple_variable = variable(5)
 ```
 
 ```js echo
@@ -1010,59 +1068,70 @@ function arrayView({
 md`length: ${numbers.length} with elements: ${numbers.join(", ")}`
 ```
 
-```js
+```js echo
 htl.html`<div style="display: flex;">
 ${Inputs.button("reset", {
   reduce: () => {
-    viewof numbers.value = [1, 2, 3, 4, 5, 6];
-    viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    //viewof numbers.value = [1, 2, 3, 4, 5, 6];
+    //viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    numbers.value = [1, 2, 3, 4, 5, 6];
+    numbers.dispatchEvent(new Event("input", { bubbles: true }));
+
   }
 })}
 ${Inputs.button("delete last", {
   reduce: () => {
     numbers.splice(numbers.length - 1, 1);
-    viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    //viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    numbers.dispatchEvent(new Event("input", { bubbles: true }));
   }
 })}
 ${Inputs.button("delete random", {
   reduce: () => {
     const choice = Math.random() * numbers.length;
     numbers.splice(choice, 1);
-    viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    //viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    numbers.dispatchEvent(new Event("input", { bubbles: true }));
   }
 })}
 ${Inputs.button("push number", {
   reduce: () => {
     numbers.push(numbers.length + 1);
-    viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    //viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    numbers.dispatchEvent(new Event("input", { bubbles: true }));
+
   }
 })}
 
 ${Inputs.button("unshift", {
   reduce: () => {
     numbers.unshift(0);
-    viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    //viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    numbers.dispatchEvent(new Event("input", { bubbles: true }));
   }
 })}
 
 ${Inputs.button("pop", {
   reduce: () => {
     numbers.pop();
-    viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    //viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    numbers.dispatchEvent(new Event("input", { bubbles: true }));
   }
 })}
 
 ${Inputs.button("shift", {
   reduce: () => {
     numbers.shift();
-    viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    //viewof numbers.dispatchEvent(new Event("input", { bubbles: true }));
+    numbers.dispatchEvent(new Event("input", { bubbles: true }));
   }
 })}
 `
 ```
 
-```js
-viewof numbers = view`<table>
+```js echo
+//viewof numbers = view`<table>
+const numbers = view(view`<table>
   ${[
     "...",
     arrayView({
@@ -1071,14 +1140,15 @@ viewof numbers = view`<table>
         view`<tr><td>${["...", Inputs.number({ value: number })]}</td></tr>`
     })
   ]}
-</table>`
+</table>`)
 ```
 
 ```js echo
-viewof arrayViewTests = testing.createSuite({
-  name: "arrayView Tests",
+//viewof arrayViewTests = testing.createSuite({
+const arrayViewTests = view(testing.createSuite({
+    name: "arrayView Tests",
   timeout_ms: 1000
-})
+}))
 ```
 
 ```js echo
@@ -1218,11 +1288,11 @@ arrayViewTests.test("arrayView push", () => {
 ## [Optional] Tests
 
 ```js
-RUN_TESTS = true // htl.html`<a href="">`.href.includes("@tomlarkworthy/view")
+const RUN_TESTS = true // htl.html`<a href="">`.href.includes("@tomlarkworthy/view")
 ```
 
-```js
-testing = {
+```js echo
+const testing = ( async () => {
   if (!RUN_TESTS) return invalidation;
   const [{ Runtime }, { default: define }] = await Promise.all([
     import(
@@ -1236,18 +1306,20 @@ testing = {
       ["expect", "createSuite"].map((n) => module.value(n).then((v) => [n, v]))
     )
   );
-}
+})();
+display(testing)
 ```
 
-```js
-viewof suite = testing.createSuite({
+```js echo
+const suite = view(testing.createSuite({
   name: "Unit Tests",
   timeout_ms: 1000
-})
+}));
+display(suite)
 ```
 
 ```js
-expect = testing.expect
+const expect = testing.expect
 ```
 
 ```js echo
@@ -1496,8 +1568,8 @@ suite.test("Collection object creates matching keys", async () => {
 })
 ```
 
-```js
-toc = {
+```js echo
+const toc = async () => {
   const [{ Runtime }, { default: define }] = await Promise.all([
     import(
       "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js"
@@ -1506,7 +1578,9 @@ toc = {
   ]);
   const module = new Runtime().module(define);
   return module.value("toc");
-}
+};
+
+display (await toc())
 ```
 
 ```js
@@ -1518,9 +1592,9 @@ toc = {
 ```
 
 ```js echo
-import { exporter } from "@tomlarkworthy/exporter"
+// import { exporter } from "@tomlarkworthy/exporter"
 ```
 
 ```js echo
-exporter()
+// exporter()
 ```
