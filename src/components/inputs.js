@@ -3,7 +3,8 @@
 
 
 //import { Inputs } from "@observablehq/inputs";
-import * as Inputs from "https://cdn.jsdelivr.net/npm/@observablehq/inputs@0.12/+esm";
+//import * as Inputs from "https://cdn.jsdelivr.net/npm/@observablehq/inputs@0.12/+esm";
+import * as Inputs from "/components/inputs_observable.js";
 import markdownit from "markdown-it";
 import { DOM } from "/components/DOM.js";
 import {require} from "npm:d3-require";

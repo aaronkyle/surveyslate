@@ -3,7 +3,49 @@
 _Reusable code components for survey development._
 
 
-<div style="max-width: ${width/1.75}px; margin: 30px 0; padding: 15px 30px; background-color: #e0ffff; font: 700 18px/24px sans-serif;">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
+```js
+
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+<style>
+  /* Base (light) theme */
+  .welcome-note {
+    --note-bg: #e0ffff;     /* Light: pale cyan */
+    --note-fg: #0b3d3d;     /* Light: deep teal text */
+    --note-border: #9edede; /* Light: soft border */
+    max-width: ${width/1.75}px;
+    margin: 30px 0;
+    padding: 15px 30px;
+    background-color: var(--note-bg);
+    color: var(--note-fg);
+    border: 1px solid var(--note-border);
+    border-radius: 10px;
+    font: 700 18px/24px sans-serif;
+  }
+
+  /* Dark theme override when the browser prefers dark mode */
+  @media (prefers-color-scheme: dark) {
+    .welcome-note {
+      --note-bg: #0f1f24;     /* Dark: deep blue-green */
+      --note-fg: #d8ffff;     /* Dark: soft cyan text */
+      --note-border: #245a61; /* Dark: subtle border */
+    }
+  }
+</style>
+
+<div class="welcome-note">${md`👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨`}</div>
 
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
 
@@ -30,6 +72,7 @@ const config = ({
 })
 ```
 
+
 ## Questions
 
 Every cell is wrapped so we can apply cross-cutting features like visibility and numbering to all controls
@@ -41,7 +84,7 @@ function questionWrapper({
     numbering = ""
   } = {}) {
   const hiddenVariable = variable(undefined, {name: 'hidden'})
-  const wrapper = view`<div class="mv3">
+  const wrapper = viewUI`<div class="mv3">
     ${['hidden', hiddenVariable]}
     <div class="f3 black-40 b sans-serif">${['numbering', textNodeView()]}</div>
     ${['control', control]}
@@ -60,7 +103,7 @@ function questionWrapper({
 }
 ```
 
-```js
+```js echo
 // Special arg suffixes like _json, _md, _html are converted to real objects
 function reifyAttributes(args) {
   const reifyAttribute = ([k, v]) => {
@@ -95,7 +138,7 @@ function reifyAttributes(args) {
 } 
 ```
 
-```js
+```js echo
 const createQuestion = (q, index, options) => {
   const args = reifyAttributes(q);
   
@@ -181,10 +224,13 @@ const createQuestion = (q, index, options) => {
 }
 ```
 
-```js
-viewof example_q = {
+```js echo
+//!!!!!!!!!!!!!!!!!
+//!!!!! NOTE: We have to adjust the use of viewof here.
+//!!!!!!!!!!!!!!!!
+const example_q = view(() => {
   return createQuestion(JSON.parse(`{"id":"viewof borrower_GESI_support_equal_pay","type":"radio","title":"Do you provide equal pay for work of equal value of women and men?","options":[{"value":"No","label":"No"},{"value":"Yes","label":"Yes"}],"value":"savedFormData.borrower_GESI_support_equal_pay"}`))
-}
+})
 ```
 
 ```js echo
@@ -192,7 +238,7 @@ example_q.numbering = "34."
 ```
 
 ```js echo
-viewof example_q
+example_q
 ```
 
 ```js echo
@@ -277,11 +323,11 @@ function table({
     //     }
     //   });
     // }
-    return view`<tr>
+    return viewUI`<tr>
           <th>${user_rows ? ['label', labelInput] : md`${row.label}`}</th>
           ${['...', Object.fromEntries(columns.map(
-            column => [column.key, view`<td>${['...', htl.html`<input type="number" value="${value?.[row.key]?.[column.key] || 0}" min="0">`]}</td>`]))]}
-          ${user_rows ? view`<td>${deleteBtn}</td>` : ''}
+            column => [column.key, viewUI`<td>${['...', htl.html`<input type="number" value="${value?.[row.key]?.[column.key] || 0}" min="0">`]}</td>`]))]}
+          ${user_rows ? viewUI`<td>${deleteBtn}</td>` : ''}
         </tr>`
   }
   const newRow = cautious((done) => {
@@ -300,13 +346,13 @@ function table({
   }, {nospan: true});
   
   
-  let table = view`<div>
+  let table = viewUI`<div>
     <h2>${title}</h2>
     <div class="table-ui-wrapper">
       <table class="table-ui">
         <thead class="bb bw1 b--light-gray">
           <th></th>
-          ${columns.map(column => view`<th>${column.label}</th>`)}
+          ${columns.map(column => viewUI`<th>${column.label}</th>`)}
         </thead>
         <tbody>
           ${['...', {}, rowBuilder]}
@@ -314,13 +360,13 @@ function table({
         <tfoot class="bt bw1 b--light-gray">
           ${user_rows ? newRow : ''}
           ${columns[0].total ?
-            view`<tr>
+            viewUI`<tr>
               <th>Sub-Totals:</th>
-              ${columns.map(c => view`<td><div class="subtotal"><strong>${subtotals[c.key]} ${c.total}</strong></div></td>`)}
+              ${columns.map(c => viewUI`<td><div class="subtotal"><strong>${subtotals[c.key]} ${c.total}</strong></div></td>`)}
             </tr>`
           : null}
           ${grandTotal ?
-            view`<tr>
+            viewUI`<tr>
               <th><h3>${grandTotal}</h3></th>
               <td colspan="${columns.length}"><h3>${total} ${grandTotalLabel}</h3></td>
             </tr>`
@@ -365,7 +411,7 @@ exampleTable
 ```
 
 ```js
-tableStyles = html`<style>
+const tableStyles = html`<style>
 form.${ns} {
   width: auto;
 }
@@ -420,7 +466,7 @@ form.${ns} {
 ```
 
 ```js echo
-viewof exampleTable = table({
+const exampleTable = view(table({
   value: {
    board: {
     w: 10,
@@ -448,7 +494,7 @@ viewof exampleTable = table({
   grandTotalLabel: htl.html`<br>people`,
   caption: md`<small>_Please enumerate the sex distribution and number of persons with disabilities in your workforce—ensuring to avoid double counting. If you find that this format does not adequately reflect your organization, please submit your data separately to ADB. If you have information for multiple years, please also submit separately.
 ._</small>`
-})
+}))
 ```
 
 ```js echo
@@ -456,7 +502,7 @@ exampleTable
 ```
 
 ```js
-viewof userEditableTableExample = createQuestion({
+const userEditableTableExample = view(createQuestion({
   type: 'table',
   value: {
     "indigenous": {label: "Indigenous Peoples", w: 3, m: 12, unknown: 5, other: 4}
@@ -466,7 +512,7 @@ viewof userEditableTableExample = createQuestion({
   user_rows: true,
   table_total_label: '<br>people',
   caption_md: `<small>_**Excluded and Vulnerable Groups** ...._</small>`
-})
+}))
 ```
 
 ```js echo
@@ -474,12 +520,12 @@ userEditableTableExample
 ```
 
 ```js
-viewof basicTable = table({
+const basicTable = view(table({
   
   value: {
     "cool": {label:"very cool", c1: "27"}
   },
-  columns: [{key: "c1", label: "c1"}], rows: [{key: "r1", label: "r1"}], user_rows: true})
+  columns: [{key: "c1", label: "c1"}], rows: [{key: "r1", label: "r1"}], user_rows: true}))
 ```
 
 ```js echo
@@ -489,19 +535,17 @@ basicTable
 ```js echo
 Inputs.button("backwrite", {
   reduce: () => {
-    viewof basicTable.value = {"r1": {label: "r1", "c1": "3"}, "r2": {label: "r1", "c1": "2"}};
-    viewof basicTable.dispatchEvent(new Event('input', {bubbles: true}))
+    basicTable.value = {"r1": {label: "r1", "c1": "3"}, "r2": {label: "r1", "c1": "2"}};
+    basicTable.dispatchEvent(new Event('input', {bubbles: true}))
   }
 })
 ```
 
-```js
-md`### File attachment`
-```
+### File attachment
 
 ```js echo
 const file_attachment = (options) => {
-  const row = file => view`<li>${['name', textNodeView(file.name)]}
+  const row = file => viewUI`<li>${['name', textNodeView(file.name)]}
       ${download(async () => {
         return new Blob(
           [await options.getFile(file.name)], 
@@ -509,7 +553,7 @@ const file_attachment = (options) => {
         )
       }, file.name, "Retrieve")}`
   
-  let ui = view`<div class="sans-serif">
+  let ui = viewUI`<div class="sans-serif">
     <p class="b">Existing files</p>
     <ul class="uploads">
       ${['uploads', [], row]}
@@ -553,7 +597,8 @@ const file_attachment = (options) => {
 ```
 
 ```js echo
-viewof exampleFileAttachment = {
+//viewof exampleFileAttachment = {
+const exampleFileAttachmentElement = () => {
   return createQuestion({
     "id":"GESI_national_law_files",
     "type":"file_attachment",
@@ -570,16 +615,24 @@ viewof exampleFileAttachment = {
 ```
 
 ```js echo
-exampleFileAttachment
-```
-
-```js
-md`### Clearable Radio
-`
+const exampleFileAttachment = Generators.input(exampleFileAttachmentElement)
 ```
 
 ```js echo
-viewof radioExamples2 = radio({
+exampleFileAttachmentElement()
+```
+
+```js echo
+exampleFileAttachment
+```
+
+
+
+### Clearable Radio
+
+```js echo
+//viewof radioExamples2 = radio({
+const radioExamples2 = view(radio({
   title: "A very long non sensical question to check the wrapping and layout of this component? A very long non sensical question.",
   options: [ 
     "cool",
@@ -587,13 +640,14 @@ viewof radioExamples2 = radio({
   ],
   value: "cool",
   description: "A slightly long and meaningless description to go with the options"
-})
+}))
 ```
 
 ```js
-viewof radioExample = radio({
+//viewof radioExample = radio({
+const radioExample = view(radio({
   options: ["cool", "not cool"]
-})
+}))
 ```
 
 ```js echo
@@ -601,7 +655,8 @@ radioExample
 ```
 
 ```js echo
-viewof radioExample
+//viewof radioExample
+radioExample
 ```
 
 ```js echo
@@ -651,19 +706,18 @@ const radio = (args) => {
 ### textarea
 
 ```js echo
-viewof exampleTextarea = textarea({
+//viewof exampleTextarea = textarea({
+const exampleTextarea = view(textarea({
   title: "title",
   description: "description",
   placeholder: "placeholder"
-})
+}))
 ```
 
-```js
-md`### Checkbox++
+### Checkbox++
 
 Includes a scoring function that has to be accessed through the view
-`
-```
+
 
 ```js echo
 const checkbox = (options) => {
@@ -683,7 +737,7 @@ const checkbox = (options) => {
   }
   const base = checkboxBase(options);
   
-  const ui = view`<div>
+  const ui = viewUI`<div>
     ${['...', base]}
   </div>`
   
@@ -770,8 +824,9 @@ const checkbox = (options) => {
 }
 ```
 
-```js
-viewof exampleCheckboxPlus = checkbox({
+```js echo
+//viewof exampleCheckboxPlus = checkbox({
+const exampleCheckboxPlus = view(checkbox({
   includeNoneOption: {label: "none of the below", score: 0},
   includeAllOption: {label: "all of the above", score: 4},
   options: [
@@ -782,7 +837,7 @@ viewof exampleCheckboxPlus = checkbox({
     {value: 'b', label: "option B", score: 2}
   ], 
   value: ['a', 'ALL', 'b']
-})
+}))
 ```
 
 ```js echo
@@ -790,7 +845,8 @@ exampleCheckboxPlus
 ```
 
 ```js echo
-viewof exampleCheckboxWithSpaces = checkbox({
+//viewof exampleCheckboxWithSpaces = checkbox({
+const exampleCheckboxWithSpaces = view(checkbox({
   includeNoneOption: {label: "", score: 0},
   includeAllOption: {label: "YES ALL", score: 4},
   options: [
@@ -799,28 +855,30 @@ viewof exampleCheckboxWithSpaces = checkbox({
   ], 
   value: ['a b'],
   description: "A slightly long and meaningless description to go with the options"
-})
+}))
 ```
 
 ```js echo
 exampleCheckboxWithSpaces
 ```
 
-```js
-viewof checkboxTests = createSuite({
+```js echo
+//viewof checkboxTests = createSuite({
+const checkboxTests = view(createSuite({
   name: "checkbox tests",
   timeout_ms: 1000
-})
+}))
 ```
 
 ```js echo
-viewof testCheckboxAll = checkbox({
+//viewof testCheckboxAll = checkbox({
+const testCheckboxAll = view(checkbox({
     includeAllOption: {label: "ALL"},
     options: [
       {value: 'a', label: "A"},
       {value: 'b', label: "B"}
     ],
-  })
+  }))
 ```
 
 ```js echo
@@ -832,57 +890,80 @@ function check(checkbox, value, checked = true) {
 }
 ```
 
-```js
+```js echo
+//viewof 
 checkboxTests.test("Tick ALL cascades", () => {
-  check(viewof testCheckboxAll, "a", false)
-  check(viewof testCheckboxAll, "b", false)
-  check(viewof testCheckboxAll, "ALL", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  //check(viewof testCheckboxAll, "a", false)
+  check(testCheckboxAll, "a", false)
+  //check(viewof testCheckboxAll, "b", false)
+  check(testCheckboxAll, "b", false)
+  //check(viewof testCheckboxAll, "ALL", true)
+  check(testCheckboxAll, "ALL", true)
+  //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
 })
 ```
 
-```js
+```js echo
+//viewof 
 checkboxTests.test("Tick a and b cascades to ALL", () => {
-  check(viewof testCheckboxAll, "ALL", false)
-  check(viewof testCheckboxAll, "a", true)
-  check(viewof testCheckboxAll, "b", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  //check(viewof testCheckboxAll, "ALL", false)
+  check(testCheckboxAll, "ALL", false)
+  //check(viewof testCheckboxAll, "a", true)
+  check(testCheckboxAll, "a", true)
+  //check(viewof testCheckboxAll, "b", true)
+  check(testCheckboxAll, "b", true)
+  //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
 })
 ```
 
-```js
+```js echo
+//viewof 
 checkboxTests.test("Untick ALL cascades", () => {
-  check(viewof testCheckboxAll, "a", true)
-  check(viewof testCheckboxAll, "b", true)
-  check(viewof testCheckboxAll, "ALL", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
-  check(viewof testCheckboxAll, "ALL", false)
-  expect(viewof testCheckboxAll.value).toEqual([])
+  //check(viewof testCheckboxAll, "a", true)
+  check(testCheckboxAll, "a", true)
+  //check(viewof testCheckboxAll, "b", true)
+  check(testCheckboxAll, "b", true)
+  //check(viewof testCheckboxAll, "ALL", true)
+  check(testCheckboxAll, "ALL", true)
+  //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  //check(viewof testCheckboxAll, "ALL", false)
+  check(testCheckboxAll, "ALL", false)
+  //expect(viewof testCheckboxAll.value).toEqual([])
+  expect(testCheckboxAll.value).toEqual([])
 })
 ```
 
-```js
+```js echo
 checkboxTests.test("Untick a cascades to ALL", () => {
+  //check(testCheckboxAll, "a", true)
   check(viewof testCheckboxAll, "a", true)
-  check(viewof testCheckboxAll, "b", true)
-  check(viewof testCheckboxAll, "ALL", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
-  check(viewof testCheckboxAll, "a", false)
-  expect(viewof testCheckboxAll.value).toEqual(["b"])
+  //check(viewof testCheckboxAll, "b", true)
+  check(testCheckboxAll, "b", true)
+  //check(viewof testCheckboxAll, "ALL", true)
+  check(testCheckboxAll, "ALL", true)
+  //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  //check(viewof testCheckboxAll, "a", false)
+  check(testCheckboxAll, "a", false)
+  //expect(viewof testCheckboxAll.value).toEqual(["b"])
+  expect(testCheckboxAll.value).toEqual(["b"])
 })
 ```
 
 ```js echo
-viewof testCheckboxAll.querySelector("form").dispatchEvent(new Event('input', {bubbles: true}))
+//viewof testCheckboxAll.querySelector("form").dispatchEvent(new Event('input', {bubbles: true}))
+testCheckboxAll.querySelector("form").dispatchEvent(new Event('input', {bubbles: true}))
 ```
 
 ```js echo
-viewof testCheckboxAll.querySelector("input[value=ALL]")
+//viewof testCheckboxAll.querySelector("input[value=ALL]")
+testCheckboxAll.querySelector("input[value=ALL]")
 ```
 
-```js
-md`### Summary`
-```
+### Summary
 
 ```js echo
 const colorBoxStyle = html`<style>
@@ -924,7 +1005,7 @@ const summary = ({
   
   const colorVar = variable(scoreColor(score));
   const textColorVar = variable(contrastTextColor(colorVar))
-  const ui = view`<div class="[ flex items-center mv2 ][ sans-serif ]">
+  const ui = viewUI`<div class="[ flex items-center mv2 ][ sans-serif ]">
   <div class="[ flex items-center w-100 ]">
     <div class="b mr2">${['numbering', textNodeView((counter_group || '') + (counter_value + ''))]}</div> 
     <div class="[ lh-title mid-gray ][ pr2 mr-auto ]">${['label', textNodeView(label)]}</div>
@@ -959,35 +1040,41 @@ const summary = ({
 exampleSummary
 ```
 
-```js
-viewof exampleSummary = summary({
+```js echo
+//viewof exampleSummary = summary({
+const exampleSummary = view(summary({
   color: 'red',
   label: `Accomodate needs for PWQ`,
   score: 2,
   counter_value: 2,
   counter_group: 'AE',
-})
+}))
 ```
 
-```js
-Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), viewof exampleSummary.score)
+```js echo
+///!!!
+/// NOTE: Verify binding
+///!!!
+//Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), viewof exampleSummary.score)
+Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), exampleSummary.score)
 ```
 
-```js
-viewof exampleSummaryNext = summary({
+```js echo
+//viewof exampleSummaryNext = summary({
+const exampleSummaryNext = view(summary({
   color: 'red',
   label: `Accomodate needs for PWQ and some more very long text to stress test the component`,
   score: 2,
   counter_group: 'AE',
-})
+}))
 ```
 
-```js
+```js echo
 scoreColor(3)
 ```
 
 ```js echo
-contrastTextColor = (color) => d3.lab(color).l < 70 ? "#fff" : "#000"
+const contrastTextColor = (color) => d3.lab(color).l < 70 ? "#fff" : "#000"
 ```
 
 ```js echo
@@ -999,7 +1086,7 @@ contrastTextColor("#006837")
 ```
 
 ```js echo
-scoreColor = (score) => d3.scaleLinear()
+const scoreColor = (score) => d3.scaleLinear()
     .domain([0, 0.1, 1, 2, 3, 4, 5])
     // Earlier 0 -> '#EEEEEE', '#0000EA','#7F17D9','#CF2B92','#E577B8','#F6BECB' <- 5
     // Color scale from https://colorbrewer2.org/#type=sequential&scheme=YlGn&n=5
@@ -1014,27 +1101,26 @@ scoreColor = (score) => d3.scaleLinear()
 ]).clamp(true)(score);
 ```
 
-```js
-md`### Aggregate Summary`
-```
+### Aggregate Summary
 
 ```js echo
 FileAttachment("image@1.png").image()
 ```
 
-```js
-viewof exampleAggregateSummary = aggregateSummary({
+```js echo
+//viewof exampleAggregateSummary = aggregateSummary({
+const exampleAggregateSummary = view(aggregateSummary({
   label: 'Organizational Policies',
   score: 3.08423423423422,
   set: 'org'
-})
+}))
 ```
 
-```js
+```js echo
 Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), viewof exampleAggregateSummary.score)
 ```
 
-```js
+```js echo
 aggregateSummary({
   label: 'Organizational Policies and a very long label to stress test this component',
   set: 'org'
@@ -1056,7 +1142,7 @@ const aggregateSummary = ({
   const scoreLevel = (score) => Math.ceil(score);
   const colorVar = variable(scoreColor(score));
   const textColorVar = variable(contrastTextColor(colorVar))
-  const ui = view`<div class="[ aggregate-summary ][ flex items-center mv2 ][ sans-serif ]">
+  const ui = viewUI`<div class="[ aggregate-summary ][ flex items-center mv2 ][ sans-serif ]">
   <div class="flex items-center w-100">
     <div class="[ aggregate-summary__title ][ b lh-title ][ mr-auto pr3 ]">${['label', textNodeView(label)]}</div>
     <div class="[ aggregate-summary__score ][ mid-gray mr3 ]">${['score', textNodeView(+score.toFixed(2))]}</div>
@@ -1090,6 +1176,7 @@ const aggregateSummary = ({
 ### Pagination
 
 ```js echo
+//viewof samplePagination1 = pagination({
 const samplePagination1 = view(pagination({
   previous: 'prev',
   next: 'next',
@@ -1098,6 +1185,7 @@ const samplePagination1 = view(pagination({
 ```
 
 ```js echo
+//viewof samplePagination2 = pagination({
 const samplePagination2 = view(pagination({
   previous: 'prev',
   previousLabel: "Previous",
@@ -1106,6 +1194,7 @@ const samplePagination2 = view(pagination({
 ```
 
 ```js echo
+//viewof samplePagination3 = pagination({
 const samplePagination3 = view(pagination({
   next: 'next',
   nextLabel: 'Next',
@@ -1114,7 +1203,8 @@ const samplePagination3 = view(pagination({
 ```
 
 ```js echo
-viewof samplePagination4 = {
+//viewof samplePagination4 = {
+const samplePagination4 = view(() => {
   const p = pagination({
   previous: 'prev',
   next: 'next',
@@ -1129,7 +1219,7 @@ viewof samplePagination4 = {
     </div>
   </div>
 </div>`;
-}
+})
 ```
 
 ```js echo
@@ -1413,11 +1503,11 @@ function bindLogic(controlsById, layouts) {
 }
 ```
 
-```js
+```js echo
 function exampleLogic(questions, layout) {
   const controlsById = new Map(questions.map(q => [q.id, createQuestion(q)]))
   bindLogic(controlsById, layout)
-  return view`<div>
+  return viewUI`<div>
     ${['questions', [...controlsById.values()]]}
   `
 }
@@ -1425,7 +1515,7 @@ function exampleLogic(questions, layout) {
 
 ### Example 1: yes, ifyes, ifno
 
-```js
+```js echo
 const example_yes_ifyes_layout = [{
   id: "open",
   role: "yes",
@@ -1441,7 +1531,7 @@ const example_yes_ifyes_layout = [{
 }] 
 ```
 
-```js
+```js echo
 const example_yes_ifyes_questions = [{
   id: "open",
   type: "checkbox",
@@ -1481,7 +1571,7 @@ const example_yesnomaybe_ifyes_layout = [{
 }] 
 ```
 
-```js
+```js echo
 const example_yesnomaybe_ifyes_questions = [{
   id: "open",
   type: "radio",
@@ -1517,7 +1607,7 @@ const example_score_layout = [{
 }] 
 ```
 
-```js
+```js echo
 const example_score_questions = [
   JSON.parse(`{"id":"score","type":"radio","title":"If yes:","options_eval":["{value:\\"a\\",score: \\"3\\", label: \\"We have a technical skills training program for our officials and staff.\\"}","{value:\\"b\\",score: \\"4\\", value:\\"b\\",label: \\"We implement a technical skills training program, still less than 60%.\\"}","{value:\\"c\\",score: \\"5\\", label: \\"We implement a technical skills training program for our officials and staff, 60% or more have been trained.\\"}"],"description":"Please select the statement that best describes your organization."}`),
   {
@@ -1531,12 +1621,13 @@ const example_score_questions = [
 ```
 
 ```js echo
-viewof exampleScoreGroup = exampleLogic(example_score_questions, example_score_layout)
+//viewof exampleScoreGroup = exampleLogic(example_score_questions, example_score_layout)
+const exampleScoreGroup = view(exampleLogic(example_score_questions, example_score_layout))
 ```
 
 ### Example 3b: scored conditional
 
-```js
+```js echo
 const example_scored_conditional_questions = [{
   id: "open",
   type: "radio",
@@ -1567,7 +1658,7 @@ const example_scored_conditional_questions = [{
 ]
 ```
 
-```js
+```js echo
 const example_scored_conditional_layout = [{
   id: "open",
   role: "yesnomaybe",
@@ -1588,12 +1679,13 @@ const example_scored_conditional_layout = [{
 ```
 
 ```js echo
-viewof exampleScoredConditionalGroup = exampleLogic(example_scored_conditional_questions, example_scored_conditional_layout)
+//viewof exampleScoredConditionalGroup = exampleLogic(example_scored_conditional_questions, example_scored_conditional_layout)
+const exampleScoredConditionalGroup = view(exampleLogic(example_scored_conditional_questions, example_scored_conditional_layout))
 ```
 
 ### Example 4: multiple sets
 
-```js
+```js echo
 const example_multi_set_layout = [{
   id: "open",
   role: "yesnomaybe, scored",
@@ -1613,7 +1705,7 @@ const example_multi_set_layout = [{
 }] 
 ```
 
-```js
+```js echo
 const example_multi_set_questions = [{
   id: "open",
   type: "radio",
@@ -1639,12 +1731,13 @@ const example_multi_set_questions = [{
 ```
 
 ```js echo
-viewof exampleMultiSetGroup = exampleLogic(example_multi_set_questions, example_multi_set_layout)
+//viewof exampleMultiSetGroup = exampleLogic(example_multi_set_questions, example_multi_set_layout)
+const exampleMultiSetGroup = view(exampleLogic(example_multi_set_questions, example_multi_set_layout))
 ```
 
 ### Example 5: aggregate scores
 
-```js
+```js echo
 const example_aggregate_scores_layout = [{
   id: "q1",
   role: "scored",
@@ -1668,7 +1761,7 @@ const example_aggregate_scores_layout = [{
 }] 
 ```
 
-```js
+```js echo
 const example_aggregate_scores_questions = [{
   id: "q1",
   type: "radio",
@@ -1698,11 +1791,12 @@ const example_aggregate_scores_questions = [{
 }] 
 ```
 
-```js
-viewof exampleAggregateScoreGroup = {
+```js echo
+//viewof exampleAggregateScoreGroup = {
+const exampleAggregateScoreGroup = view(() => {
   debugger;
   exampleLogic(example_aggregate_scores_questions, example_aggregate_scores_layout)
-}
+})
 ```
 
 ## Styles for demo
@@ -1757,7 +1851,8 @@ display(file)
 ```
 
 ```js echo
-import {view, bindOneWay, variable, cautious} from '@tomlarkworthy/view'
+//import {view, bindOneWay, variable, cautious} from '@tomlarkworthy/view'
+import {viewUI, bindOneWay, variable, cautious} from '/components/view.js'
 ```
 
 ```js echo
@@ -1791,7 +1886,9 @@ display(tachyonsExt)
 ```
 
 ```js echo
-import {textNodeView} from "@categorise/surveyslate-common-components"
+//import {textNodeView} from "@categorise/surveyslate-common-components"
+import {textNodeView} from "/components/surveyslate-common-components.js";
+display(textNodeView)
 ```
 
 ```js echo

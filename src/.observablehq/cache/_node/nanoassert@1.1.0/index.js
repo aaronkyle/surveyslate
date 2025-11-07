@@ -1,0 +1,1 @@
+function n(t){return t&&t.__esModule&&Object.prototype.hasOwnProperty.call(t,"default")?t.default:t}o.notEqual=f,o.notOk=l,o.equal=a,o.ok=o;var u=o;function a(t,r,e){o(t==r,e)}function f(t,r,e){o(t!=r,e)}function l(t,r){o(!t,r)}function o(t,r){if(!t)throw new Error(r||"AssertionError")}var c=n(u);export{c as default};

@@ -1,12 +1,54 @@
 # Survey Slate | Common Components
 
+
 ```js
-md`
-<div style="max-width: ${width/1.75}px; margin: 30px 0; padding: 15px 30px; background-color: #e0ffff; font: 700 18px/24px sans-serif;">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+
+
+<style>
+  /* Base (light) theme */
+  .welcome-note {
+    --note-bg: #e0ffff;     /* Light: pale cyan */
+    --note-fg: #0b3d3d;     /* Light: deep teal text */
+    --note-border: #9edede; /* Light: soft border */
+    max-width: ${width/1.75}px;
+    margin: 30px 0;
+    padding: 15px 30px;
+    background-color: var(--note-bg);
+    color: var(--note-fg);
+    border: 1px solid var(--note-border);
+    border-radius: 10px;
+    font: 700 18px/24px sans-serif;
+  }
+
+  /* Dark theme override when the browser prefers dark mode */
+  @media (prefers-color-scheme: dark) {
+    .welcome-note {
+      --note-bg: #0f1f24;     /* Dark: deep blue-green */
+      --note-fg: #d8ffff;     /* Dark: soft cyan text */
+      --note-border: #245a61; /* Dark: subtle border */
+    }
+  }
+</style>
+
+
+<div class="welcome-note">${md`👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨`}</div>
 
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
-`
-```
+
 
 ```js
 toc({
@@ -20,7 +62,8 @@ toc({
 A textNodeView syncs its value to a simple textNode DOM element. Because its a view, it can be added to a view-literal expression in quite a simple way.
 
 ```js echo
-viewof textNodeViewExample = textNodeView("hi")
+//viewof textNodeViewExample = textNodeView("hi")
+const textNodeViewExample = view(textNodeView("hi"))
 ```
 
 ```js echo
@@ -30,14 +73,16 @@ textNodeViewExample
 ```js echo
 Inputs.button("Randomize textNodeViewExample", {
   reduce: () => {
-    viewof textNodeViewExample.value = Math.random();
-    viewof textNodeViewExample.dispatchEvent(new Event('input', {bubbles: true}))
+    //viewof textNodeViewExample.value = Math.random();
+    textNodeViewExample.value = Math.random();
+    //viewof textNodeViewExample.dispatchEvent(new Event('input', {bubbles: true}))
+    textNodeViewExample.dispatchEvent(new Event('input', {bubbles: true}))
   }
 })
 ```
 
 ```js echo
-textNodeView = (value = '') => {
+const textNodeView = (value = '') => {
   const node = document.createTextNode(value)
   return Object.defineProperty(node, 'value', {
     get: () => node.textContent,
@@ -54,7 +99,7 @@ html`${logotype("Survey Slate")}`
 ```
 
 ```js echo
-logotype = (name = "Survey Slate") => html`<div class="[ pa2 flex items-center w3 h3 ][ f6 lh-title b tracked-light ][ text-on-brand bg-accent ]">${name}`
+const logotype = (name = "Survey Slate") => html`<div class="[ pa2 flex items-center w3 h3 ][ f6 lh-title b tracked-light ][ text-on-brand bg-accent ]">${name}`
 ```
 
 ## Page Header
@@ -70,7 +115,7 @@ ${pageHeader(['One title'])}
 ${pageHeader(['Level One', 'Level Two', 'Level Three'])}
 
 ```js echo
-pageHeader = (titles, brandName = "Survey Slate") => {
+const pageHeader = (titles, brandName = "Survey Slate") => {
   const header = html`<div class="flex bg-text-on-brand">
   <div class="flex-none">
     ${logotype(brandName)}
@@ -80,9 +125,9 @@ pageHeader = (titles, brandName = "Survey Slate") => {
       const isLast = i === arr.length - 1;
       const commonClasses = "lh-solid ma0";
       const specialClasses = isLast ? "b" : "dn db-ns mid-gray";
-      const seperator = isLast ? "" : `<span aria-hidden="true" class="mv0 mh2 black-20">/<span>`;
+      const seperator = isLast ? "" : html`<span aria-hidden="true" class="mv0 mh2 black-20">/<span>`;
 
-      return `${acc}<p class="${commonClasses} ${specialClasses}">${t}${seperator}</p>`;
+      return html`${acc}<p class="${commonClasses} ${specialClasses}">${t}${seperator}</p>`;
     }, "")}
   </div>
 </div>`
@@ -96,7 +141,7 @@ pageHeader = (titles, brandName = "Survey Slate") => {
 ${pageFooter()}
 
 ```js echo
-pageFooter = (brandName = "Survey Slate") => {
+const pageFooter = (brandName = "Survey Slate") => {
   const linkClasses = "link brand underline-hover";
   const year = new Date().getFullYear();
 
@@ -116,9 +161,17 @@ spinner()
 ```
 
 ```js echo
-spinner = () => { 
-  return html`<span class="spinner">${getIconHtml("loader")}</span>`
-}
+//!!!!!!!!!!!!!!!!
+//!!! Check that this is the correct way to add this here
+//!!!!!!!!!!!!!!!!
+//const spinner = () => { 
+//  return html`<span class="spinner">${getIconHtml("loader")}</span>`
+//}
+const spinner = () => {
+  const t = document.createElement("template");
+  t.innerHTML = `<span class="spinner">${getIconHtml("loader")}</span>`;
+  return t.content.firstElementChild;
+};
 ```
 
 ## Button Label
@@ -135,7 +188,10 @@ ${Inputs.button(buttonLabel({label: 'Right label', iconLeft: 'circle'}))}
 ```
 
 ```js echo
-buttonLabel = ({label, iconLeft, iconRight, iconRightClass, iconLeftClass, ariaLabel}) => {
+///!!!!!!!!!!!!!!!!!!!!!
+///!!!!!!Changes introduced in attaching buttons back into the DOM. Verify.
+///!!!!!!!!!!!!!!!!!!!!!
+const buttonLabel = ({label, iconLeft, iconRight, iconRightClass, iconLeftClass, ariaLabel}) => {
   let labelHtml = "";
   if (iconLeft) {
     labelHtml += `${getIconHtml(iconLeft, `icon--sm ${iconLeftClass || ""}`)} `;
@@ -153,23 +209,27 @@ buttonLabel = ({label, iconLeft, iconRight, iconRightClass, iconLeftClass, ariaL
     labelHtml += `<span class="clip">${ariaLabel}</span>`;
   }
   
-  return html`<span class="button-label">${labelHtml}</span>`
+  //return html`<span class="button-label">${labelHtml}</span>`
+  // Turn the string into a real node so it won't be escaped.
+  const t = document.createElement("template");
+  t.innerHTML = `<span class="button-label">${labelHtml}</span>`;
+  return t.content.firstElementChild;
 }
 ```
 
 ```js echo
-getIconHtml = (name, klasses = "") => `<span class="icon ${klasses}">${getIconSvg(name, 24, {role: 'img'})}</span>`
+const getIconHtml = (name, klasses = "") => `<span class="icon ${klasses}">${getIconSvg(name, 24, {role: 'img'})}</span>`
 ```
 
 ## Styles
 
 ```js echo
 // Thanks @mootari, https://observablehq.com/@saneef/is-observable-inputs-style-able
-ns = Inputs.text().classList[0]
+const ns = Inputs.text().classList[0]
 ```
 
 ```js echo
-styles = html`<style>
+const styles = html`<style>
   :root {
     --button-border-radius: var(--border-radius-2, 0.25rem);
     --border-color: #aaa; /* tachyons's light-silver */
@@ -341,28 +401,35 @@ tachyonsExt({
 
 ## Imports
 
-```js
-import {tachyonsExt} from "@categorise/tachyons-and-some-extras"
+```js echo
+//import {tachyonsExt} from "@categorise/tachyons-and-some-extras"
+import {tachyonsExt} from "/components/tachyons-and-some-extras.js"
+display(tachyonsExt)
+```
+
+```js echo
+//import {toc} from "@nebrius/indented-toc"
+import {toc} from "/components/indented-toc.js"
+display(toc)
+```
+
+```js echo
+//import {mainColors, accentColors} from "@categorise/brand"
+import {mainColors, accentColors} from "/components/brand.js"
+display(mainColors)
+display(accentColors)
+```
+
+```js echo
+//import {getIconSvg} from "@saneef/feather-icons"
+import {getIconSvg} from "/components/feather-icons.js"
+display(getIconSvg)
 ```
 
 ```js
-import {toc} from "@nebrius/indented-toc"
+//import { substratum } from "@categorise/substratum"
 ```
 
 ```js
-import {mainColors, accentColors} from "@categorise/brand"
-```
-
-```js
-import {getIconSvg} from "@saneef/feather-icons"
-```
-
----
-
-```js
-import { substratum } from "@categorise/substratum"
-```
-
-```js
-substratum({ invalidation })
+//substratum({ invalidation })
 ```

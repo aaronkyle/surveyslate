@@ -1,17 +1,57 @@
-```js
-md`# Survey Slate | Admin Tools
+# Survey Slate | Admin Tools
 
 _Create, deploy and manage surveys._
-`
-```
+
+
 
 ```js
-md`
-<div style="max-width: ${width/1.75}px; margin: 30px 0; padding: 15px 30px; background-color: #e0ffff; font: 700 18px/24px sans-serif;">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+
+
+
+<style>
+  /* Base (light) theme */
+  .welcome-note {
+    --note-bg: #e0ffff;     /* Light: pale cyan */
+    --note-fg: #0b3d3d;     /* Light: deep teal text */
+    --note-border: #9edede; /* Light: soft border */
+    max-width: ${width/1.75}px;
+    margin: 30px 0;
+    padding: 15px 30px;
+    background-color: var(--note-bg);
+    color: var(--note-fg);
+    border: 1px solid var(--note-border);
+    border-radius: 10px;
+    font: 700 18px/24px sans-serif;
+  }
+
+  /* Dark theme override when the browser prefers dark mode */
+  @media (prefers-color-scheme: dark) {
+    .welcome-note {
+      --note-bg: #0f1f24;     /* Dark: deep blue-green */
+      --note-fg: #d8ffff;     /* Dark: soft cyan text */
+      --note-border: #245a61; /* Dark: subtle border */
+    }
+  }
+</style>
+
+<div class="welcome-note">${md`👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨`}</div>
 
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
-`
-```
+
 
 ```js
 toc()

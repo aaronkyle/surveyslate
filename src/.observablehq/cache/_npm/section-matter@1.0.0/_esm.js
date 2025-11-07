@@ -1,0 +1,7 @@
+/**
+ * Bundled by jsDelivr using Rollup v2.79.2 and Terser v5.39.0.
+ * Original file: /npm/section-matter@1.0.0/index.js
+ *
+ * Do NOT use SRI with dynamically generated files! More information: https://www.jsdelivr.com/using-sri-with-dynamic-files
+ */
+import n from"../kind-of@6.0.3/_esm.js";import t from"../extend-shallow@2.0.1/_esm.js";var e=n,o=t,r=function(n,t){"function"==typeof t&&(t={parse:t});var r=function(n){"object"!==e(n)&&(n={content:n});if("string"!=typeof n.content&&!function(n){if(n&&n.constructor&&"function"==typeof n.constructor.isBuffer)return n.constructor.isBuffer(n);return!1}(n.content))throw new TypeError("expected a buffer or string");return n.content=n.content.toString(),n.sections=[],n}(n),u=o({},{section_delimiter:"---",parse:c},t),s=u.section_delimiter,f=r.content.split(/\r?\n/),l=null,p={key:"",data:"",content:""},a=[],h=[];function m(n){r.content=n,l=[],a=[]}function g(n){h.length&&(p.key=function(n,t){return n?n.slice(t.length).trim():""}(h[0],s),p.content=n,u.parse(p,l),l.push(p),p={key:"",data:"",content:""},a=[],h=[])}for(var d=0;d<f.length;d++){var y=f[d],j=h.length,k=y.trim();if(i(k,s)){if(3===k.length&&0!==d){if(0===j||2===j){a.push(y);continue}h.push(k),p.data=a.join("\n"),a=[];continue}null===l&&m(a.join("\n")),2===j&&g(a.join("\n")),h.push(k)}else a.push(y)}return null===l?m(a.join("\n")):g(a.join("\n")),r.sections=l,r};function i(n,t){return n.slice(0,t.length)===t&&n.charAt(t.length+1)!==t.slice(-1)}function c(n){return n}export{r as default};

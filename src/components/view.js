@@ -62,7 +62,7 @@ const variableGen = (async function* () {
 
 
 // Copied from https://github.com/observablehq/inputs/blob/main/src/bind.js
-const bindOneWay = (() => {
+export const bindOneWay = (() => {
   function disposal(element) {
     return new Promise((resolve) => {
       requestAnimationFrame(() => {
