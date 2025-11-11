@@ -90,7 +90,6 @@ export default {
     { name: "Safe Local Storage", path: "/notebook-dependencies/safe-local-storage" },
     { name: "Signature - A Documentation Toolkit", path: "/notebook-dependencies/signature" },
     { name: "RxJS inspired stream operators for views", path: "/notebook-dependencies/stream-operators" },
-    { name: "Survey Slate Configuration", path: "/notebook-dependencies/survey-slate-configuration" },
     { name: "Reactive Unit Testing and Reporting Framework", path: "/notebook-dependencies/testing" },
     { name: "TOC", path: "/notebook-dependencies/toc" },
     { name: "URL querystrings and hash parameters", path: "/notebook-dependencies/url-querystrings-and-hash-parameters" },
