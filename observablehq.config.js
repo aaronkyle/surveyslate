@@ -43,13 +43,13 @@ export default {
          { name: "Designer UI", path: "/surveyslate-designer-ui.md" },
 
          
-         // identify and renmove duplicate
+         // identify and remove duplicate
          { name: "Survey Components", path: "/survey-components" },
          { name: "Survey Slate Components", path: "/surveyslate-components" },
          { name: "Survey Slate Styling", path: "/survey-slate-styling" },
          { name: "Common Components", path: "/surveyslate-common-components" },
          
-         { name: "Common Components", path: "/surveyslate-common-components" },
+         //{ name: "Common Components", path: "/surveyslate-common-components" },
 
          //looks scary for the moment
          //{ name: "Survey Slate Configuration", path: "/survey-slate-configuration" },
@@ -64,7 +64,6 @@ export default {
     { name: "AWS Helpers", path: "/notebook-dependencies/aws" },
     { name: "aws4fetch", path: "/notebook-dependencies/aws4fetch" },
     { name: "Color Legend", path: "/notebook-dependencies/color-legend" },
-    { name: "Common Components", path: "/notebook-dependencies/common-components" },
     { name: "Copier", path: "/notebook-dependencies/copier" },
     { name: "DOM view", path: "/notebook-dependencies/dom-view" },
     { name: "Feather Icons", path: "/notebook-dependencies/feather-icons" },
