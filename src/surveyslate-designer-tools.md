@@ -85,13 +85,11 @@ const credStore = display(saveCredsElement)
 ```
 
 ```js
-login
 const surveyChooserTitle = md`## Survey Chooser`;
 display(surveyChooserTitle)
 ```
 
 ```js
-login
 //viewof survey = Inputs.select(surveys)
 //viewof survey = Inputs.bind(Inputs.select(surveys, {label: "survey"}), localStorageView("designer-project", {
 const surveyElement = Inputs.bind(
