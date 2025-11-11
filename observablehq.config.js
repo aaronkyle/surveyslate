@@ -61,6 +61,7 @@ export default {
   open: false,
   pages: [
     { name: "Accessing a Notebook's Runtime", path: "/notebook-dependencies/access-runtime" },
+    { name: "AWS Helpers", path: "/notebook-dependencies/aws" },
     { name: "aws4fetch", path: "/notebook-dependencies/aws4fetch" },
     { name: "Color Legend", path: "/notebook-dependencies/color-legend" },
     { name: "Common Components", path: "/notebook-dependencies/common-components" },
