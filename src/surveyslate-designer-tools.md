@@ -75,6 +75,9 @@ test credentials for demoEditor (note - these credentials were blocked after bei
 const login_manual_credentials = display(manualCredentialsElement)
 ```
 ```js echo
+applyCredentials(
+  manualCredentials
+)
 display(manualCredentials)
 ```
 
@@ -1672,7 +1675,7 @@ const REGION = 'us-east-2'
 
 ```js echo
 //import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, viewof mfaCode, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} with {REGION as REGION} from '@tomlarkworthy/aws'
-import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, manualCredentials, manualCredentialsElement, mfaCode, saveCreds, saveCredsElement, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} from '/components/aws.js'
+import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, manualCredentials, manualCredentialsElement, mfaCode, saveCreds, saveCredsElement, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup, applyCredentials} from '/components/aws.js'
 ```
 
 ```js echo
