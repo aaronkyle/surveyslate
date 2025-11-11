@@ -2,52 +2,95 @@
 
 _Create, edit, and connect questions for both simple and complex surveys using a variety of input types. Also check out the [User Guide for Survey Slate Designer](https://observablehq.com/@categorise/surveyslate-user-guide-for-grouping-questions)._
 
+
+
 ```js
-md`
-<div style="max-width: ${width/1.75}px; margin: 30px 0; padding: 15px 30px; background-color: #e0ffff; font: 700 18px/24px sans-serif;">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+
+<style>
+  /* Base (light) theme */
+  .welcome-note {
+    --note-bg: #e0ffff;     /* Light: pale cyan */
+    --note-fg: #0b3d3d;     /* Light: deep teal text */
+    --note-border: #9edede; /* Light: soft border */
+    max-width: ${width/1.75}px;
+    margin: 30px 0;
+    padding: 15px 30px;
+    background-color: var(--note-bg);
+    color: var(--note-fg);
+    border: 1px solid var(--note-border);
+    border-radius: 10px;
+    font: 700 18px/24px sans-serif;
+  }
+
+  /* Dark theme override when the browser prefers dark mode */
+  @media (prefers-color-scheme: dark) {
+    .welcome-note {
+      --note-bg: #0f1f24;     /* Dark: deep blue-green */
+      --note-fg: #d8ffff;     /* Dark: soft cyan text */
+      --note-border: #245a61; /* Dark: subtle border */
+    }
+  }
+</style>
+
+<div class="welcome-note">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
 
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
-`
-```
+
 
 ```js
 toc()
 ```
 
 ```js
-loginTitle = md`## Login`
+const loginTitle = md`## Login`
 ```
 
-```js
-md`test credentials for demoEditor
-~~~js
-{
-  "accessKeyId": "AKIAQO7DBPIFDAUBK4SL",
-  "secretAccessKey": "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"
-}
+test credentials for demoEditor
 
-~~~
-`
-```
+    ~~~js
+    {
+      "accessKeyId": "AKIAQO7DBPIFDAUBK4SL",
+      "secretAccessKey": "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"
+    }
+
+    ~~~
 
 ```js
 viewof login = viewof manualCredentials
 ```
 
 ```js
-credStore = saveCreds
+const credStore = saveCreds
 ```
 
 ```js
-surveyChooserTitle = md`## Survey Chooser`
+const surveyChooserTitle = md`## Survey Chooser`
 ```
 
 ```js
-viewof survey = Inputs.select(surveys)
+//viewof survey = Inputs.select(surveys)
+const surveyElement = Inputs.select(surveys);
+const survey = Generators.input(surveyElement);
+display(surveyElement)
+
 ```
 
 ```js
-surveys = myTags['designer'].split(" ")
+const surveys = myTags['designer'].split(" ")
 ```
 
 ## Designer UI
@@ -57,7 +100,7 @@ import {surveyEditor, styles as designUiStyles, tachyons} from '@categorise/surv
 ```
 
 ```js
-loadStyles = (tachyons, designUiStyles)
+const loadStyles = (tachyons, designUiStyles)
 ```
 
 ```js echo
@@ -248,7 +291,10 @@ viewof surveyUiInput = {
 ```
 
 ```js echo
-syncSurveyUiInputToSurveyUi = {
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+const syncSurveyUiInputToSurveyUi = {
   console.log("syncSurveyUiInputToSurveyUi");
   if (!_.isEqual(viewof surveyUi.value, viewof surveyUiInput.value)) {
     console.log("syncSurveyUiInputToSurveyUi: change detected");
@@ -261,7 +307,10 @@ syncSurveyUiInputToSurveyUi = {
 ```
 
 ```js
-syncSurveyUIToSurveyUiOutput = {
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+const syncSurveyUIToSurveyUiOutput = {
   console.log("syncSurveyUIToSurveyUiOutput")
   // Reactive to UI changes (i.e. surveyUi)
   if (!_.isEqual(viewof surveyUiOutput.value, surveyUi)) {
@@ -273,11 +322,18 @@ syncSurveyUIToSurveyUiOutput = {
 ```
 
 ```js
-viewof surveyUiOutput = Inputs.input(undefined);
+//viewof surveyUiOutput = Inputs.input(undefined);
+const surveyUiOutputElement = Inputs.input(undefined);
+const surveyUiOutput = Generators.input(surveyUiOutputElement);
+display(surveyUiOutputElement)
+
 ```
 
 ```js echo
-syncSurveyOutput = {
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+const syncSurveyOutput = {
   console.log("surveyOutput")
   // convert ui representation (pages -> cells) to {questions, layout, config} for storage.
 
@@ -309,6 +365,9 @@ syncSurveyOutput = {
   });
 
   // Extract config
+  ///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
   const config = {
     ...viewof surveyConfig.value, // carry over initial state
     pageTitle: surveyUiOutput.metadata.title
@@ -324,15 +383,26 @@ syncSurveyOutput = {
 ```
 
 ```js
-viewof surveyOutput = Inputs.input(undefined)
+//viewof surveyOutput = Inputs.input(undefined)
+const surveyOutputElement = Inputs.input(undefined);
+const surveyOutput = Generators.input(surveyOutputElement);
+display(surveyOutputElement)
 ```
 
 ```js
-diff = require('https://bundle.run/json-diff@0.5.4')
+const diff = require('https://bundle.run/json-diff@0.5.4')
 ```
 
 ```js
-viewof selectedQuestionDiff = Inputs.select(Object.keys(logicalQuestionDiff).map(k => k.replace("__deleted", '').replace("__added", '')), {label: "Select question diff"})
+//viewof selectedQuestionDiff = Inputs.select(Object.keys(logicalQuestionDiff).map(k => k.replace("__deleted", '').replace("__added", '')), {label: "Select question diff"})
+const selectedQuestionDiffElement = Inputs.select(
+  Object.keys(logicalQuestionDiff).map(k =>
+    k.replace("__deleted", '').replace("__added", '')
+  ),
+  { label: "Select question diff" }
+);
+const selectedQuestionDiff = Generators.input(selectedQuestionDiffElement);
+display(selectedQuestionDiffElement)
 ```
 
 ```js
@@ -352,16 +422,16 @@ ${JSON.stringify(surveyOutput.questions.get(selectedQuestionDiff), null, 2)}
 ```
 
 ```js
-normalizedQuestions = Object.fromEntries([...csvToQuestions(questionsToCSV(questions)).entries()].map(reifyAttributes))
+const normalizedQuestions = Object.fromEntries([...csvToQuestions(questionsToCSV(questions)).entries()].map(reifyAttributes))
 ```
 
 ```js
-normalizedQuestionsOutput = Object.fromEntries([...csvToQuestions(questionsToCSV(surveyOutput.questions)).entries()]
+const normalizedQuestionsOutput = Object.fromEntries([...csvToQuestions(questionsToCSV(surveyOutput.questions)).entries()]
                      .map(reifyAttributes).filter(e => e[0] !== " "))
 ```
 
 ```js
-logicalQuestionDiff = Object.fromEntries(Object.entries(
+const logicalQuestionDiff = Object.fromEntries(Object.entries(
   diff.diff(normalizedQuestions, normalizedQuestionsOutput) || []
 ))
 ```
@@ -369,8 +439,10 @@ logicalQuestionDiff = Object.fromEntries(Object.entries(
 ## Autosave UI
 
 ```js
-
-autosave = {
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+const autosave = {
   async function saveState() {
     console.log("saveState")
     await Promise.all([
@@ -442,7 +514,7 @@ autosave = {
 ## Export
 
 ```js
-exportDataUri = URL.createObjectURL(new Blob([ JSON.stringify({
+const exportDataUri = URL.createObjectURL(new Blob([ JSON.stringify({
   ...surveyOutput,
   questions: Object.fromEntries(surveyOutput.questions.entries())
 }) ], { type: 'application/json' }));
@@ -457,11 +529,15 @@ htl.html`<a href=${exportDataUri} download="survey_${Date.now()}.json">
 ## Persistence
 
 ```js
-viewof settings = Inputs.input(await files.load('settings.json'))
+//viewof settings = Inputs.input(await files.load('settings.json'))
+const settingsElement = Inputs.input(await files.load('settings.json'));
+const settings = Generators.input(settingsElement);
+display(settingsElement)
+
 ```
 
 ```js
-files = ({
+const files = ({
   save: async (key, object) => {
     await putObject(config.PRIVATE_BUCKET, `surveys/${survey}/${key}`, JSON.stringify(object), {
       tags: {
@@ -477,7 +553,10 @@ files = ({
 ```
 
 ```js
-saveQuestions = async (questions) => {
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+const saveQuestions = async (questions) => {
   const name = `questions_${Date.now()}.json`
   await files.save(name, Array.from(questions.entries()))
   viewof settings.value = {
@@ -492,14 +571,17 @@ saveQuestions = async (questions) => {
 ```
 
 ```js
-loadQuestions = async (name) => {
+const loadQuestions = async (name) => {
   const entries = await files.load(name)
   return new Map(entries);
 }
 ```
 
 ```js
-saveLayout = async (layout) => {
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+const saveLayout = async (layout) => {
   const name = `layout_${Date.now()}.json`
   await files.save(name, layout);
   viewof settings.value = {
@@ -514,11 +596,14 @@ saveLayout = async (layout) => {
 ```
 
 ```js
-loadLayout = async (name) => await files.load(name)
+const loadLayout = async (name) => await files.load(name)
 ```
 
 ```js
-saveConfig = async (config) => {
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+const saveConfig = async (config) => {
   const name = `config_${Date.now()}.json`
   await files.save(name, config)
   viewof settings.value = {
@@ -533,10 +618,13 @@ saveConfig = async (config) => {
 ```
 
 ```js
-loadConfig = async (name) => await files.load(name)
+const loadConfig = async (name) => await files.load(name)
 ```
 
 ```js
+///!!!!!!!!!!!!!!!!!!!!!!!!!
+///!!! Check if this should self-execute
+///!!!!!!!!!!!!!!!!!!!!!!!!!
 async function saveVersion() {
   const name = `version_${Date.now()}.json`
   
@@ -567,7 +655,7 @@ viewof settings.value.versions.at(-1)
 ```
 
 ```js
-revertChanges = async function() {
+const revertChanges = async function() {
   const version = await files.load(viewof settings.value.versions.at(-1))
   viewof settings.value = {
     ...viewof settings.value,
@@ -594,7 +682,11 @@ md`## Questions`
 ```
 
 ```js
-viewof questions = Inputs.input(new Map())
+//viewof questions = Inputs.input(new Map())
+const questionsElement = Inputs.input(new Map());
+const questions = Generators.input(questionsElement);
+display(questionsElement)
+
 ```
 
 ```js
@@ -602,7 +694,7 @@ mutable initialLoadQuestions = (/* reload everything on choice change */ survey,
 ```
 
 ```js
-initialQuestionLoader = {
+const initialQuestionLoader = {
   if (!initialLoadQuestions) {
     mutable initialLoadQuestions = true;
     viewof questions.value = await loadQuestions(settings.questions[settings.questions.length - 1])
@@ -617,11 +709,15 @@ md`### Import external CSV of questions`
 ```
 
 ```js
-viewof questionUpload = fileInput({prompt: "Drop questions as a CSV file here"})
+//viewof questionUpload = fileInput({prompt: "Drop questions as a CSV file here"})
+const questionUploadElement = fileInput({ prompt: "Drop questions as a CSV file here" });
+const questionUpload = Generators.input(questionUploadElement);
+display(questionUploadElement)
+
 ```
 
 ```js echo
-onQuestionUpload = {
+const onQuestionUpload = {
   viewof questions.value = csvToQuestions(await questionUpload.csv());
   viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
 }
@@ -700,7 +796,7 @@ function csvToQuestions(csv) {
 ```
 
 ```js
-questionsToCSV = (questions) =>
+const questionsToCSV = (questions) =>
   [...questions.entries()].reduce(
     (acc, row) => {
       Object.entries(row[1] || row[0]).forEach(([k,v]) => {
@@ -755,22 +851,26 @@ md`### Export questions to CSV`
 ```
 
 ```js
-questionsCsvDataUri = URL.createObjectURL(new Blob([ d3.csvFormat(exportQuestionsCSV) ], { type: 'text/csv' }));
+const questionsCsvDataUri = URL.createObjectURL(new Blob([ d3.csvFormat(exportQuestionsCSV) ], { type: 'text/csv' }));
 ```
 
 ```js
-viewof questionsCsvDataUriView = Inputs.input(undefined)
+//viewof questionsCsvDataUriView = Inputs.input(undefined)
+const questionsCsvDataUriViewElement = Inputs.input(undefined);
+const questionsCsvDataUriView = Generators.input(questionsCsvDataUriViewElement);
+display(questionsCsvDataUriViewElement)
+
 ```
 
 ```js echo
-updateQuestionsCsvDataUriView = {
+const updateQuestionsCsvDataUriView = {
   viewof questionsCsvDataUriView.value = questionsCsvDataUri /* sync questionsCsvDataUri changes to the view */
   viewof questionsCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
 ```js echo
-downloadQuestionsCsv = htl.html`<a href=${viewof questionsCsvDataUriView.value} download="questions_${Date.now()}.csv">
+const downloadQuestionsCsv = htl.html`<a href=${viewof questionsCsvDataUriView.value} download="questions_${Date.now()}.csv">
   Download questions.csv
 </a>
 ${exportQuestionsProblems.length > 0 ? md`<mark> Warning, some questions are not exporting properly, you may lose data in export` : null}
@@ -778,12 +878,12 @@ ${exportQuestionsProblems.length > 0 ? md`<mark> Warning, some questions are not
 ```
 
 ```js
-exportQuestionsCSV = questionsToCSV(questions)
+const exportQuestionsCSV = questionsToCSV(questions)
 
 ```
 
 ```js
-exportQuestionsProblems = {
+const exportQuestionsProblems = {
   const exportedQuestions = csvToQuestions(exportQuestionsCSV);
   const qProblems = [...questions.keys()].reduce((acc, q) => {
     const question = questions.get(q);
@@ -812,12 +912,14 @@ exportQuestionsProblems = {
 }
 ```
 
-```js
-md`## Layout`
-```
+## Layout
 
 ```js
-viewof layoutData = Inputs.input([]);
+//viewof layoutData = Inputs.input([]);
+const layoutDataElement = Inputs.input([]);
+const layoutData = Generators.input(layoutDataElement);
+display(layoutDataElement)
+
 ```
 
 ```js
@@ -825,11 +927,15 @@ md`### Import layout from CSV`
 ```
 
 ```js
-viewof layoutUpload = fileInput({prompt: "Drop layout as a CSV file here"})
+//viewof layoutUpload = fileInput({prompt: "Drop layout as a CSV file here"})
+const layoutUploadElement = fileInput({ prompt: "Drop layout as a CSV file here" });
+const layoutUpload = Generators.input(layoutUploadElement);
+display(layoutUploadElement)
+
 ```
 
 ```js echo
-onLayoutUpload = {
+const onLayoutUpload = {
   viewof layoutData.value = {data: csvToLayout(await layoutUpload.csv())}
   viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
 }
@@ -846,39 +952,40 @@ function csvToLayout(csv) {
 }
 ```
 
-```js
-md`### Export layout to CSV`
+### Export layout to CSV
+
+```js echo
+const layoutCsvDataUri = URL.createObjectURL(new Blob([ d3.csvFormat(exportLayoutCSV) ], { type: 'text/csv' }));
 ```
 
 ```js echo
-layoutCsvDataUri = URL.createObjectURL(new Blob([ d3.csvFormat(exportLayoutCSV) ], { type: 'text/csv' }));
+//viewof layoutCsvDataUriView = Inputs.input(undefined)
+const layoutCsvDataUriViewElement = Inputs.input(undefined);
+const layoutCsvDataUriView = Generators.input(layoutCsvDataUriViewElement);
+display(layoutCsvDataUriViewElement)
 ```
 
 ```js echo
-viewof layoutCsvDataUriView = Inputs.input(undefined)
-```
-
-```js echo
-updateLayoutCsvDataUriView = {
+const updateLayoutCsvDataUriView = {
   viewof layoutCsvDataUriView.value = layoutCsvDataUri
   viewof layoutCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
-```js
-downloadLayoutCsv = htl.html`<a href=${viewof layoutCsvDataUriView.value} download="layout_${Date.now()}.csv">
+```js echo
+const downloadLayoutCsv = htl.html`<a href=${viewof layoutCsvDataUriView.value} download="layout_${Date.now()}.csv">
   Download layout.csv
 </a>
 ${exportLayoutProblems.length > 0 ? md`<mark> Warning, some layouts are not exporting properly, you may lose data in export` : null}
 `
 ```
 
-```js
+```js echo
 mutable initialLoadLayout = false
 ```
 
-```js
-initialLayoutLoader = {
+```js echo
+const initialLayoutLoader = {
   if (!initialLoadLayout) {
     mutable initialLoadLayout = true;
     setLayout([...await loadLayout(settings.layout[settings.layout.length - 1])])
@@ -887,7 +994,7 @@ initialLayoutLoader = {
 }
 ```
 
-```js
+```js echo
 function setLayout(data) {
   const choices = learnChoices(data);
   
@@ -902,8 +1009,8 @@ function setLayout(data) {
 }
 ```
 
-```js
-learnChoices = (data) => {
+```js echo
+const learnChoices = (data) => {
   const columns = ["menu", "set"]
   const counts = data.reduce(
     (arr, l) => {
@@ -921,12 +1028,12 @@ learnChoices = (data) => {
 
 ### Export UI
 
-```js
-sampleExportUi = exportUi()
+```js echo
+const sampleExportUi = exportUi()
 ```
 
 ```js echo
-exportUi = () => {
+const exportUi = () => {
   const now = Date.now();
 
   return view`<div class="space-y-3">
@@ -944,7 +1051,11 @@ exportUi = () => {
 ### Import UI
 
 ```js echo
-viewof sampleImportUi = importUi()
+//viewof sampleImportUi = importUi()
+const sampleImportUiElement = importUi();
+const sampleImportUi = Generators.input(sampleImportUiElement);
+display(sampleImportUiElement)
+
 ```
 
 ```js echo
@@ -952,7 +1063,7 @@ sampleImportUi
 ```
 
 ```js echo
-importUi = (afterSave) => {
+const importUi = (afterSave) => {
   const submitFiles = async ()  => {
     if (ui.value.questionsCsv) {
       console.log('Updating questions CSV')
@@ -988,11 +1099,10 @@ importUi = (afterSave) => {
 }
 ```
 
-```js
-md`### Edit user choices within the layout Editors`
-```
 
-```js
+### Edit user choices within the layout Editors
+
+```js echo
 function selection(title) {
   const choices = dataEditor([], {
     columns: [title],
@@ -1023,19 +1133,25 @@ function selection(title) {
 }
 ```
 
-```js
-viewof menuOptions = selection("menu")
+```js echo
+//viewof menuOptions = selection("menu")
+const menuOptionsElement = selection("menu");
+const menuOptions = Generators.input(menuOptionsElement);
+display(menuOptionsElement)
+
 ```
 
-```js
-viewof setOptions = selection("set")
+```js echo
+//viewof setOptions = selection("set")
+const setOptionsElement = selection("set");
+const setOptions = Generators.input(setOptionsElement);
+display(setOptionsElement)
+
 ```
 
-```js
-md`### Layout Data`
-```
+### Layout Data\
 
-```js
+```js echo
 viewof layout = Inputs.input(layoutData)
 /*
 { 
@@ -1069,15 +1185,11 @@ viewof layout = Inputs.input(layoutData)
 }*/
 ```
 
-```js
-md`## Data Quality Checks`
-```
+## Data Quality Checks
 
-```js
-md`### Questions that have no layout`
-```
+### Questions that have no layout
 
-```js
+```js echo
 {
   const results = [...questionsNoLayout.entries()].map(([k, v]) => ({id: k, ...v}));
   if (results.length > 0) {
@@ -1094,11 +1206,9 @@ md`### Questions that have no layout`
 questionsNoLayout.values().next()
 ```
 
-```js
-md`### Layouts with no question`
-```
+### Layouts with no question\
 
-```js
+```js echo
 {
   const results = layoutsNoQuestion.map(([name, layoutArray]) => layoutArray[0]);
   if (results.length > 0) {
@@ -1109,14 +1219,12 @@ md`### Layouts with no question`
 }
 ```
 
-```js
-md`### Questions with options but some of the options do not have a 'value'
+### Questions with options but some of the options do not have a 'value'
 
 All options need value's defined, this is the key used to ensure updates to question text do not affect the endusers pre-existing answers.
-`
-```
 
-```js
+
+```js echo
 {
   if (optionsWithoutValue.length > 0) {
     return md`⚠️ There are ${optionsWithoutValue.length} mistakes
@@ -1127,32 +1235,32 @@ All options need value's defined, this is the key used to ensure updates to ques
 }
 ```
 
-```js
-optionsWithoutValue = [...surveyOutput.questions.entries()].map(([k, q]) => [k, reifyAttributes(q)]).filter(([name, question]) => question.options &&  !question.options.some(option => option.value))
+```js echo
+const optionsWithoutValue = [...surveyOutput.questions.entries()].map(([k, q]) => [k, reifyAttributes(q)]).filter(([name, question]) => question.options &&  !question.options.some(option => option.value))
 ```
 
-```js
-layoutById = d3.group(layout.data, d => d.id)
+```js echo
+const layoutById = d3.group(layout.data, d => d.id)
 ```
 
-```js
-duplicateLayouts = Object.fromEntries([...layoutById.entries()].filter(([name, layoutArr]) => layoutArr.length  > 1))
+```js echo
+const duplicateLayouts = Object.fromEntries([...layoutById.entries()].filter(([name, layoutArr]) => layoutArr.length  > 1))
 ```
 
-```js
-questionsNoLayout = new Map([...questions.entries()].filter(([name, q]) => !layoutById.has(name)))
+```js echo
+const questionsNoLayout = new Map([...questions.entries()].filter(([name, q]) => !layoutById.has(name)))
 ```
 
-```js
-layoutsNoQuestion = ([...layoutById.keys()].filter(name => !surveyOutput.questions.has(name))).map(k => [k, layoutById.get(k)])
+```js echo
+const layoutsNoQuestion = ([...layoutById.keys()].filter(name => !surveyOutput.questions.has(name))).map(k => [k, layoutById.get(k)])
 ```
 
-```js
-exportLayoutCSV = surveyOutput.layout
+```js echo
+const exportLayoutCSV = surveyOutput.layout
 ```
 
-```js
-exportLayoutProblems  = {
+```js echo
+const exportLayoutProblems  = {
   const exportedLayout = csvToLayout(exportLayoutCSV);
   
   const problems = [];
@@ -1173,7 +1281,7 @@ exportLayoutProblems  = {
 
 Config is additional data that might be useful such as the menu display titles.
 
-```js
+```js echo
 viewof latestConfig = editor({
   type: "object",
   title: "Config",
@@ -1196,8 +1304,8 @@ viewof latestConfig = editor({
 })
 ```
 
-```js
-save_config = {
+```js echo
+const save_config = {
   
   if (viewof surveyConfig.value && !_.isEqual(latestConfig, viewof surveyConfig.value)) {
     yield md`Saving...`
@@ -1210,18 +1318,22 @@ save_config = {
 }
 ```
 
-```js
-viewof surveyConfig = Inputs.input()
+```js echo
+//viewof surveyConfig = Inputs.input()
+const surveyConfigElement = Inputs.input();
+const surveyConfig = Generators.input(surveyConfigElement);
+display(surveyConfigElement)
+
 ```
 
-```js
-sync_ui = {
+```js echo
+const sync_ui = {
   viewof latestConfig.value = surveyConfig
 }
 ```
 
-```js
-load_config = {
+```js echo
+const load_config = {
   viewof surveyConfig.value = settings.configs?.length > 0 
                                 ? await loadConfig(settings.configs[settings.configs.length - 1])
                                 : {};
@@ -1229,7 +1341,7 @@ load_config = {
 }
 ```
 
-```js
+```js echo
 import {editor} from "@a10k/hello-json-editor"
 ```
 
@@ -1272,35 +1384,43 @@ styles = html`<style>
 </style>
 ```
 
-```js
-surveyPreviewTitle = md`## Survey Preview`
+```js echo
+const surveyPreviewTitle = md`## Survey Preview`
 ```
 
-```js
-viewof responses = {
-  addMenuBehaviour
-  const view = surveyView(surveyOutput.questions, surveyOutput.layout, surveyOutput.config, new Map(), {
-    putFile: (name) => console.log("mock save " + name),
-    getFile: (name) => console.log("mock get " + name),
-  })
-  
-  return view
-}
+```js echo
+//viewof responses = {
+const responsesElement = (() => {
+  addMenuBehaviour;
+  const view = surveyView(
+    surveyOutput.questions,
+    surveyOutput.layout,
+    surveyOutput.config,
+    new Map(),
+    {
+      putFile: (name) => console.log("mock save " + name),
+      getFile: (name) => console.log("mock get " + name)
+    }
+  );
+  return view;
+})();
+const responses = Generators.input(responsesElement);
+display(responsesElement)
+``
+
 ```
 
 ```js echo
 responses
 ```
 
-```js
+```js echo
 import {surveyView, addMenuBehaviour} from '@categorise/surveyslate-styling'
 ```
 
-```js
-md`## Preview Answers`
-```
+## Preview Answers
 
-```js
+```js echo
 responses
 ```
 
@@ -1308,16 +1428,20 @@ responses
 
 Rollback survey to last deployed version
 
-```js
-viewof reollbackButton = Inputs.button("revert", {
+```js echo
+//viewof reollbackButton = Inputs.button("revert", {
+const reollbackButtonElement = Inputs.button("revert", {
   reduce: async () => {
-    await revertChanges(); 
+    await revertChanges();
   }
-})
+});
+const reollbackButton = Generators.input(reollbackButtonElement);
+display(reollbackButtonElement)
+
 ```
 
-```js
-deployTitle = md`## Deploy Survey Version`
+```js echo
+const deployTitle = md`## Deploy Survey Version`
 ```
 
 Last deployed: ${new Date(Number.parseInt(viewof settings.value.versions.at(-1).replace("version_", "").replace(".json", "")))}
@@ -1325,42 +1449,45 @@ Last deployed: ${new Date(Number.parseInt(viewof settings.value.versions.at(-1).
 ${/*force update on deploy*/ (deployButton, '')}
 
 ```js
-viewof deployButton = Inputs.button("deploy", {
+//viewof deployButton = Inputs.button("deploy", {
+const deployButtonElement = Inputs.button("deploy", {
   reduce: async () => {
-    await saveVersion(); 
+    await saveVersion();
   }
-})
+});
+const deployButton = Generators.input(deployButtonElement);
+display(deployButtonElement)
 ```
 
-```js
-md`---
-## Cloud Configuration`
+---
+
+## Cloud Configuration
+
+```js echo
+const me = getUser()
 ```
 
-```js
-me = getUser()
+```js echo
+const myTags = listUserTags(me.UserName)
 ```
 
-```js
-myTags = listUserTags(me.UserName)
+```js echo
+const REGION = 'us-east-2'
 ```
 
-```js
-REGION = 'us-east-2'
+```js echo
+//import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, viewof mfaCode, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} with {REGION as REGION} from '@tomlarkworthy/aws'
+import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, viewof mfaCode, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} with {REGION as REGION} from '/components/aws.js'
 ```
 
-```js
-import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, viewof mfaCode, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} with {REGION as REGION} from '@tomlarkworthy/aws'
-```
-
-```js
+```js echo
 md`---
 
 ## Helpers`
 ```
 
-```js
-sanitizeValue = (text) => {
+```js echo
+const sanitizeValue = (text) => {
   text = text.trim()
   if (text === "TRUE") return true;
   if (text === "FALSE") return false;
@@ -1368,40 +1495,44 @@ sanitizeValue = (text) => {
 }
 ```
 
-```js
-md`### Dependancies`
+### Dependencies
+
+```js echo
+//import {createQuestion, reifyAttributes, bindLogic, setTypes, config} from '@categorise/survey-components'
+import {createQuestion, reifyAttributes, bindLogic, setTypes, config} from '/components/survey-components.js'
 ```
 
-```js
-import {createQuestion, reifyAttributes, bindLogic, setTypes, config} from '@categorise/survey-components'
+```js echo
+//import {toc} from "@bryangingechen/toc"
+import {toc} from "/components/toc.js"
 ```
 
-```js
-import {toc} from "@bryangingechen/toc"
+```js echo
+//import {view, cautious} from '@tomlarkworthy/view'
+import {viewUI, cautious} from '/components/view.js'
 ```
 
-```js
-import {view, cautious} from '@tomlarkworthy/view'
+```js echo
+//import {fileInput} from "@tomlarkworthy/fileinput"
+import {fileInput} from "/components/fileinput.js"
 ```
 
-```js
-import {fileInput} from "@tomlarkworthy/fileinput"
+```js echo
+//import {dataEditor} from '@tomlarkworthy/dataeditor'
+import {dataEditor} from '/components/dataeditor.js'
 ```
 
-```js
-import {dataEditor} from '@tomlarkworthy/dataeditor'
-```
-
-```js
-import {pageHeader, pageFooter, buttonLabel} from "@categorise/common-components"
+```js echo
+//import {pageHeader, pageFooter, buttonLabel} from "@categorise/common-components"
+import {pageHeader, pageFooter, buttonLabel} from "/components/common-components.js"
 ```
 
 ---
 
-```js
-import { substratum } from "@categorise/substratum"
+```js echo
+//import { substratum } from "@categorise/substratum"
 ```
 
-```js
-substratum({ invalidation })
+```js echo
+//substratum({ invalidation })
 ```

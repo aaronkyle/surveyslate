@@ -65,31 +65,305 @@ test credentials for demoEditor
 
 ```js echo
 //viewof manualCredentials
-manualCredentials
+display(manualCredentialsElement)
+//manualCredentials
 ```
 
 
 ```js echo
-saveCreds
+display(saveCredsElement)
+//saveCreds
 ```
 
 ### Choose Survey Source for demo data
 
 ```js echo
 //viewof survey
-survey
+display(surveyElement)
+//survey
+```
+```js echo
+import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, mfaCode, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} from '/components/aws.js';
 ```
 
 ```js echo
-import {viewof manualCredentials, viewof survey, saveCreds, questions, layout, viewof surveyConfig, initialQuestionLoader, initialLayoutLoader, load_config, createQuestion, bindLogic} from '@categorise/surveyslate-designer-tools'
+//import {viewof manualCredentials, viewof survey, saveCreds, questions, layout, viewof surveyConfig, initialQuestionLoader, initialLayoutLoader, load_config, createQuestion, bindLogic} from '@categorise/surveyslate-designer-tools'
+//import {manualCredentials, survey, saveCreds, questions, layout, surveyConfig, initialQuestionLoader, initialLayoutLoader, load_config, createQuestion, bindLogic} from '/components/surveyslate-designer-tools.js'
+//import {survey, surveyElement, questions, layout, surveyConfig, initialQuestionLoader, initialLayoutLoader, load_config, createQuestion, bindLogic} from '/components/surveyslate-designer-tools.js'
+
+import {initialQuestionLoader, initialLayoutLoader, load_config, createQuestion, bindLogic} from '/components/surveyslate-designer-tools.js'
+
+import {localStorageView} from '/components/local-storage-view.js';
+
+import {config} from '/components/survey-slate-configuration.js';
 ```
 
 ```js echo
-import {styles as componentStyles, pagination} from '@categorise/survey-components'
+const me = await getUser();
+display(me)
+
+const myTags = await listUserTags(me.UserName);
+display(myTags)
+
+const surveys = myTags['designer'].split(" ");
+
+const surveyElement = Inputs.bind(
+  Inputs.select(surveys, { label: "survey" }),
+  localStorageView("designer-project", {
+    defaultValue:
+      new URLSearchParams(location.search).get("survey") ||
+      surveys[0]
+  })
+);
+const survey = Generators.input(surveyElement);
+
+const questionsElement = Inputs.input(new Map());
+const questions = Generators.input(questionsElement);
+
+const layoutDataElement = Inputs.input([]);
+const layoutData = Generators.input(layoutDataElement);
+
+const layoutElement = Inputs.input(layoutDataElement);
+const layout = Generators.input(layoutElement);
+
+const surveyConfigElement = Inputs.input()
+const surveyConfig = Generators.input(surveyConfigElement);
+
+
+const files = ({
+  save: async (key, object) => {
+    await putObject(config.PRIVATE_BUCKET, `surveys/${survey}/${key}`, JSON.stringify(object), {
+      tags: {
+        "survey": survey
+      },
+      ...(key === "settings.json" && {'CacheControl': "no-cache"})
+    })
+  },
+  load: async (key, object) => {
+    return JSON.parse(await getObject(config.PRIVATE_BUCKET, `surveys/${survey}/${key}`))
+  }
+})
+
+const settingsElement = Inputs.input(await files.load('settings.json'));
+const settings = Generators.input(settingsElement);
+
+
+const loadConfig = async (name) => await files.load(name)
 ```
 
 ```js echo
-const loaders = initialQuestionLoader, initialLayoutLoader, load_config
+import {manualCredentialsElement, manualCredentials, saveCredsElement, saveCreds} from '/components/aws.js'
+```
+
+
+
+```js echo
+//import {styles as componentStyles, pagination} from '@categorise/survey-components'
+//import {styles as componentStyles, pagination} from '/components/survey-components.js';
+
+const ns = Inputs.text().classList[0]
+
+const colorBoxStyle = html`<style>
+  .color-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background-color: #ccc;
+    height: 2rem;
+    width: 2rem;
+    border-radius: .25rem;
+    font-weight: bold;
+    color: white;
+    border: 1px solid rgba(0,0,0,0.05);
+  }
+
+  .color-box--lg {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+</style>`
+
+const aggregateSummaryStyle = html`<style>
+  .aggregate-summary {}  
+</style>`
+
+const tableStyles = html`<style>
+form.${ns} {
+  width: auto;
+}
+
+.table-ui-wrapper {
+  overflow-x: auto;
+}
+
+.table-ui {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table-ui td,
+.table-ui th {
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  vertical-align: middle;
+}
+
+.table-ui th {
+  text-align: left;
+}
+
+.table-ui th > * {
+  margin: 0;
+}
+
+.table-ui td > input[type=number] {
+  width: 60px;
+}
+
+.table-ui .subtotal {
+  padding: 0.25rem 0;
+}
+
+.table-ui th .${ns}-input {
+  min-width: 120px;
+}
+
+/* Match Observable Input description styles */
+.table-ui-caption {
+  font-size: 0.85rem;
+  font-style: italic;
+  margin-top: 3px;
+}
+
+/* Don't reduce font size lower than 0.85rem with <small> */
+.table-ui-caption small {
+  font-size: 0.85rem;
+}
+</style>`;
+
+const formInputStyles = html`<style>
+/* For @jashkenas/inputs */
+/* Important seems to be the only way to override inline styles */
+form label[style] {
+  font-size: 1rem !important;
+  display: block !important;
+}
+
+form div div,
+form label[style] {
+  line-height: var(--lh-copy, 1.3) !important; /* .lh-copy */
+  margin: 0 !important;
+}
+
+form div + label[style], 
+form label[style] + label[style], 
+form label[style] + button + div,
+form label[style] + div { 
+  margin-top: var(--spacing-small, .5rem) !important;
+} 
+
+form textarea[style] {
+  width: 100% !important;
+}
+
+form[data-form-type="checkbox-plus-plus"] label[style] ,
+form[data-form-type="clearable-radio"] label[style] {
+  display: grid !important;
+  grid-template-columns: 1em auto;
+  gap: var(--spacing-extra-small, .25rem);
+  align-items: start;
+}
+
+form[data-form-type="clearable-radio"] input[type="radio"],
+form[data-form-type="checkbox-plus-plus"] input[type="checkbox"] {
+  margin-left: 0 !important;
+  margin-top: 0.25rem !important;
+}
+
+form[data-form-type="clearable-radio"] div {
+  grid-template-columns: 1fr minmax(120px, max-content);
+  grid-gap: 0 1rem;
+  grid-auto-flow: column;
+}
+
+form[data-form-type="clearable-radio"] div > *  {
+  grid-column: 1;
+}
+
+form[data-form-type="clearable-radio"] div > div:first-child,
+form[data-form-type="clearable-radio"] div > div:last-child {
+  grid-column: 1/-1;
+}
+
+form[data-form-type="clearable-radio"] div > button  {
+  grid-column: 2;
+  align-self: start;
+  justify-self: end;
+}
+
+form[data-form-type="clearable-radio"] div > button {
+  margin-top: .5rem;
+}
+
+@media screen and (min-width: 30em) {
+  form[data-form-type="clearable-radio"] > div {
+    display: grid;
+  }
+}
+
+.secondary-button {
+  font-size: .875rem; /* .f6 */
+  border: 1px solid currentColor;
+  padding: var(--spacing-extra-small);
+  color: var(--brand) !important;
+  background-color: white;
+  font-family: var(--brand-font);
+  border-radius: var(--border-radius-1);
+}
+
+.secondary-button:hover,
+.secondary-button:focus,
+.secondary-button:active {
+  background-color: #f4f4f4; /* near-white */
+}
+
+.secondary-button[disabled] {
+  color: #999 !important; 
+  background-color: white;
+  cursor: not-allowed;
+}
+
+/* For @observable/inputs */
+form.${ns} label {
+  display: block;
+}
+</style>`
+
+
+const componentStyles = html`<style>
+  ${colorBoxStyle.innerHTML}
+  ${aggregateSummaryStyle.innerHTML}
+  ${tableStyles.innerHTML}
+  ${formInputStyles.innerHTML}
+</style>`
+
+
+const pagination = ({previous, next, hashPrefix = "", previousLabel = "← Go back", nextLabel ="Proceed →"} = {}) => {
+  const prevLink = previous ? html`<a class="[ pagination_previous ][ brand no-underline underline-hover ]" href="#${hashPrefix}${previous}">${previousLabel}</a>` : "";
+  const nextLink = next ? html`<a class="[ pagination_next ][ ml-auto pv2 ph3 br1 ][ bg-brand text-on-brand hover-bg-accent no-underline ]" href="#${hashPrefix}${next}">${nextLabel}</a>` : "";
+
+  return html`<nav class="[ pagination ][ f5 ][ flex items-center ]">
+  ${prevLink} ${nextLink}
+</nav>`
+}
+
+
+display(componentStyles);
+display(pagination);
+```
+
+```js echo
+const loaders = [initialQuestionLoader, initialLayoutLoader, load_config]
 ```
 
 ## Brand
@@ -125,7 +399,7 @@ const brandConfig = ({
 ```
 
 ```js echo
-{
+() => {
   loadStyles(brandConfig)
   return md`*Install CSS styles for use within Observable even if \`surveyView\` is not executed*`
 }

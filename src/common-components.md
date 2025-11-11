@@ -385,9 +385,9 @@ import {getIconSvg} from "/components/feather-icons.js"
 
 ```js echo
 //import { substratum } from "@categorise/substratum"
-import { substratum } from "/components/substratum.js"
+//import { substratum } from "/components/substratum.js"
 ```
 
 ```js
-substratum({ invalidation })
+//substratum({ invalidation })
 ```

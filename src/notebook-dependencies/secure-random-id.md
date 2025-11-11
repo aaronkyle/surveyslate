@@ -1,19 +1,16 @@
-```js
-md`# Secure random ID
+# Secure random ID
 
-~~~js
-import {randomId} from '@tomlarkworthy/randomid'
-~~~
+    ~~~js
+    import {randomId} from '@tomlarkworthy/randomid'
+    ~~~
 
-`
+
+```js echo
+const example = randomId()
 ```
 
 ```js echo
-example = randomId()
-```
-
-```js echo
-randomId = (len = 8) => {
+const randomId = (len = 8) => {
   // From 'https://observablehq.com/@tomlarkworthy/randomid'
   // Avoid / and + and - and _ typof chars seen in base64
   const chars =

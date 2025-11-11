@@ -2,13 +2,29 @@
 
 _A simple user interface for Survey Slate's [Admin Tools](https://observablehq.com/@categorise/surveyslate-admin-tools)._
 
+
+
 ```js
-md`
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+
+
 <div style="max-width: ${width/1.75}px; margin: 30px 0; padding: 15px 30px; background-color: #e0ffff; font: 700 18px/24px sans-serif;">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
 
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
-`
-```
+
 
 ```js echo
 viewof loginView = html`<div class="flex flex-column brand-font bg-near-white" style="overflow-y: auto; height:600px;">
@@ -51,7 +67,7 @@ viewof usersPage = html`<div class="flex flex-column brand-font bg-near-white" s
 ```
 
 ```js echo
-usersTable = md`|User  | Accounts |
+const usersTable = md`|User  | Accounts |
 |:--|:--|
 |[James Moriarty](#)| BM-ABC, UO-MATH|
 |[John Watson](#)| BE-SY|
@@ -71,7 +87,7 @@ nav([
 ```
 
 ```js echo
-nav = (links = []) => {
+const nav = (links = []) => {
   const linkClasses = "[ nav nav-1 dib ph3 pv2 nowrap ][ link pointer no-underline text-on-brand hover-text-on-brand hover-bg-accent ]";
   const activeLinkClasses = "[ bg-accent active ]";
   
@@ -131,7 +147,7 @@ styles
 ```
 
 ```js echo
-prototypeStyles = html`<style>
+const prototypeStyles = html`<style>
 .c-table table {
   margin: 0;
   max-width: 100%;
@@ -142,27 +158,32 @@ prototypeStyles = html`<style>
 ## Imports
 
 ```js
-import {view} from "@tomlarkworthy/view"
+//import {view} from "@tomlarkworthy/view"
+import {viewUI} from "/components/view.js"
 ```
 
 ```js
-import {mainColors, accentColors} from "@categorise/brand"
+//import {mainColors, accentColors} from "@categorise/brand"
+import {mainColors, accentColors} from "/components/brand.js"
+
 ```
 
 ```js
-import {tachyonsExt} from "@categorise/tachyons-and-some-extras"
+//import {tachyonsExt} from "@categorise/tachyons-and-some-extras"
+import {tachyonsExt} from "/components/tachyons-and-some-extras.js"
 ```
 
 ```js
-import {pageHeader, pageFooter, buttonLabel, styles} from "@categorise/surveyslate-common-components"
+//import {pageHeader, pageFooter, buttonLabel, styles} from "@categorise/surveyslate-common-components"
+import {pageHeader, pageFooter, buttonLabel, styles} from "/components/surveyslate-common-components.js"
 ```
 
 ---
 
 ```js
-import { substratum } from "@categorise/substratum"
+//import { substratum } from "@categorise/substratum"
 ```
 
 ```js
-substratum({ invalidation })
+//substratum({ invalidation })
 ```

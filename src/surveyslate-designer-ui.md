@@ -2,15 +2,55 @@
 
 _A simple user interface for Survey Slate's [Designer Tools](https://observablehq.com/@categorise/surveyslate-designer-tools).  Also check out the [User Guide for Survey Slate Designer](https://observablehq.com/@categorise/surveyslate-user-guide-for-grouping-questions)._
 
-```js
-md`
-<div style="max-width: ${width/1.75}px; margin: 30px 0; padding: 15px 30px; background-color: #e0ffff; font: 700 18px/24px sans-serif;">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
 
-<!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
-`
+```js echo
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
 ```
 
-```js
+
+<style>
+  /* Base (light) theme */
+  .welcome-note {
+    --note-bg: #e0ffff;     /* Light: pale cyan */
+    --note-fg: #0b3d3d;     /* Light: deep teal text */
+    --note-border: #9edede; /* Light: soft border */
+    max-width: ${width/1.75}px;
+    margin: 30px 0;
+    padding: 15px 30px;
+    background-color: var(--note-bg);
+    color: var(--note-fg);
+    border: 1px solid var(--note-border);
+    border-radius: 10px;
+    font: 700 18px/24px sans-serif;
+  }
+
+  /* Dark theme override when the browser prefers dark mode */
+  @media (prefers-color-scheme: dark) {
+    .welcome-note {
+      --note-bg: #0f1f24;     /* Dark: deep blue-green */
+      --note-fg: #d8ffff;     /* Dark: soft cyan text */
+      --note-border: #245a61; /* Dark: subtle border */
+    }
+  }
+</style>
+
+<div class="welcome-note">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
+
+<!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
+
+
+```js echo
 toc({
   headers: "h2,h3,h4,h5"
 })
@@ -18,13 +58,13 @@ toc({
 
 ## Wireframe
 
-```js
+```js echo
 FileAttachment("image.png").image()
 ```
 
 ## Config
 
-```js
+```js echo
 types = new Map([
  ["Markdown", "md"],
  ["Text", "textarea"],
@@ -41,7 +81,7 @@ types = new Map([
 
 ```
 
-```js
+```js echo
 roles = ["yes", "yesno", "yesnomaybe", "ifyes", "ifno", "calculation", "scored"]
 ```
 
@@ -57,7 +97,7 @@ viewof exampleSurveyEditor = view`<div class="brand-font bg-near-white">
 </div>`
 ```
 
-```js
+```js echo
 viewof anotherSurveyEditorData = {
   return Inputs.input(({
   metadata: {
@@ -183,13 +223,13 @@ surveyMetadata = ({title} = {}) => view`<div class="card solid-shadow-1 space-y-
 viewof exampleSurveyMetadata = surveyMetadata()
 ```
 
-```js
+```js echo
 exampleSurveyMetadata
 ```
 
 ### page
 
-```js
+```js echo
 viewof examplePage = page({
   title: "intro",
   cells: [{
@@ -257,7 +297,7 @@ Inputs.button("test backwritability of a cell", {
 ```
 
 ```js echo
-page = ({
+const page = ({
     id = randomId(),
     title,
     cells = [],
@@ -482,7 +522,7 @@ exampleTypeUIRadio
 ```
 
 ```js echo
-typeUIFactories = ({
+const typeUIFactories = ({
   "radio": radioUI,
   "checkbox": checkboxUI,
   "table": tableUI,
@@ -498,7 +538,7 @@ typeUIFactories = ({
 ```
 
 ```js echo
-typeUI = juice((arg0) => {
+const typeUI = juice((arg0) => {
   const factory = typeUIFactories[arg0?.type];
   if (factory) {
     return factory(arg0?.result)
@@ -521,7 +561,7 @@ typeof "" === 'string'
 ```
 
 ```js echo
-fallbackUI = (args = {}) => { // Main purpose is to convert into <map>format. Main UI is in fallbackUIEntries
+const fallbackUI = (args = {}) => { // Main purpose is to convert into <map>format. Main UI is in fallbackUIEntries
   const entriesUI = fallbackUIEntries({
     entries: Object.entries(args).map(([k, v]) => {
       if (!v) {
@@ -607,7 +647,7 @@ exampleFallbackUIEntries
 ```
 
 ```js echo
-kvRowBuilder = ({
+const kvRowBuilder = ({
   placeholder,
   key, value_,
   onEnter, onDelete
@@ -664,7 +704,7 @@ sampleMdUI
 ```
 
 ```js echo
-mdUI = ({content, rows = 20} = {}) => {
+const mdUI = ({content, rows = 20} = {}) => {
   return view`<div class="[ cell__section ][ pb3 ]">
   ${['content', Inputs.textarea({value: content, label: "Content", rows})]}
 </div>`
@@ -686,7 +726,7 @@ sampleTextUI
 ```
 
 ```js echo
-textUI = ({title,description} = {}) => {
+const textUI = ({title,description} = {}) => {
   return view`<div class="[ cell__section ][ pb2 ]">
   ${['title', Inputs.text({value: title, label: "Question"})]}
 </div>
@@ -728,7 +768,7 @@ exampleRadioUI
 ```
 
 ```js echo
-radioUI = ({title, options = [], connections = [], description,includeAllOption} = {}) => {
+const radioUI = ({title, options = [], connections = [], description,includeAllOption} = {}) => {
   const newOptionInput = optionsRowBuilder({
     placeholder: "Add new row",
     id: randomId(),
@@ -782,7 +822,7 @@ radioUI = ({title, options = [], connections = [], description,includeAllOption}
 ```
 
 ```js echo
-optionsRowBuilder = ({
+const optionsRowBuilder = ({
   label,
   score,
   id,
@@ -816,7 +856,7 @@ optionsRowBuilder = ({
 
 #### Checkbox Question
 
-```js
+```js echo
 FileAttachment("checkboxes.png").image()
 ```
 
@@ -853,7 +893,7 @@ exampleCheckboxUI
 ```
 
 ```js echo
-checkboxUI = ({title, options = [], includeAllOption, includeNoneOption, description} = {}) => {
+const checkboxUI = ({title, options = [], includeAllOption, includeNoneOption, description} = {}) => {
   const newOptionInput = optionsRowBuilder({
     placeholder: "Add new row",
     id: randomId(),
@@ -950,7 +990,7 @@ exampleNumberUI
 ```
 
 ```js echo
-numberUI = ({title, description, min = 0, max, step = 1} = {}) => {
+const numberUI = ({title, description, min = 0, max, step = 1} = {}) => {
   const attributes =  [
     {
       id: "min",
@@ -1006,7 +1046,7 @@ exampleTextareaUI
 ```
 
 ```js echo
-textareaUI = ({title, placeholder, description, rows = 4} = {}) => {
+const textareaUI = ({title, placeholder, description, rows = 4} = {}) => {
   const attributes =  [
     {
       id: "rows",
@@ -1052,7 +1092,7 @@ exampleFileAttachmentUI
 ```
 
 ```js echo
-fileAttachmentUI = ({title, description, placeholder} = {}) => {
+const fileAttachmentUI = ({title, description, placeholder} = {}) => {
   return view`
 <div class="[ cell__section ][ space-y-3 ph2 pb3 ]">
   ${['title', Inputs.text({label: "Question", value: title})]}
@@ -1105,7 +1145,7 @@ exampleTableUI2
 ```
 
 ```js echo
-tableUI = ({title, rows = [], columns = [], caption, user_rows, table_total, table_total_label} = {}) => {
+const tableUI = ({title, rows = [], columns = [], caption, user_rows, table_total, table_total_label} = {}) => {
   const newRowInputBuilder = (valueKey, hideTotal) => {
     const newRowInput = tableHeaderRowBuilder({
       placeholder: "Add new row",
@@ -1182,7 +1222,7 @@ tableUI = ({title, rows = [], columns = [], caption, user_rows, table_total, tab
 ```
 
 ```js echo
-tableHeaderRowBuilder = ({
+const tableHeaderRowBuilder = ({
   label,
   key,
   total,
@@ -1234,7 +1274,7 @@ viewof sampleSummaryUI = summaryUI({
 ```
 
 ```js echo
-summaryUI = ({label, counter_group, counter_value} = {}) => {
+const summaryUI = ({label, counter_group, counter_value} = {}) => {
   return view`<div class="[ cell__section ][ space-y-3 ph2 pb3 ]">
   ${['label', Inputs.text({value: label, label: "Label"})]}
   ${['counter_group', Inputs.text({label: "Group", value: counter_group})]}
@@ -1252,7 +1292,7 @@ viewof exampleAggregateSummaryUI = aggregateSummaryUI({
 ```
 
 ```js echo
-aggregateSummaryUI = ({label, counter_group} = {}) => {
+const aggregateSummaryUI = ({label, counter_group} = {}) => {
   return view`<div class="[ cell__section ][ space-y-3 ph2 pb3 ]">
   ${['label', Inputs.text({value: label, label: "Label"})]}
   ${['counter_group', Inputs.text({label: "Group", value: counter_group})]}
@@ -1269,7 +1309,7 @@ viewof sampleSectionUI = sectionUI({
 ```
 
 ```js echo
-sectionUI = ({title} = {}) => {
+const sectionUI = ({title} = {}) => {
   // class="[ pa3 mh-3 ][ bt bw1 b--light-silver" ]"
   return view`<div class="[ cell__section pb3 ]">
   ${['title', Inputs.text({value: title, label: "Title"})]}
@@ -1322,7 +1362,7 @@ viewof sampleIncludeOptionalAttributesUI4 = includeOptionalAttributesUI({
 ```
 
 ```js echo
-includeOptionalAttributesUI = (option = {}, toggleLabel = "Add option to select all", defaultOptionLabel = "All of the above", showId = false) =>  {   
+const includeOptionalAttributesUI = (option = {}, toggleLabel = "Add option to select all", defaultOptionLabel = "All of the above", showId = false) =>  {   
   const {score, label, id} = option;
   
   const showUI = Boolean(score || label);
@@ -1398,7 +1438,7 @@ exampleConnectionsUI
 ```
 
 ```js echo
-exampleConnectionsUIBackwritingExample = {
+const exampleConnectionsUIBackwritingExample = {
   viewof exampleConnectionsUI.value = {connections: [
     {set:"g1", role:"r1"},
     {set:"g2", role:"r2"}
@@ -1408,7 +1448,7 @@ exampleConnectionsUIBackwritingExample = {
 ```
 
 ```js echo
-connectionsUI = ({connections = []} = {}) => {
+const connectionsUI = ({connections = []} = {}) => {
   const newRoleInput = connectionRowBuilder({
     placeholder: "Add new connection",
     id: randomId(),
@@ -1448,7 +1488,7 @@ connectionsUI = ({connections = []} = {}) => {
 ```
 
 ```js echo
-connectionRowBuilder = ({
+const connectionRowBuilder = ({
   set,
   role,
   placeholder,
@@ -1493,7 +1533,7 @@ descriptionUI("Some description")
 ```
 
 ```js echo
-descriptionUI = (description, rows = 2) => view`<div>
+const descriptionUI = (description, rows = 2) => view`<div>
   ${['...', Inputs.textarea({label: "Description", value: description, rows})]}
   <form class="${ns}"><p class="[ align-observable-inputs ][ ma0 ][ mid-gray ]">Supports Markdown</p></form>
 </div>`
@@ -1510,7 +1550,7 @@ exampleSettingsCard
 ```
 
 ```js echo
-settingsCard = () => {
+const settingsCard = () => {
   return view`<div class="[ card card--compact ][ solid-shadow-1 ]">
   <div class="[ space-y-3 ]">
     <h2 class="mt0 f4">Settings</h2>
@@ -1535,7 +1575,7 @@ summaryCard('30 questions across 4 pages', html`<div class="flex space-x-2">${In
 ```
 
 ```js echo
-summaryCard = (title, actionsHtml) => {
+const summaryCard = (title, actionsHtml) => {
   const actions = actionsHtml ? html`<div>${actionsHtml}` : "";
 
   return html`<div class="[ card card--compact ][ b--light-blue solid-shadow-1 ]">
@@ -1558,13 +1598,13 @@ inputLabel("A sample label", true)
 ```
 
 ```js echo
-inputLabel = (label, optional) => html`<span>${label}${ optional ? ` <span class="mid-gray">Optional</span` : "" }</span>`
+const inputLabel = (label, optional) => html`<span>${label}${ optional ? ` <span class="mid-gray">Optional</span` : "" }</span>`
 ```
 
 ## Styles
 
 ```js echo
-styles = html`${commonComponentStyles}
+const styles = html`${commonComponentStyles}
 <style>
 .mh-3 {
   margin-right: calc(-1 * var(--spacing-medium));
@@ -1631,7 +1671,7 @@ html`
 ```
 
 ```js echo
-tachyons = tachyonsExt({
+const tachyons = tachyonsExt({
   colors: {
     brand: mainColors[900], // or, provide and color hex code
     accent: accentColors[900], // or, provide and color hex code
@@ -1647,39 +1687,45 @@ tachyons = tachyonsExt({
 ## Dependencies
 
 ```js echo
-randomId = () => Math.random().toString(16).substring(2)
+const randomId = () => Math.random().toString(16).substring(2)
 ```
 
 ```js
-import {view, bindOneWay} from '@tomlarkworthy/view'
+//import {view, bindOneWay} from '@tomlarkworthy/view'
+import {viewUI, bindOneWay} from '/components/view.js'
 ```
 
 ```js
-import {juice} from "@tomlarkworthy/juice"
+//import {juice} from "@tomlarkworthy/juice"
+import {juice} from "/components/juice.js"
 ```
 
 ```js
-import { toc } from "@nebrius/indented-toc"
+//import { toc } from "@nebrius/indented-toc"
+import { toc } from "/components/indented-toc.js"
 ```
 
 ```js
-import {mainColors, accentColors} from "@categorise/brand"
+//import {mainColors, accentColors} from "@categorise/brand"
+import {mainColors, accentColors} from "/components/brand.js"
 ```
 
 ```js
-import {tachyonsExt} from "@categorise/tachyons-and-some-extras"
+//import {tachyonsExt} from "@categorise/tachyons-and-some-extras"
+import {tachyonsExt} from "/components/tachyons-and-some-extras.js"
 ```
 
 ```js
-import {pageHeader, pageFooter, buttonLabel, styles as commonComponentStyles, ns, textNodeView} from "@categorise/common-components"
+//import {pageHeader, pageFooter, buttonLabel, styles as commonComponentStyles, ns, textNodeView} from "@categorise/common-components"
+import {pageHeader, pageFooter, buttonLabel, styles as commonComponentStyles, ns, textNodeView} from "/components/common-components.js"
 ```
 
 ---
 
 ```js
-import { substratum } from "@categorise/substratum"
+//import { substratum } from "@categorise/substratum"
 ```
 
 ```js
-substratum({ invalidation })
+//substratum({ invalidation })
 ```

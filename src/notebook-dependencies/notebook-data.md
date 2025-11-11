@@ -1,9 +1,25 @@
+# Version Pinning for Notebooks
+
+
 ```js
-md`# Version Pinning for Notebooks
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
+
 Observable supports version pinning by appending the version number to the notebook name or path.
 
 These functions make it easier to look up the most recent version of notebooks, and to use pinned versions in your own documentation. Example:`
-```
 
 ```js echo
 md`\`\`\`js
@@ -55,7 +71,7 @@ async function getCurrentPinnedName() {
 ```
 
 ```js
-getCurrentMetadata = {
+const getCurrentMetadata = {
   let data;
   return async function getCurrentMetadata(refetch = false) {
     if(data === undefined || refetch) data = await getMetadata(getCurrentName());
@@ -198,16 +214,14 @@ async function getMetadata(name, version = null) {
 }
 ```
 
+---
+
 ```js
-md`---`
+const domain = 'observablehq.com'
 ```
 
 ```js
-domain = 'observablehq.com'
-```
-
-```js
-apiDomain = 'api.observablehq.com'
+const apiDomain = 'api.observablehq.com'
 ```
 
 ```js

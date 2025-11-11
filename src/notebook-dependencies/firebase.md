@@ -1,5 +1,20 @@
+# Firebase and Firebase UI (v8)
+
+
 ```js
-md`# Firebase and Firebase UI (v8)
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
 
 The Firebase SDK (version 8) and a user signin UI, plus utility classes for the databases.
 
@@ -20,8 +35,7 @@ This notebook is based on Firebase version 8, in version 9 there was a huge shif
 - 2020-03-17: Multiple app support and Realtime Database added.
 - 2021-03-02: Prevented embedding to guard against clickjacking. Thanks [@keystroke](https://observablehq.com/@keystroke) in [forum](https://talk.observablehq.com/t/clickjacking-attacks-and-notebook-security)
 - ??? Switched to universal _listen_ instead of DocView/DocViews
-`
-```
+
 
 ```js
 htl.html`<h2>Video Walkthrough</h2><iframe width="${width}"
@@ -33,37 +47,38 @@ htl.html`<h2>Video Walkthrough</h2><iframe width="${width}"
 </iframe>`
 ```
 
-```js
-md`# Firebase SDK
+# Firebase SDK
 
 To import it:
-~~~js
-  import {firebase, viewof user, listen}
-  with {firebaseConfig as firebaseConfig}
-  from "@tomlarkworthy/firebase"
-~~~
+
+    ~~~js
+      import {firebase, viewof user, listen}
+      with {firebaseConfig as firebaseConfig}
+      from "@tomlarkworthy/firebase"
+    ~~~
+
 You need a config defined in a cell too, which you can obtain from console.firebase.google.com (project settings, web app)
-~~~js 
-  firebaseConfig = ({
-    // See https://console.firebase.google.com/u/0/project/_/settings/general/web
-    apiKey: "AIzaSyD882c8YEgeYpNkX01fhpUDfioWl_ETQyQ",
-    authDomain: "endpointservice.firebaseapp.com",
-    databaseURL: "https://endpointservice.firebaseio.com",
-    projectId: "endpointservice",
-    storageBucket: "endpointservice.appspot.com",
-    appId: "1:1986724398:web:9b8bc33895b45dd2e095bf",
-    uiConfig: { // https://github.com/firebase/firebaseui-web#configuration
-        signInOptions: ["google.com", "password", "phone", "anonymous"],
-        // tosUrl: '<your-tos-url>', // Terms of service url.
-        // privacyPolicyUrl: '<your-privacy-policy-url>', // Privacy policy url.
-    },
-  })
-~~~
-`
-```
+
+    ~~~js 
+      firebaseConfig = ({
+        // See https://console.firebase.google.com/u/0/project/_/settings/general/web
+        apiKey: "AIzaSyD882c8YEgeYpNkX01fhpUDfioWl_ETQyQ",
+        authDomain: "endpointservice.firebaseapp.com",
+        databaseURL: "https://endpointservice.firebaseio.com",
+        projectId: "endpointservice",
+        storageBucket: "endpointservice.appspot.com",
+        appId: "1:1986724398:web:9b8bc33895b45dd2e095bf",
+        uiConfig: { // https://github.com/firebase/firebaseui-web#configuration
+            signInOptions: ["google.com", "password", "phone", "anonymous"],
+            // tosUrl: '<your-tos-url>', // Terms of service url.
+            // privacyPolicyUrl: '<your-privacy-policy-url>', // Privacy policy url.
+        },
+      })
+    ~~~
+
 
 ```js
-firebase = {
+const firebase = {
   window.firebases = window.firebases || {};
 
   if (!window._firebase) {
@@ -103,8 +118,8 @@ firebase = {
 }
 ```
 
-```js
-md`# listen (Firestore doc/collection)
+
+# listen (Firestore doc/collection)
 
 Creates an async iterator bound to a Firestore location. This allows you to pipe values directly into an Observable notebook cell without ceremony.
 
@@ -113,21 +128,22 @@ If you listen to a Firestore collections you get a stream of arrays. If you list
 Sometimes you need the full path of elements or the id. In the options you can request *\_id* and *\_ref* to be added to the result elements.
 
 Usage: 
-~~~js
-      citiesCA = listen(db.collection("cities").where("state", "==", "CA"))
-~~~
+
+    ~~~js
+          citiesCA = listen(db.collection("cities").where("state", "==", "CA"))
+    ~~~
+
 A pretty cool demo is changing the value through the realtime Firebase console and seeing the notebook update reactively.
 
 Adding additional options:
 
-~~~js
-listen(ref, {
-   includeRef: true,
-   includeId: true
-});
-~~~
-`
-```
+    ~~~js
+    listen(ref, {
+      includeRef: true,
+      includeId: true
+    });
+    ~~~
+
 
 ```js
 async function* listen(
@@ -217,22 +233,20 @@ async function* listen(
 }
 ```
 
-```js
-md`## _Listen_ examples and tests`
-```
+## _Listen_ examples and tests
 
 ```js echo
-collection_listen = listen(firebase.firestore().collection("services/testing/example"), {
+const collection_listen = listen(firebase.firestore().collection("services/testing/example"), {
   includeRef: true
 })
 ```
 
 ```js echo
-doc_listen = listen(firebase.firestore().doc("services/testing/example/example1"))
+const doc_listen = listen(firebase.firestore().doc("services/testing/example/example1"))
 ```
 
 ```js echo
-default_value = listen(firebase.firestore().doc("services/testing/example/empty"), {
+const default_value = listen(firebase.firestore().doc("services/testing/example/empty"), {
   defaultValue: {}
 }) 
 ```
@@ -302,7 +316,7 @@ Current status of Firebase UI
 ```
 
 ```js echo
-token = JSON.stringify(await user.getIdTokenResult(), null, 2)
+const token = JSON.stringify(await user.getIdTokenResult(), null, 2)
 ```
 
 ```js echo
@@ -413,7 +427,7 @@ The _user_ variable does resolve until someone logs in (like [Mike's auth simula
 ```
 
 ```js
-firebaseConfig = (
+const firebaseConfig = (
   {
     apiKey: "AIzaSyD882c8YEgeYpNkX01fhpUDfioWl_ETQyQ",
     authDomain: "endpointservice.firebaseapp.com",
@@ -440,7 +454,7 @@ You will need to add __observableusercontent.com__ to the authorized domains on 
 ```
 
 ```js
-firebaseui = {
+const firebaseui = {
   var script = document.createElement('script');
   script.src = "https://www.gstatic.com/firebasejs/ui/4.6.0/firebase-ui-auth.js";
   document.getElementsByTagName('head')[0].appendChild(script);
@@ -462,7 +476,7 @@ md`## Key encoding for firebase realtime database`
 ```
 
 ```js
-FKEY = {
+const FKEY = {
   // http://stackoverflow.com/a/6969486/692528
   const escapeRegExp = str =>
     str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
@@ -626,7 +640,7 @@ class DocsView extends View {
 ### Testing
 
 ```js
-testing = {
+const testing = {
   const [{ Runtime }, { default: define }] = await Promise.all([
     import(
       "https://cdn.jsdelivr.net/npm/@observablehq/runtime@4/dist/runtime.js"
@@ -643,7 +657,7 @@ testing = {
 ```
 
 ```js
-expect = testing.expect
+const expect = testing.expect
 ```
 
 ```js

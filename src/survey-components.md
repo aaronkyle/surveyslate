@@ -230,9 +230,12 @@ const createQuestion = (q, index, options) => {
 //!!!!!!!!!!!!!!!!!
 //!!!!! NOTE: We have to adjust the use of viewof here.
 //!!!!!!!!!!!!!!!!
-const example_q = view(() => {
+//viewof example_q = {
+const example_qElement = (() => {
   return createQuestion(JSON.parse(`{"id":"viewof borrower_GESI_support_equal_pay","type":"radio","title":"Do you provide equal pay for work of equal value of women and men?","options":[{"value":"No","label":"No"},{"value":"Yes","label":"Yes"}],"value":"savedFormData.borrower_GESI_support_equal_pay"}`))
-})
+})();
+const example_q = Generators.input(example_qElement);
+display(example_qElement)
 ```
 
 ```js echo
@@ -468,7 +471,8 @@ form.${ns} {
 ```
 
 ```js echo
-const exampleTable = view(table({
+//viewof exampleTable = table({
+const exampleTableElement = table({
   value: {
    board: {
     w: 10,
@@ -496,7 +500,9 @@ const exampleTable = view(table({
   grandTotalLabel: htl.html`<br>people`,
   caption: md`<small>_Please enumerate the sex distribution and number of persons with disabilities in your workforce—ensuring to avoid double counting. If you find that this format does not adequately reflect your organization, please submit your data separately to ADB. If you have information for multiple years, please also submit separately.
 ._</small>`
-}))
+});
+const exampleTable = Generators.input(exampleTableElement);
+display(exampleTableElement)
 ```
 
 ```js echo
@@ -504,7 +510,8 @@ exampleTable
 ```
 
 ```js
-const userEditableTableExample = view(createQuestion({
+//viewof userEditableTableExample = createQuestion({
+const userEditableTableExampleElement = createQuestion({
   type: 'table',
   value: {
     "indigenous": {label: "Indigenous Peoples", w: 3, m: 12, unknown: 5, other: 4}
@@ -514,7 +521,9 @@ const userEditableTableExample = view(createQuestion({
   user_rows: true,
   table_total_label: '<br>people',
   caption_md: `<small>_**Excluded and Vulnerable Groups** ...._</small>`
-}))
+});
+const userEditableTableExample = Generators.input(userEditableTableExampleElement);
+display(userEditableTableExampleElement)
 ```
 
 ```js echo
@@ -522,12 +531,15 @@ userEditableTableExample
 ```
 
 ```js
-const basicTable = view(table({
+//viewof basicTable = table({
+const basicTableElement = table({
   
   value: {
     "cool": {label:"very cool", c1: "27"}
   },
-  columns: [{key: "c1", label: "c1"}], rows: [{key: "r1", label: "r1"}], user_rows: true}))
+  columns: [{key: "c1", label: "c1"}], rows: [{key: "r1", label: "r1"}], user_rows: true});
+const basicTable = Generators.input(basicTableElement);
+display(basicTableElement)
 ```
 
 ```js echo
@@ -600,7 +612,7 @@ const file_attachment = (options) => {
 
 ```js echo
 //viewof exampleFileAttachment = {
-const exampleFileAttachmentElement = () => {
+const exampleFileAttachmentElement = (() => {
   return createQuestion({
     "id":"GESI_national_law_files",
     "type":"file_attachment",
@@ -613,7 +625,7 @@ const exampleFileAttachmentElement = () => {
     putFile: () => {},
     getFile: () => {},
   })
-}
+})()
 ```
 
 ```js echo
@@ -621,7 +633,7 @@ const exampleFileAttachment = Generators.input(exampleFileAttachmentElement)
 ```
 
 ```js echo
-exampleFileAttachmentElement()
+exampleFileAttachmentElement
 ```
 
 ```js echo
@@ -634,7 +646,7 @@ exampleFileAttachment
 
 ```js echo
 //viewof radioExamples2 = radio({
-const radioExamples2 = view(radio({
+const radioExamples2Element = radio({
   title: "A very long non sensical question to check the wrapping and layout of this component? A very long non sensical question.",
   options: [ 
     "cool",
@@ -642,14 +654,17 @@ const radioExamples2 = view(radio({
   ],
   value: "cool",
   description: "A slightly long and meaningless description to go with the options"
-}))
+});
+const radioExamples2 = Generators.input(radioExamples2Element);
+display(radioExamples2Element)
 ```
 
 ```js
-//viewof radioExample = radio({
-const radioExample = view(radio({
+const radioExampleElement = radio({
   options: ["cool", "not cool"]
-}))
+});
+const radioExample = Generators.input(radioExampleElement);
+display(radioExampleElement)
 ```
 
 ```js echo
@@ -709,11 +724,13 @@ const radio = (args) => {
 
 ```js echo
 //viewof exampleTextarea = textarea({
-const exampleTextarea = view(textarea({
+const exampleTextareaElement = textarea({
   title: "title",
   description: "description",
   placeholder: "placeholder"
-}))
+});
+const exampleTextarea = Generators.input(exampleTextareaElement);
+display(exampleTextareaElement)
 ```
 
 ### Checkbox++
@@ -828,18 +845,25 @@ const checkbox = (options) => {
 
 ```js echo
 //viewof exampleCheckboxPlus = checkbox({
-const exampleCheckboxPlus = view(checkbox({
-  includeNoneOption: {label: "none of the below", score: 0},
-  includeAllOption: {label: "all of the above", score: 4},
+const exampleCheckboxPlusElement = checkbox({
+  includeNoneOption: { label: "none of the below", score: 0 },
+  includeAllOption: { label: "all of the above", score: 4 },
   options: [
     { 
-      value: 'a',
-      label: "option A", 
-      score: 1},
-    {value: 'b', label: "option B", score: 2}
-  ], 
-  value: ['a', 'ALL', 'b']
-}))
+      value: "a",
+      label: "option A",
+      score: 1
+    },
+    { 
+      value: "b",
+      label: "option B",
+      score: 2 
+    }
+  ],
+  value: ["a", "ALL", "b"]
+});
+const exampleCheckboxPlus = Generators.input(exampleCheckboxPlusElement);
+display(exampleCheckboxPlusElement)
 ```
 
 ```js echo
@@ -848,16 +872,19 @@ exampleCheckboxPlus
 
 ```js echo
 //viewof exampleCheckboxWithSpaces = checkbox({
-const exampleCheckboxWithSpaces = view(checkbox({
-  includeNoneOption: {label: "", score: 0},
-  includeAllOption: {label: "YES ALL", score: 4},
+//const exampleCheckboxWithSpaces = view(checkbox({
+const exampleCheckboxWithSpacesElement = checkbox({
+  includeNoneOption: { label: "", score: 0 },
+  includeAllOption: { label: "YES ALL", score: 4 },
   options: [
-    {value: 'a b', label: "A", score: 1},
-    {value: 'b', label: "B", score: 2}
-  ], 
-  value: ['a b'],
+    { value: "a b", label: "A", score: 1 },
+    { value: "b", label: "B", score: 2 }
+  ],
+  value: ["a b"],
   description: "A slightly long and meaningless description to go with the options"
-}))
+});
+const exampleCheckboxWithSpaces = Generators.input(exampleCheckboxWithSpacesElement);
+display(exampleCheckboxWithSpacesElement)
 ```
 
 ```js echo
@@ -866,20 +893,25 @@ exampleCheckboxWithSpaces
 
 ```js echo
 //viewof checkboxTests = createSuite({
-const checkboxTests = view(createSuite({
+const checkboxTestsElement = createSuite({
   name: "checkbox tests",
   timeout_ms: 1000
-}))
+});
+const checkboxTests = Generators.input(checkboxTestsElement);
+display(checkboxTestsElement)
 ```
 
 ```js echo
-viewof testCheckboxAll = checkbox({
+//viewof testCheckboxAll = checkbox({
+const testCheckboxAllElement = checkbox({
     includeAllOption: {label: "ALL"},
     options: [
       {value: 'a', label: "A"},
       {value: 'b', label: "B"}
     ],
-  })
+  });
+const testCheckboxAll = Generators.input(testCheckboxAllElement);
+display(testCheckboxAllElement)
 ```
 
 ```js echo
@@ -891,52 +923,78 @@ function check(checkbox, value, checked = true) {
 }
 ```
 
+
 ```js echo
-checkboxTests.test("Tick ALL cascades", () => {
-  check(viewof testCheckboxAll, "a", false)
-  check(viewof testCheckboxAll, "b", false)
-  check(viewof testCheckboxAll, "ALL", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+checkboxTests.test("Tick ALL cascades", async (done) => {
+  //check(viewof testCheckboxAll, "a", false)
+  check(testCheckboxAll, "a", false)
+  //check(viewof testCheckboxAll, "b", false)
+  check(testCheckboxAll, "b", false)
+  //check(viewof testCheckboxAll, "ALL", true)
+  check(testCheckboxAll, "ALL", true)
+  await new Promise((resolve) => {
+    //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+    expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+    done()
+  })
 })
 ```
 
 ```js echo
 checkboxTests.test("Tick a and b cascades to ALL", () => {
-  check(viewof testCheckboxAll, "ALL", false)
-  check(viewof testCheckboxAll, "a", true)
-  check(viewof testCheckboxAll, "b", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  //check(viewof testCheckboxAll, "ALL", false)
+  check(testCheckboxAll, "ALL", false)
+  //check(viewof testCheckboxAll, "a", true)
+  check(testCheckboxAll, "a", true)
+  //check(viewof testCheckboxAll, "b", true)
+  check(testCheckboxAll, "b", true)
+  //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
 })
 ```
 
 ```js echo
 checkboxTests.test("Untick ALL cascades", () => {
-  check(viewof testCheckboxAll, "a", true)
-  check(viewof testCheckboxAll, "b", true)
-  check(viewof testCheckboxAll, "ALL", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
-  check(viewof testCheckboxAll, "ALL", false)
-  expect(viewof testCheckboxAll.value).toEqual([])
+  //check(viewof testCheckboxAll, "a", true)
+  check(testCheckboxAll, "a", true)
+  //check(viewof testCheckboxAll, "b", true)
+  check(testCheckboxAll, "b", true)
+  //check(viewof testCheckboxAll, "ALL", true)
+  check(testCheckboxAll, "ALL", true)
+  //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  //check(viewof testCheckboxAll, "ALL", false)
+  check(testCheckboxAll, "ALL", false)
+  //expect(viewof testCheckboxAll.value).toEqual([])
+  expect(testCheckboxAll.value).toEqual([])
 })
 ```
 
 ```js echo
 checkboxTests.test("Untick a cascades to ALL", () => {
-  check(viewof testCheckboxAll, "a", true)
-  check(viewof testCheckboxAll, "b", true)
-  check(viewof testCheckboxAll, "ALL", true)
-  expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
-  check(viewof testCheckboxAll, "a", false)
-  expect(viewof testCheckboxAll.value).toEqual(["b"])
+  //check(viewof testCheckboxAll, "a", true)
+  check(testCheckboxAll, "a", true)
+  //check(viewof testCheckboxAll, "b", true)
+  check(testCheckboxAll, "b", true)
+  //check(viewof testCheckboxAll, "ALL", true)
+  check(testCheckboxAll, "ALL", true)
+  //expect(viewof testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  expect(testCheckboxAll.value).toEqual(["a", "b", "ALL"])
+  //check(viewof testCheckboxAll, "a", false)
+  check(testCheckboxAll, "a", false)
+  //expect(viewof testCheckboxAll.value).toEqual(["b"])
+  expect(testCheckboxAll.value).toEqual(["b"])
 })
 ```
 
 ```js echo
-viewof testCheckboxAll.querySelector("form").dispatchEvent(new Event('input', {bubbles: true}))
+///viewof testCheckboxAll.querySelector("form").dispatchEvent(new Event('input', {bubbles: true}))
+testCheckboxAllElement.querySelector("form").dispatchEvent(new Event('input', {bubbles: true}))
 ```
 
 ```js echo
-viewof testCheckboxAll.querySelector("input[value=ALL]")
+//viewof testCheckboxAll.querySelector("input[value=ALL]")
+testCheckboxAllElement.querySelector("input[value=ALL]")
 ```
 
 ### Summary
@@ -1016,29 +1074,35 @@ const summary = ({
 exampleSummary
 ```
 
+
 ```js echo
 //viewof exampleSummary = summary({
-const exampleSummary = view(summary({
-  color: 'red',
+const exampleSummaryElement = summary({
   label: `Accomodate needs for PWQ`,
   score: 2,
   counter_value: 2,
-  counter_group: 'AE',
-}))
+  counter_group: 'Answer',
+});
+const exampleSummary = Generators.input(exampleSummaryElement);
+display(exampleSummaryElement)
 ```
 
+
 ```js echo
-Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), viewof exampleSummary.score)
+//Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), viewof exampleSummary.score)
+Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), exampleSummary.score)
 ```
 
 ```js echo
 //viewof exampleSummaryNext = summary({
-const exampleSummaryNext = view(summary({
+const exampleSummaryNextElement = summary({
   color: 'red',
   label: `Accomodate needs for PWQ and some more very long text to stress test the component`,
   score: 2,
   counter_group: 'AE',
-}))
+});
+const exampleSummaryNext = Generators.input(exampleSummaryNextElement);
+display(exampleSummaryNextElement)
 ```
 
 ```js echo
@@ -1079,17 +1143,20 @@ const scoreColor = (score) => d3.scaleLinear()
 FileAttachment("image@1.png").image()
 ```
 
+
 ```js echo
 //viewof exampleAggregateSummary = aggregateSummary({
-const exampleAggregateSummary = view(aggregateSummary({
+const exampleAggregateSummaryElement = aggregateSummary({
   label: 'Organizational Policies',
   score: 3.08423423423422,
   set: 'org'
-}))
+})
+const exampleAggregateSummary = Generators.input(exampleAggregateSummaryElement);
+display(exampleAggregateSummaryElement)
 ```
-
 ```js echo
-Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), viewof exampleAggregateSummary.score)
+//Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), viewof exampleAggregateSummary.score)
+Inputs.bind(Inputs.range([0, 5], {label: 'score', step: 0.1}), exampleAggregateSummaryElement.score)
 ```
 
 ```js echo
@@ -1149,49 +1216,57 @@ const aggregateSummary = ({
 
 ```js echo
 //viewof samplePagination1 = pagination({
-const samplePagination1 = view(pagination({
-  previous: 'prev',
-  next: 'next',
+const samplePagination1Element = pagination({
+  previous: "prev",
+  next: "next",
   hashPrefix: "foo"
-}))
+});
+const samplePagination1 = Generators.input(samplePagination1Element);
+display(samplePagination1Element)
 ```
 
 ```js echo
 //viewof samplePagination2 = pagination({
-const samplePagination2 = view(pagination({
-  previous: 'prev',
+const samplePagination2Element = pagination({
+  previous: "prev",
   previousLabel: "Previous",
   hashPrefix: "foo"
-}))
+});
+const samplePagination2 = Generators.input(samplePagination2Element);
+display(samplePagination2Element)
 ```
 
 ```js echo
 //viewof samplePagination3 = pagination({
-const samplePagination3 = view(pagination({
-  next: 'next',
-  nextLabel: 'Next',
+const samplePagination3Element = pagination({
+  next: "next",
+  nextLabel: "Next",
   hashPrefix: "foo"
-}))
+});
+const samplePagination3 = Generators.input(samplePagination3Element);
+display(samplePagination3Element)
 ```
 
 ```js echo
 //viewof samplePagination4 = {
-const samplePagination4 = view(() => {
+const samplePagination4Element = (() => {
   const p = pagination({
-  previous: 'prev',
-  next: 'next',
-  hashPrefix: "foo"
-});
+    previous: "prev",
+    next: "next",
+    hashPrefix: "foo"
+  });
 
   return html`<div style="overflow-y: auto; height: 300px;">
-  <div class="[ bg-light-gray ]">
-    <div style="height: 400px"></div>
-    <div class="[ bg-white pa2 ][ sticky bottom-0 ]">
-      ${p}
+    <div class="[ bg-light-gray ]">
+      <div style="height: 400px"></div>
+      <div class="[ bg-white pa2 ][ sticky bottom-0 ]">
+        ${p}
+      </div>
     </div>
-  </div>
-</div>`;
-})
+  </div>`;
+})();
+const samplePagination4 = Generators.input(samplePagination4Element);
+display(samplePagination4Element)
 ```
 
 ```js echo
@@ -1594,7 +1669,9 @@ const example_score_questions = [
 
 ```js echo
 //viewof exampleScoreGroup = exampleLogic(example_score_questions, example_score_layout)
-const exampleScoreGroup = view(exampleLogic(example_score_questions, example_score_layout))
+const exampleScoreGroupElement = exampleLogic(example_score_questions, example_score_layout);
+const exampleScoreGroup = Generators.input(exampleScoreGroupElement);
+display(exampleScoreGroupElement)
 ```
 
 ### Example 3b: scored conditional
@@ -1652,7 +1729,10 @@ const example_scored_conditional_layout = [{
 
 ```js echo
 //viewof exampleScoredConditionalGroup = exampleLogic(example_scored_conditional_questions, example_scored_conditional_layout)
-const exampleScoredConditionalGroup = view(exampleLogic(example_scored_conditional_questions, example_scored_conditional_layout))
+const exampleScoredConditionalGroupElement = exampleLogic(example_scored_conditional_questions, example_scored_conditional_layout);
+const exampleScoredConditionalGroup = Generators.input(exampleScoredConditionalGroupElement);
+display(exampleScoredConditionalGroupElement)
+
 ```
 
 ### Example 4: multiple sets
@@ -1704,7 +1784,10 @@ const example_multi_set_questions = [{
 
 ```js echo
 //viewof exampleMultiSetGroup = exampleLogic(example_multi_set_questions, example_multi_set_layout)
-const exampleMultiSetGroup = view(exampleLogic(example_multi_set_questions, example_multi_set_layout))
+const exampleMultiSetGroupElement = exampleLogic(example_multi_set_questions, example_multi_set_layout);
+const exampleMultiSetGroup = Generators.input(exampleMultiSetGroupElement);
+display(exampleMultiSetGroupElement)
+
 ```
 
 ### Example 5: aggregate scores
@@ -1765,10 +1848,12 @@ const example_aggregate_scores_questions = [{
 
 ```js echo
 //viewof exampleAggregateScoreGroup = {
-const exampleAggregateScoreGroup = view(() => {
+const exampleAggregateScoreGroupElement = (() => {
   debugger;
-  exampleLogic(example_aggregate_scores_questions, example_aggregate_scores_layout)
-})
+  return exampleLogic(example_aggregate_scores_questions, example_aggregate_scores_layout);
+})();
+const exampleAggregateScoreGroup = Generators.input(exampleAggregateScoreGroupElement);
+display(exampleAggregateScoreGroupElement)
 ```
 
 ## Styles for demo

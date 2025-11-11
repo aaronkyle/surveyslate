@@ -53,25 +53,23 @@ function md(strings) {
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
 
 
-```js
+```js echo
 toc()
 ```
 
-```js
+```js echo
 md`## Log In`
 ```
 
-```js
-md`
+
 You must have administrative permission to utilise this interface.
-`
+
+
+```js echo echo
+manualCredentials
 ```
 
-```js
-viewof manualCredentials
-```
-
-```js
+```js echo
 md`Example credential format:
 ~~~js
 {
@@ -82,24 +80,21 @@ md`Example credential format:
 `
 ```
 
-```js
+```js echo
 md`
 For convenience and persistence across browsing sessions, you may choose to save your credentials to local storage (or clear them, should you wish).
 `
 ```
 
-```js
+```js echo
 saveCreds
 ```
 
-```js
-md`
----
-`
-```
 
-```js
-md`## Applications
+---
+
+
+## Applications
 
 Deploy the core applications of Open Survey into Cloud
 
@@ -107,47 +102,49 @@ Deploy the core applications of Open Survey into Cloud
 <li>[Survey Designer](https://www.surveyslate.org/demo-designer/index.html)</li>
 <li>[Survey Filler](https://www.surveyslate.org/demo-survey/index.html?username=demoResponder#FnMcjZO1pn1uqmMh|cell-types)</li>
 <ul>
-`
+
+
+```js echo
+const CLOUD_FRONT_DISTRIBUTION_ID = config.CLOUD_FRONT_DISTRIBUTION_ID;
 ```
 
-```js
-CLOUD_FRONT_DISTRIBUTION_ID = config.CLOUD_FRONT_DISTRIBUTION_ID;
-```
-
-```js
+```js echo
 md`### Deploy the *Survey Designer* Application to [CloudFront](https://d3f26ej57oauer.cloudfront.net/designer/index.html)`
 ```
 
-```js
-viewof uploadDesignerBtn
+```js echo
+//viewof uploadDesignerBtn
+const uploadDesignerBtnElement = uploadDesignerBtn;
+const uploadDesignerBtn = Generators.input(uploadDesignerBtnElement);
+display(uploadDesignerBtnElement)
 ```
 
-```js
+```js echo
 designerFiles
 ```
 
-```js
+```js echo
 designerCurrentFileUpload
 ```
 
-```js
+```js echo
 designerUploader
 ```
 
-```js
-designerSource = "https://observablehq.com/@categorise/survey-designer"
+```js echo
+const designerSource = "https://observablehq.com/@categorise/survey-designer"
 ```
 
-```js
-designerS3Target = config.PUBLIC_BUCKET + "/apps/demo-designer"
+```js echo
+const designerS3Target = config.PUBLIC_BUCKET + "/apps/demo-designer"
 ```
 
-```js
-designerInvalidationPath = "/designer/*"
+```js echo
+const designerInvalidationPath = "/designer/*"
 ```
 
-```js
-designerIndex = `<!DOCTYPE html>
+```js echo
+const designerIndex = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Survey Slate Designer</title>
@@ -245,9 +242,10 @@ new Runtime().module(define, name => {
 `
 ```
 
-```js
+```js echo
 import {
-  viewof uploadButton as uploadDesignerBtn,
+  //viewof uploadButton as uploadDesignerBtn,
+  uploadButton as uploadDesignerBtn,
   currentFile as designerCurrentFileUpload,
   uploader as designerUploader,
   deployed as designerDeployed,
@@ -261,54 +259,54 @@ import {
 from '@tomlarkworthy/notebook-deploy-to-s3'
 ```
 
-```js
-md`### Deploy *Survey Filler* Application to CloudFront
+### Deploy *Survey Filler* Application to CloudFront
 
 - [Amazon CloudFront introduction](https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Introduction.html)
 - [Survey Filler testUser on CloudFront](https://d3f26ej57oauer.cloudfront.net/survey/index.html?username=testUser&0.3111558664622356#Kp0YtJIgI6RuUWUo)
 - [Survey Filler testUser on S3](https://public-publicwrfxcsvqwpcgcrpx.s3.us-east-2.amazonaws.com/apps/survey/index.html?username=testUser&survey=testProject3&0.3111558664622356#Kp0YtJIgI6RuUWUo|intro) useful for bisecting deployment problems as CloudFront reads from S3.
-`
-```
 
-```js
-viewof runFillerTests = Inputs.toggle({
+```js echo
+//viewof runFillerTests = Inputs.toggle({
+const runFillerTestsElement = Inputs.toggle({
   label: md`<b>I have run the [integration tests](https://observablehq.com/@categorise/opensurvey?username=demoResponder#FnMcjZO1pn1uqmMh|cell-types)?<b>`
-})
+});
+const runFillerTests = Generators.input(runFillerTestsElement);
+display(runFillerTestsElement)
 ```
 
-```js
+```js echo
 {
   if (runFillerTests) return viewof uploadFillerBtn
   else return md`Run the integration tests before deploying.`
 }
 ```
 
-```js
+```js echo
 fillerFiles
 ```
 
-```js
+```js echo
 fillerUploader
 ```
 
-```js
+```js echo
 fillerCurrentFileUpload
 ```
 
-```js
-fillerSource = "https://observablehq.com/@categorise/surveyslate-filler"
+```js echo
+const fillerSource = "https://observablehq.com/@categorise/surveyslate-filler"
 ```
 
-```js
-fillerS3Target = config.PUBLIC_BUCKET + "/apps/demo-survey"
+```js echo
+const fillerS3Target = config.PUBLIC_BUCKET + "/apps/demo-survey"
 ```
 
-```js
-fillerInvalidationPath = "/survey/*"
+```js echo
+const fillerInvalidationPath = "/survey/*"
 ```
 
-```js
-fillerIndex = `<!DOCTYPE html>
+```js echo
+const fillerIndex = `<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Survey Slate Filler</title>
@@ -331,7 +329,7 @@ new Runtime().module(define, name => {
 `
 ```
 
-```js
+```js echo
 import {
   viewof uploadButton as uploadFillerBtn,
   currentFile as fillerCurrentFileUpload,
@@ -347,42 +345,35 @@ import {
 from '@tomlarkworthy/notebook-deploy-to-s3'
 ```
 
-```js
-md`## Operations`
-```
+## Operations
 
-```js
-md`### Survey
+### Survey
 
 Each survey has a folder in the in s3 at \`PRIVATE_BUCKET/surveys/{name}\`. 
 
 Projects are surveys: the text, questions, and logical connections defined by survey designer. 
-`
-```
 
-```js
-md`#### List Surveys`
-```
+### List Surveys
 
-```js
+```js echo
 Inputs.table(surveys)
 ```
 
+#### Create Survey
+
 ```js
-md`#### Create Survey`
+//viewof newSurveyName = Inputs.text({
+const newSurveyNameElement = Inputs.text({
+  label: "Survey name",
+  submit: "create",
+  pattern: "^[a-Z]*$",
+  minlength: 3
+});
+const newSurveyName = Generators.input(newSurveyNameElement);
+display(newSurveyNameElement)
 ```
 
-```js
-viewof newSurveyName = Inputs.text({
-    label: "Survey name",
-    submit: "create",
-    pattern: "^[a-Z]*$",
-    minlength: 3
-  });
-
-```
-
-```js
+```js echo
 {
   await putObject(config.PRIVATE_BUCKET, `surveys/${newSurveyName}/settings.json`, `{"name":"${newSurveyName}"}`, {
     tags: {
@@ -395,51 +386,50 @@ viewof newSurveyName = Inputs.text({
 }
 ```
 
-```js
-surveys = refreshProjects && (await listObjects(config.PRIVATE_BUCKET, "surveys/")).map(r => ({name: /surveys\/([^/]*)\//.exec(r.Prefix)[1]}))
+```js echo
+const surveys = refreshProjects && (await listObjects(config.PRIVATE_BUCKET, "surveys/")).map(r => ({name: /surveys\/([^/]*)\//.exec(r.Prefix)[1]}))
 ```
 
 ```js
+//!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!
 mutable refreshProjects = 1
 ```
 
-```js
-md`
----
-`
-```
 
-```js
-md`### Accounts
+---
+
+
+### Accounts
 
 Each account has a folder in the in s3 at \`CONFIDENTIAL_BUCKET/accounts/{name}\`. 
 
 Accounts contain survey responses: answers supplied to survey questions by survey fillers. Accounts are assigned to projects.
-`
-```
 
-```js
-md`#### List Accounts`
-```
 
-```js
+### List Accounts
+
+```js echo
 Inputs.table(accounts)
 ```
 
-```js
-md`#### Create Account`
+#### Create Account
+
+```js echo
+//viewof newAccountName = Inputs.text({
+const newAccountNameElement = Inputs.text({
+  label: "New account",
+  submit: "create",
+  pattern: "^[a-Z]*$",
+  minlength: 3
+});
+const newAccountName = Generators.input(newAccountNameElement);
+display(newAccountNameElement)
+
 ```
 
-```js
-viewof newAccountName = Inputs.text({
-    label: "New account",
-    submit: "create",
-    pattern: "^[a-Z]*$",
-    minlength: 3
-  });
-```
-
-```js
+```js echo
 {
   await putObject(config.CONFIDENTIAL_BUCKET, `accounts/${newAccountName}/settings.json`, `{"name":"${newAccountName}"}`, {
     tags: {
@@ -452,51 +442,49 @@ viewof newAccountName = Inputs.text({
 }
 ```
 
-```js
+```js echo
 accounts = refreshAccounts && (await listObjects(config.CONFIDENTIAL_BUCKET, "accounts/")).map(r => ({name: /accounts\/([^/]*)\//.exec(r.Prefix)[1]}))
 ```
 
-```js
+```js echo
 mutable refreshAccounts = 1
 ```
 
-```js
-md`
----
-`
-```
 
-```js
-md`### Users
+---
+
+
+### Users
 
 Users have IAM user credentials, which allow access to the application or backend.
 
 We use AWS IAM tags to add information such as access to survey projects or account response locations.
-` 
-```
+
 
 #### List Users
 
-```js
+```js echo
 Inputs.table(users, {
   columns: ['UserName', 'UserId', 'Tags', 'PasswordLastUsed', 'CreateDate']
 })
 ```
 
-```js
-md`#### Create User`
+#### Create User
+
+```js echo
+//viewof newUsername = Inputs.text({
+const newUsernameElement = Inputs.text({
+  label: "New user",
+  submit: "create",
+  pattern: "^[a-Z]*$",
+  minlength: 3
+});
+const newUsername = Generators.input(newUsernameElement);
+display(newUsernameElement)
+
 ```
 
-```js
-viewof newUsername = Inputs.text({
-    label: "New user",
-    submit: "create",
-    pattern: "^[a-Z]*$",
-    minlength: 3
-  });
-```
-
-```js
+```js echo
 {
   await createUser(newUsername)
   await addUserToGroup(newUsername, "user")
@@ -506,20 +494,22 @@ viewof newUsername = Inputs.text({
 }
 ```
 
-```js
-md`#### Delete User`
+#### Delete User
+
+```js echo
+//viewof deleteUsername = Inputs.text({
+const deleteUsernameElement = Inputs.text({
+  label: "Delete user",
+  submit: "delete",
+  pattern: "^[a-Z]*$",
+  minlength: 3
+});
+const deleteUsername = Generators.input(deleteUsernameElement);
+display(deleteUsernameElement)
+
 ```
 
-```js
-viewof deleteUsername = Inputs.text({
-    label: "Delete user",
-    submit: "delete",
-    pattern: "^[a-Z]*$",
-    minlength: 3
-  });
-```
-
-```js
+```js echo
 {
   const groups = await listGroupsForUser(deleteUsername);
   await Promise.all(groups.map(group => removeUserFromGroup(deleteUsername, group.GroupName)))
@@ -530,63 +520,69 @@ viewof deleteUsername = Inputs.text({
 }
 ```
 
-```js
-users = refreshUsers && await listUsers()
+```js echo
+const users = refreshUsers && await listUsers()
 ```
 
-```js
+```js echo
+//!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!!!!!!!
 mutable refreshUsers = 1;
 ```
 
-```js
-md`### User Permissions
+### User Permissions
 
 Actions that a user may perform are explicitly defined by user permissions. We have fillers (survey respondents) and designers and members of account.
 
 A user can only fill in a survey for an account if they have permission on that account. Similarly, a user can only design and modify a survery project if they have are tagged as a designer. 
-`
+
+
+```js echo
+//viewof username = Inputs.bind(Inputs.select(users.map(u => u.UserName), {
+//  label: "Choose a user to configure"
+//}), localStorageView("username"))
+const usernameElement = Inputs.bind(
+  Inputs.select(users.map(u => u.UserName), {
+    label: "Choose a user to configure"
+  }),
+  localStorageView("username")
+);
+const username = Generators.input(usernameElement);
+display(usernameElement)
 ```
 
-```js
-viewof username = Inputs.bind(Inputs.select(users.map(u => u.UserName), {
-  label: "Choose a user to configure"
-}), localStorageView("username"))
+```js echo
+const user = users.find(r => r.UserName === username)
 ```
 
-```js
-user = users.find(r => r.UserName === username)
-```
-
-```js
+```js echo
 Inputs.table(userGroups, {
   columns: ["GroupName", "GroupId", "Arn", "CreateDate"]
 })
 ```
 
-```js
-userGroups = listGroupsForUser(username)
+```js echo
+//userGroups = listGroupsForUser(username)
+const userGroupsElement = listGroupsForUser(username);
+const userGroups = Generators.input(userGroupsElement);
+display(userGroupsElement)
 ```
 
-```js
-md`#### IAM Access Keys (${username})`
-```
+#### IAM Access Keys (${username})
 
-```js
+```js echo
 Inputs.table(userAccessKeys)
 ```
 
-```js
-md`##### Add access key`
-```
+##### Add access key
 
-```js
-md`##### Create an internal access key for this user
+##### Create an internal access key for this user
 
 remember to record the secret as it will not be visible ever again. Suitable for staff.
-`
-```
 
-```js
+
+```js echo
 {
   if (userAccessKeys.length >= 2) return md`⚠️ max 2 access keys reached per user, delete an access key first`
   else return Inputs.button("Create INTERNAL access key", {
@@ -603,19 +599,20 @@ remember to record the secret as it will not be visible ever again. Suitable for
 ```
 
 ```js
+//!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!
 mutable lastAccessKey = undefined
 ```
 
-```js
-md`##### Create an external access code (suitable for Survey Fillers)
+##### Create an external access code (suitable for Survey Fillers)
 
 This creates an access key like the internal access key, but stores it encrypted publically in S3. The password is stored in the PRIVATE_BUCKET so it can be used to generate access URLs.
 
 You can generate multiple access links off this credentials using [access_links](#access_links)
-`
-```
 
-```js
+
+```js echo
 {
   if (userAccessKeys.length >= 2) return md`⚠️ max 2 access keys reached per user, delete an access key first`
     else return Inputs.button("Add EXTERNAL access key", {
@@ -643,55 +640,59 @@ You can generate multiple access links off this credentials using [access_links]
 }
 ```
 
-```js
-md`##### Delete access key`
+##### Delete access key
+
+```js echo
+//viewof deleteAccessKeyInput = Inputs.text({
+const deleteAccessKeyInputElement = Inputs.text({
+  label: "Delete AccessKeyId",
+  submit: "delete",
+  pattern: "^[a-Z]*$",
+  minlength: 3
+});
+const deleteAccessKeyInput = Generators.input(deleteAccessKeyInputElement);
+display(deleteAccessKeyInputElement)
 ```
 
-```js
-viewof deleteAccessKeyInput = Inputs.text({
-    label: "Delete AccessKeyId",
-    submit: "delete",
-    pattern: "^[a-Z]*$",
-    minlength: 3
-  });
-```
-
-```js
+```js echo
 {
   const key = deleteAccessKeyInput.trim()
   if (key == "") return;
   await deleteAccessKey(username, key)
-  viewof deleteAccessKeyInput.value = " "
-  viewof deleteAccessKeyInput.dispatchEvent(new Event('input', {bubbles: true}));
+  //viewof deleteAccessKeyInput.value = " "
+  deleteAccessKeyInputElement.value = " "
+  //viewof deleteAccessKeyInput.dispatchEvent(new Event('input', {bubbles: true}));
+  deleteAccessKeyInputElement.dispatchEvent(new Event('input', {bubbles: true}));
   mutable refreshUsers++;
   return md`<mark>${deleteAccessKey} deleted</mark>`
 }
 ```
 
-```js
-userAccessKeys = listAccessKeys(username)
+```js echo
+const userAccessKeys = listAccessKeys(username)
 ```
-
-```js
-md`#### Survey Designer Access Tags (${username})
+#### Survey Designer Access Tags (${username})
 
 For a user to be able to use the survey builder for a project, they must be added as a designer to the survey.
-`
-```
 
-```js
+
+```js echo
 Inputs.table(userSurveys.map(r => ({project: r})))
 ```
 
-```js
-viewof userSurvey = Inputs.select(surveys.map(p => p.name), {label: "select survey for operation"})
+```js echo
+//viewof userSurvey = Inputs.select(surveys.map(p => p.name), {label: "select survey for operation"})
+const userSurveyElement = Inputs.select(surveys.map(p => p.name), {
+  label: "select survey for operation"
+});
+const userSurvey = Generators.input(userSurveyElement);
+display(userSurveyElement)
+
 ```
 
-```js
-md`##### Add user as a designer to a survey`
-```
+##### Add user as a designer to a survey
 
-```js
+```js echo
 Inputs.button(md`add *${username}* to *${userSurvey}* as a designer`, {
   reduce: async () => {
     await tagUser(username, {
@@ -702,11 +703,9 @@ Inputs.button(md`add *${username}* to *${userSurvey}* as a designer`, {
 })
 ```
 
-```js
-md`##### Remove user as a designer from a survey`
-```
+##### Remove user as a designer from a survey
 
-```js
+```js echo
 Inputs.button(md`remove *${username}* from *${userSurvey}* as a designer`, {
   reduce: async () => {
     await tagUser(username, {
@@ -717,31 +716,34 @@ Inputs.button(md`remove *${username}* from *${userSurvey}* as a designer`, {
 })
 ```
 
-```js
-userSurveys = (userTags["designer"] || "").split(" ").filter(v => v !== "")
+```js echo
+const userSurveys = (userTags["designer"] || "").split(" ").filter(v => v !== "")
 ```
 
-```js
-md`#### Survey Filler Access Tags (${username})
+#### Survey Filler Access Tags (${username})
 
 For a user to fill out a survey, they must 1. be added as a filler for that project (and 2. also as a member of an account, which is next).
 
-`
-```
 
-```js
+
+```js echo
 Inputs.table(userFills.map(r => ({represents: r})))
 ```
 
-```js
+```js echo
 viewof userFiller = Inputs.select(surveys.map(p => p.name), {label: "select survey for operation"})
+//viewof userFiller = Inputs.select(surveys.map(p => p.name), {label: "select survey for operation"})
+const userFillerElement = Inputs.select(surveys.map(p => p.name), {
+  label: "select survey for operation"
+});
+const userFiller = Generators.input(userFillerElement);
+display(userFillerElement)
+
 ```
 
-```js
-md`##### Add user as a filler to a survey project`
-```
+##### Add user as a filler to a survey project
 
-```js
+```js echo
 Inputs.button(md`add *${username}* to *${userFiller}* as a filler`, {
   reduce: async () => {
     await tagUser(username, {
@@ -752,11 +754,9 @@ Inputs.button(md`add *${username}* to *${userFiller}* as a filler`, {
 })
 ```
 
-```js
-md`##### Remove user as a filler to a survey project`
-```
+##### Remove user as a filler to a survey project
 
-```js
+```js echo
 Inputs.button(md`remove *${username}* from *${userFiller}* as a filler`, {
   reduce: async () => {
     await tagUser(username, {
@@ -767,30 +767,32 @@ Inputs.button(md`remove *${username}* from *${userFiller}* as a filler`, {
 })
 ```
 
-```js
-userFills = (userTags["filler"] || "").split(" ").filter(v => v !== "")
+```js echo
+const userFills = (userTags["filler"] || "").split(" ").filter(v => v !== "")
 ```
 
-```js
-md`#### Survey Filler Account Tags (${username})
+#### Survey Filler Account Tags (${username})
 
 A filler must be a member of an account to fill out a survey.
-`
-```
 
-```js
+
+```js echo
 Inputs.table(userAccounts.map(r => ({represents: r})))
 ```
 
-```js
-viewof userAccount = Inputs.select(accounts.map(p => p.name), {label: "select account for operation"})
+```js echo
+//viewof userAccount = Inputs.select(accounts.map(p => p.name), {label: "select account for operation"})
+const userAccountElement = Inputs.select(accounts.map(p => p.name), {
+  label: "select account for operation"
+});
+const userAccount = Generators.input(userAccountElement);
+display(userAccountElement)
+
 ```
 
-```js
-md`##### Add user as a survery filler to a survey project`
-```
+##### Add user as a survery filler to a survey project
 
-```js
+```js echo
 Inputs.button(md`Allow *${username}* to respond on behalf of *${userAccount}*`, {
   reduce: async () => {
     await tagUser(username, {
@@ -801,11 +803,9 @@ Inputs.button(md`Allow *${username}* to respond on behalf of *${userAccount}*`, 
 })
 ```
 
-```js
-md`##### Remove user as a survery filler from a survey project`
-```
+##### Remove user as a survery filler from a survey project
 
-```js
+```js echo
 Inputs.button(md`Deny *${username}* to respond on behalf of *${userAccount}*`, {
   reduce: async () => {
     await tagUser(username, {
@@ -816,14 +816,14 @@ Inputs.button(md`Deny *${username}* to respond on behalf of *${userAccount}*`, {
 })
 ```
 
-```js
-access_links = md`#### Access links
+```js echo
+const access_links = md`#### Access links
 
 Access links are web links to the survey application. Survey fillers can access a survery via a secret URL, which avoids them having to deal with credentials.
 `
 ```
 
-```js
+```js echo
 Inputs.button(md`Generate access link for *${username}*`, {
   reduce: async () => {
     const password = `${await getObject(config.PRIVATE_BUCKET, `passwords/${await new hashes.SHA256().hex(username)}`)}`  
@@ -833,8 +833,9 @@ Inputs.button(md`Generate access link for *${username}*`, {
 })
 ```
 
-```js
-viewof access_link = {
+```js echo
+//viewof access_link = {
+const access_linkElement = () => {
   const link = document.createElement("a")
   link.target = "_blank"
   return Object.defineProperty(link, 'value', {
@@ -846,152 +847,155 @@ viewof access_link = {
     enumerable: true
   });                          
 }
+const access_link = Generators.input(access_linkElement
+display(access_linkElement)
+)
 ```
 
-```js
-userAccounts = (userTags["account"] || "").split(" ").filter(v => v !== "")
+```js echo
+const userAccounts = (userTags["account"] || "").split(" ").filter(v => v !== "")
 ```
 
-```js
-md`#### All tags for a user (${username})
+#### All tags for a user (${username})
 
 This shows all tags at are active on a user account (useful for debugging)
-`
-```
 
-```js
+
+```js echo
 Inputs.table(Object.entries(userTags).map(r => ({"key": r[0], "value": r[1]})), {
   
 })
 ```
 
-```js
-userTags = refreshTags && listUserTags(username)
+```js echo
+const userTags = refreshTags && listUserTags(username)
 ```
 
-```js
+```js echo
 mutable refreshTags = 1;
 ```
 
-```js
-md`## AWS Configuration`
+## AWS Configuration
+
+```js echo
+const REGION = "us-east-2"
 ```
 
-```js
-REGION = "us-east-2"
-```
-
-```js
-md`### IAM User Groups
+### IAM User Groups
 
 User groups broadly control access policy. Groups are preconfigured outside of this application, in the AWS IAM console. 
 
 Our application distinguishes only between 'admins' (users with control of the AWS account) and 'users' (those who may create and maintain surveys and discover their fine-grained permissions). Fine-grained permissions are toggled with user tags in the [user permissions](#user-permissions) section.
-` 
-```
 
-```js
+
+```js echo
 Inputs.table(groups, {
   columns: ["GroupName", "GroupId", "Arn", "CreateDate"]
 })
 ```
 
-```js
-md`
+
 All users can query information about themselves and their own tags, so that they can self-discover resource access.
 
-~~~js
-{
-  "Effect": "Allow",
-  "Action": [
-    "iam:GetUser",
-    "iam:ListUserTags"
-  ],
-  "Resource": "arn:aws:iam::032151534090:user/\${aws:username}"
-}
-~~~
+      ~~~js
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:GetUser",
+          "iam:ListUserTags"
+        ],
+        "Resource": "arn:aws:iam::032151534090:user/\${aws:username}"
+      }
+      ~~~
 
-Enforcing that a user can only access projects they are assigned is acheived by a policy on the object tags in the S3 bucket:
+Enforcing that a user can only access projects they are assigned is achieved by a policy on the object tags in the S3 bucket:
 
-~~~js
-{
-  "Effect": "Allow",
-  "Action": "s3:GetObject",
-  "Resource": "arn:aws:s3:::private-mjgvubdpwmdipjsn/*",
-  "Condition": {
-    "StringLike": {
-      "aws:PrincipalTag/designer": "*\${s3:ExistingObjectTag/project}*"
+    ~~~js
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::private-mjgvubdpwmdipjsn/*",
+      "Condition": {
+        "StringLike": {
+          "aws:PrincipalTag/designer": "*\${s3:ExistingObjectTag/project}*"
+        }
+      }
     }
-  }
-}
-~~~
+    ~~~
 
 We enforce that designers can only upload files for their projects:
 
-~~~js
-{
-    "Effect": "Allow",
-    "Action": [
-        "s3:putObjectTagging"
-        "s3:PutObject"
-    ],
-    "Resource": "arn:aws:s3:::private-mjgvubdpwmdipjsn/*",
-    "Condition": {
-        "StringLike": {
-            "aws:PrincipalTag/designer": "*\${s3:RequestObjectTag/project}*"
+    ~~~js
+    {
+        "Effect": "Allow",
+        "Action": [
+            "s3:putObjectTagging"
+            "s3:PutObject"
+        ],
+        "Resource": "arn:aws:s3:::private-mjgvubdpwmdipjsn/*",
+        "Condition": {
+            "StringLike": {
+                "aws:PrincipalTag/designer": "*\${s3:RequestObjectTag/project}*"
+            }
         }
     }
-}
-~~~
-`
+    ~~~
+
+
+```js echo
+const groups = listGroups()
 ```
 
-```js
-groups = listGroups()
+```js echo
+//import {config} from '@categorise/surveyslate-components'
+import {config} from '/components/survey-components.js'
 ```
 
-```js
-import {config} from '@categorise/surveyslate-components'
+## Imports
+
+```js echo
+//import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup, createInvalidation} with {REGION as REGION} from '@tomlarkworthy/aws'
+import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup, createInvalidation} with {REGION as REGION} from '/components/aws.js'
 ```
 
-```js
-md`## Imports`
+```js echo
+//import {toc} from "@bryangingechen/toc"
+import {toc} from "/components/toc.js"
 ```
 
-```js
-import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup, createInvalidation} with {REGION as REGION} from '@tomlarkworthy/aws'
+```js echo
+//import {encrypt} from '@endpointservices/notebook-secret'
+import {encrypt} from '/components/notebook-secret.js'
 ```
 
-```js
-import {toc} from "@bryangingechen/toc"
+```js echo
+//import {randomId} from '@tomlarkworthy/randomid'
+import {randomId} from '/components/randomid.js'
+
 ```
 
-```js
-import {encrypt} from '@endpointservices/notebook-secret'
+```js echo
+//import {localStorageView} from '@tomlarkworthy/local-storage-view'
+import {localStorageView} from '/contents/local-storage-view.js'
 ```
 
-```js
-import {randomId} from '@tomlarkworthy/randomid'
+```js echo
+//import {enableJavasscriptSnippet} from '@categorise/gesi-styling'
+import {enableJavasscriptSnippet} from '/components/gesi-styling.js'
+
 ```
 
-```js
-import {localStorageView} from '@tomlarkworthy/local-storage-view'
-```
-
-```js
-import {enableJavasscriptSnippet} from '@categorise/gesi-styling'
-```
-
-```js
-hashes = require("jshashes")
+```js echo
+//const hashes = require("jshashes")
+import Hashes from "jshashes";
 ```
 
 ---
 
 ```js
-import { substratum } from "@categorise/substratum"
+//import { substratum } from "@categorise/substratum"
 ```
 
 ```js
-substratum({ invalidation })
+//substratum({ invalidation })
 ```

@@ -1,25 +1,27 @@
-```js
-md`# Hello json-editor
+# Hello json-editor
 Ref.: https://github.com/json-editor/json-editor`
-```
 
-```js
-viewof example = editor(exampleSchema, {
+
+```js echo
+//viewof example = editor(exampleSchema, {
+const exampleElement = editor(exampleSchema, {
   theme: "spectre",
   disable_edit_json: true,
   disable_properties: true,
   iconlib: "spectre",
   show_errors: "always",
   prompt_before_delete: "false"
-})
+});
+const example = Generators.input(exampleElement);
+display(exampleElement)
 ```
 
-```js
+```js echo
 example
 ```
 
-```js
-exampleSchema = ({
+```js echo
+const exampleSchema = ({
   title: "Person",
   type: "object",
   required: [
@@ -112,12 +114,11 @@ exampleSchema = ({
       ]
     }
   }
-})
+});
+display(exampleSchema)
 ```
 
-```js
-md`### Dependencies`
-```
+### Dependencies
 
 ```js echo
 function editor(schema, options) {
@@ -183,9 +184,13 @@ function editor(schema, options) {
     dom.dispatchEvent(new CustomEvent("input"));
   });
   return dom;
-}
+};
+display(editor)
 ```
 
 ```js echo
-JSONEditor = (await require("@json-editor/json-editor@2.5.4")).JSONEditor
+//const JSONEditor = (await require("@json-editor/json-editor@2.5.4")).JSONEditor
+//import JSONEditor from "@json-editor/json-editor";
+const { JSONEditor } = await import("npm:@json-editor/json-editor@2.5.4")
+display(JSONEditor)
 ```
