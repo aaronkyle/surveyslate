@@ -46,7 +46,7 @@ function md(strings) {
   }
 </style>
 
-<div class="welcome-note">👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨</div>
+<div class="welcome-note">${md`👋 Welcome!  This notebook is about **Survey Slate**&mdash;an [assemblage of Observable web-based notebooks](https://observablehq.com/collection/@categorise/survey-slate) allowing organizations to host custom surveys for end users on their own AWS infrastructure.  Check out the [Technical Overview](https://observablehq.com/@categorise/surveyslate-docs) to get started! ✨`}</div>
 
 <!-- Notification design borrowed from https://observablehq.com/@jashkenas/inputs -->
 
@@ -56,10 +56,11 @@ toc()
 ```
 
 ```js
-const loginTitle = md`## Login`
+const loginTitle = md`## Login`;
+display(loginTitle)
 ```
 
-test credentials for demoEditor
+test credentials for demoEditor (note - these credentials were blocked after being exposed on GitHug, so they don't fully work for testing)
 
     ~~~js
     {
@@ -70,94 +71,116 @@ test credentials for demoEditor
     ~~~
 
 ```js
-viewof login = viewof manualCredentials
+//viewof login = viewof manualCredentials
+const login_manual_credentials = display(manualCredentialsElement)
+```
+```js echo
+display(manualCredentials)
 ```
 
 ```js
-const credStore = saveCreds
+const credStore = display(saveCredsElement)
 ```
 
 ```js
-const surveyChooserTitle = md`## Survey Chooser`
+const surveyChooserTitle = md`## Survey Chooser`;
+display(surveyChooserTitle)
 ```
 
 ```js
 //viewof survey = Inputs.select(surveys)
-const surveyElement = Inputs.select(surveys);
+//viewof survey = Inputs.bind(Inputs.select(surveys, {label: "survey"}), localStorageView("designer-project", {
+const surveyElement = Inputs.bind(
+  Inputs.select(surveys, { label: "survey" }),
+  localStorageView("designer-project", {
+    defaultValue:
+      new URLSearchParams(location.search).get("survey") ||
+      surveys[0]
+  })
+);
 const survey = Generators.input(surveyElement);
 display(surveyElement)
-
 ```
 
 ```js
-const surveys = myTags['designer'].split(" ")
+const surveys = myTags['designer'].split(" ");
+display(surveys)
 ```
 
 ## Designer UI
 
 ```js
-import {surveyEditor, styles as designUiStyles, tachyons} from '@categorise/surveyslate-designer-ui'
-```
+//viewof surveyUi = {
+const surveyUiElement = (() => {
+  (initialLoadQuestions, initialLoadLayout, load_config);
 
-```js
-const loadStyles = (tachyons, designUiStyles)
-```
-
-```js echo
-viewof surveyUi = {
-  (initialLoadQuestions, initialLoadLayout, load_config)
-
-  console.log("Executing surveyUi")
+  console.log("Executing surveyUi");
 
   const updateEditorState = (state) => {
     ui.dataset.surveyEditorState = state;
     console.log(ui.dataset.surveyEditorState);
   };
-  const resetEditorState = () => updateEditorState('editor');
+  const resetEditorState = () => updateEditorState("editor");
 
-  const ui = view`<div
-  class="[ survey-ui ][ brand-font bg-near-white ba b--light-gray ]"
-  data-survey-editor-state="editor">
-  <div class="solid-shadow-y-1">${pageHeader(['Survey Designer'])}</div>
-  <main class="[ mr-auto mw9 ][ space-y-3 pa3 ]">
-    <div class="toolbar flex items-center">
-      <!-- <div class=""><a class="brand hover-underline" href="#">← Back</a></div> -->
-      <div class="ml-auto button-group">
-        ${Inputs.button(buttonLabel({label: "Import", iconLeft: "download"}), {reduce: () => updateEditorState('import')})}
-      ${Inputs.button(buttonLabel({label: "Export", iconLeft: "upload"}), {reduce: () => updateEditorState('export')})}
+  //const ui = view`<div
+  const ui = viewUI`<div
+    class="[ survey-ui ][ brand-font bg-near-white ba b--light-gray ]"
+    data-survey-editor-state="editor">
+    <div class="solid-shadow-y-1">${pageHeader(["Survey Designer"])}</div>
+    <main class="[ mr-auto mw9 ][ space-y-3 pa3 ]">
+      <div class="toolbar flex items-center">
+        <!-- <div class=""><a class="brand hover-underline" href="#">← Back</a></div> -->
+        <div class="ml-auto button-group">
+          ${Inputs.button(
+            buttonLabel({ label: "Import", iconLeft: "download" }),
+            { reduce: () => updateEditorState("import") }
+          )}
+          ${Inputs.button(
+            buttonLabel({ label: "Export", iconLeft: "upload" }),
+            {
+              reduce: () => {
+                ui.querySelector("#exportUI").innerHTML = (exportUi()).outerHTML;
+                updateEditorState("export");
+              },
+            }
+          )}
+        </div>
       </div>
-    </div>
 
-    <div class="[ survey-editor__import ][ space-y-3 ]">
-      <div class="card space-y-3">
-        <div class="flex">
-          <h2 class="mr-auto">Import</h2>
-          ${Inputs.button("Close", { reduce: resetEditorState})}
-        </div>
-        <div class="space-y-3">
-          <div>${importUi(resetEditorState)}</div>
+      <div class="[ survey-editor__import ][ space-y-3 ]">
+        <div class="card space-y-3">
+          <div class="flex">
+            <h2 class="mr-auto">Import</h2>
+            ${Inputs.button("Close", { reduce: resetEditorState })}
+          </div>
+          <div class="space-y-3">
+            <div>${importUi(resetEditorState)}</div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="[ survey-editor__export ][ space-y-3 ]">
-      <div class="card space-y-3">
-        <div class="flex">
-          <h2 class="mr-auto">Export</h2>
-          ${Inputs.button("Close", { reduce: resetEditorState})}
+
+      <div class="[ survey-editor__export ][ space-y-3 ]">
+        <div class="card space-y-3">
+          <div class="flex">
+            <h2 class="mr-auto">Export</h2>
+            ${Inputs.button("Close", { reduce: resetEditorState })}
+          </div>
+          <!-- Exports UI -->
+          <div id="exportUI"></div>
         </div>
-        <!-- Exports UI -->
-        <div>${exportUi()}</div>
       </div>
-    </div>
-    <div class="[ survey-editor__editor ][ space-y-3 ]">
-      ${['...', surveyEditor()]}      
-    </div>
-  </main>
-  ${pageFooter()}
-</div>`
+
+      <div class="[ survey-editor__editor ][ space-y-3 ]">
+        ${["...", surveyEditor()]}      
+      </div>
+    </main>
+    ${pageFooter()}
+  </div>`;
 
   return ui;
-}
+})();
+const surveyUi = Generators.input(surveyUiElement);
+display(surveyUiElement)
 ```
 
 ```js
@@ -233,7 +256,8 @@ questionsNoLayout
 ```
 
 ```js
-viewof surveyUiInput = {
+//viewof surveyUiInput = {
+const surveyUiInputElement = (() => {
   console.log("Executing viewof surveyUiInput")
   // Go through the layout *in order* and build up pages with cells *in order*
   const pagesByMenu = {};
@@ -287,21 +311,32 @@ viewof surveyUiInput = {
     },
     pages: Object.entries(pagesByMenu).map(([menu, page]) => page)
   }))  
-}
+})();
+const surveyUiInput = Generators.input(surveyUiInputElement);
+display(surveyUiInputElement)
 ```
 
 ```js echo
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const syncSurveyUiInputToSurveyUi = {
+const syncSurveyUiInputToSurveyUi = () => {
   console.log("syncSurveyUiInputToSurveyUi");
-  if (!_.isEqual(viewof surveyUi.value, viewof surveyUiInput.value)) {
+  //if (!_.isEqual(viewof surveyUi.value, viewof surveyUiInput.value)) {
+  //!!! Note: Chaning due to different definition of viewof
+  //if (!_.isEqual(surveyUi.value, surveyUiInput.value)) {
+  if (!_.isEqual(surveyUiElement.value, surveyUiInputElement.value)) {
     console.log("syncSurveyUiInputToSurveyUi: change detected");
-    viewof surveyUi.value = viewof surveyUiInput.value;
-    // Manually updating the UI state
-    // viewof surveyUi.applyValueUpdates();
-    viewof surveyUi.dispatchEvent(new Event('input', {bubbles: true}))
+    //!!! Note: Chaning due to different definition of viewof
+    //viewof surveyUi.value = viewof surveyUiInput.value;
+    //surveyUi.value = surveyUiInput.value;
+    surveyUiElement.value = surveyUiInput.value;
+      // Manually updating the UI state
+      // viewof surveyUi.applyValueUpdates();
+    //viewof surveyUi.dispatchEvent(new Event('input', {bubbles: true}))
+        //!!! Note: Chaning due to different definition of viewof
+    //surveyUi.dispatchEvent(new Event('input', {bubbles: true}))
+    surveyUiElement.dispatchEvent(new Event('input', {bubbles: true}))
   }
 }
 ```
@@ -310,13 +345,21 @@ const syncSurveyUiInputToSurveyUi = {
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const syncSurveyUIToSurveyUiOutput = {
+
+// Adjusting to different definition of viewof
+const syncSurveyUIToSurveyUiOutput = () => {
   console.log("syncSurveyUIToSurveyUiOutput")
   // Reactive to UI changes (i.e. surveyUi)
-  if (!_.isEqual(viewof surveyUiOutput.value, surveyUi)) {
+  //if (!_.isEqual(viewof surveyUiOutput.value, surveyUi)) {
+  //if (!_.isEqual(surveyUiOutput.value, surveyUi)) {
+  if (!_.isEqual(surveyUiOutputElement.value, surveyUi)) {
     console.log("syncSurveyUIToSurveyUiOutput: change detected");
-    viewof surveyUiOutput.value = _.cloneDeep(surveyUi);
-    viewof surveyUiOutput.dispatchEvent(new Event('input', {bubbles: true}))
+    //viewof surveyUiOutput.value = _.cloneDeep(surveyUi);
+    //surveyUiOutput.value = _.cloneDeep(surveyUi);
+    surveyUiOutputElement.value = _.cloneDeep(surveyUi);
+    //viewof surveyUiOutput.dispatchEvent(new Event('input', {bubbles: true}))
+    //surveyUiOutput.dispatchEvent(new Event('input', {bubbles: true}))
+    surveyUiOutputElement.dispatchEvent(new Event('input', {bubbles: true}))
   }
 }
 ```
@@ -333,7 +376,8 @@ display(surveyUiOutputElement)
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const syncSurveyOutput = {
+
+const syncSurveyOutput = () => {
   console.log("surveyOutput")
   // convert ui representation (pages -> cells) to {questions, layout, config} for storage.
 
@@ -365,21 +409,26 @@ const syncSurveyOutput = {
   });
 
   // Extract config
-  ///!!!!!!!!!!!!!!!!!!!!!!!!!
-///!!! Check if this should self-execute
-///!!!!!!!!!!!!!!!!!!!!!!!!!
+  /// NOTE: Adjusted to account for different definition of viewof under Framework
   const config = {
-    ...viewof surveyConfig.value, // carry over initial state
+  //  ...viewof surveyConfig.value, // carry over initial state
+  //  ...surveyConfig.value, // carry over initial state
+    ...surveyConfig, // carry over initial state
     pageTitle: surveyUiOutput.metadata.title
   };
   
-  viewof surveyOutput.value = {
+  // viewof surveyOutput.value = {
+  //surveyOutput.value = {
+  surveyOutputElement.value = {
     questions,
     layout,
     config
   };
-  viewof surveyOutput.dispatchEvent(new Event('input', {bubbles: true}))
-}
+  //viewof surveyOutput.dispatchEvent(new Event('input', {bubbles: true}))
+  //surveyOutput.dispatchEvent(new Event('input', {bubbles: true}))
+  surveyOutputElement.dispatchEvent(new Event('input', {bubbles: true}))
+};
+display(syncSurveyOutput)
 ```
 
 ```js
@@ -390,7 +439,9 @@ display(surveyOutputElement)
 ```
 
 ```js
-const diff = require('https://bundle.run/json-diff@0.5.4')
+//const diff = require('https://bundle.run/json-diff@0.5.4')
+import { diff } from "https://esm.sh/just-diff@6";
+display(diff)
 ```
 
 ```js
@@ -442,15 +493,20 @@ const logicalQuestionDiff = Object.fromEntries(Object.entries(
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const autosave = {
+
+const autosave = () => {
   async function saveState() {
     console.log("saveState")
     await Promise.all([
-      saveQuestions(viewof surveyOutput.value.questions),
-      saveLayout(viewof surveyOutput.value.layout),
-      saveConfig(viewof surveyOutput.value.config)
+    //  saveQuestions(viewof surveyOutput.value.questions),
+    saveQuestions(surveyOutput.value.questions),
+    //  saveLayout(viewof surveyOutput.value.layout),
+    saveLayout(surveyOutput.value.layout),
+    //  saveConfig(viewof surveyOutput.value.config)
+    saveConfig(surveyOutput.value.config)
     ]);
-    await files.save("settings.json", viewof settings.value);
+    //await files.save("settings.json", viewof settings.value);
+    await files.save("settings.json", settings.value);
     return "Saved " + new Date()
   }
   console.log("Initializing autosave");
@@ -489,7 +545,7 @@ const autosave = {
     };
   }
   
-  let first = true;
+  let first = true && settings.questions !== undefined;
   
   return Generators.observe(next => {
     const autosave = debounce(async () => {
@@ -502,8 +558,10 @@ const autosave = {
         next(answers);
       }
     });
-    viewof surveyOutput.addEventListener('input', autosave);
-    invalidation.then(() => viewof surveyOutput.removeEventListener('input', autosave))
+    //viewof surveyOutput.addEventListener('input', autosave);
+    surveyOutput.addEventListener('input', autosave);
+    //invalidation.then(() => viewof surveyOutput.removeEventListener('input', autosave))
+    invalidation.then(() => surveyOutput.removeEventListener('input', autosave))
     
     next("Autosave initialized")
   })
@@ -556,18 +614,24 @@ const files = ({
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
+
+///!!! Check if this is working as is.  Notebook has been partially adjusted to account for .value
 const saveQuestions = async (questions) => {
   const name = `questions_${Date.now()}.json`
   await files.save(name, Array.from(questions.entries()))
-  viewof settings.value = {
-    ...viewof settings.value,
+  //viewof settings.value = {
+  settings.value = {
+    //...viewof settings.value,
+    ...settings.value,
     questions: [
-      ...(viewof settings.value.questions || []),
+      //...(viewof settings.value.questions || []),
+      ...(settings.value.questions || []),
       name
     ]
   }
   return name;
-}
+};
+display(saveQuestions)
 ```
 
 ```js
@@ -579,7 +643,7 @@ const loadQuestions = async (name) => {
 
 ```js
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-///!!! Check if this should self-execute
+///!!! Check if this should resolve
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 const saveLayout = async (layout) => {
   const name = `layout_${Date.now()}.json`
@@ -601,7 +665,7 @@ const loadLayout = async (name) => await files.load(name)
 
 ```js
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-///!!! Check if this should self-execute
+///!!! Check if this should resolve
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 const saveConfig = async (config) => {
   const name = `config_${Date.now()}.json`
@@ -622,58 +686,67 @@ const loadConfig = async (name) => await files.load(name)
 ```
 
 ```js
-///!!!!!!!!!!!!!!!!!!!!!!!!!
-///!!! Check if this should self-execute
-///!!!!!!!!!!!!!!!!!!!!!!!!!
 async function saveVersion() {
   const name = `version_${Date.now()}.json`
   
   const version = ({
-    layout: viewof settings.value.layout.at(-1),
-    questions: viewof settings.value.questions.at(-1),
-    config: viewof settings.value.configs.at(-1)
+    //layout: viewof settings.value.layout.at(-1),
+    layout: settings.value.layout.at(-1),
+    //questions: viewof settings.value.questions.at(-1),
+    questions: settings.value.questions.at(-1),
+    //config: viewof settings.value.configs.at(-1)
+    config: settings.value.configs.at(-1)
   });
   
   await files.save(name, version)
   
-  viewof settings.value = {
-    ...viewof settings.value,
+  //viewof settings.value = {
+  settings.value = {
+    //...viewof settings.value,
+    ...settings.value,
     versions: [
-      ...(viewof settings.value.versions || []),
+    //  ...(viewof settings.value.versions || []),
+    ...(settings.value.versions || []),
       name
     ]
   };
   
-  await files.save("settings.json", viewof settings.value);
+  //await files.save("settings.json", viewof settings.value);
+  await files.save("settings.json", settings.value);
   
   return name;
 }
 ```
 
 ```js echo
-viewof settings.value.versions.at(-1)
-```
-
-```js
 const revertChanges = async function() {
-  const version = await files.load(viewof settings.value.versions.at(-1))
-  viewof settings.value = {
-    ...viewof settings.value,
+  //const version = await files.load(viewof settings.value.versions.at(-1))
+  const version = await files.load(settings.value.versions.at(-1))
+  //viewof settings.value = {
+    settings.value = {
+    //...viewof settings.value,
+    ...settings.value,
     configs: [
-      ...(viewof settings.value.configs || []),
+      //...(viewof settings.value.configs || []),
+      ...(settings.value.configs || []),
       version.config
     ],
     questions: [
-      ...(viewof settings.value.questions || []),
+      //...(viewof settings.value.questions || []),
+      ...(settings.value.questions || []),
       version.questions
     ],
     layout: [
-      ...(viewof settings.value.layout || []),
+      //...(viewof settings.value.layout || []),
+      ...(settings.value.layout || []),
       version.layout
     ]
   };
   
-  await files.save("settings.json", viewof settings.value);
+  //await files.save("settings.json", viewof settings.value);
+  await files.save("settings.json", settings.value);
+  //viewof survey.dispatchEvent(new Event('input', {bubbles: true})) // reload everything
+  survey.dispatchEvent(new Event('input', {bubbles: true})) // reload everything
 }
 ```
 
@@ -690,23 +763,48 @@ display(questionsElement)
 ```
 
 ```js
-mutable initialLoadQuestions = (/* reload everything on choice change */ survey, false)
+//!!!!!!!!!!!!!!!!!
+// NOTE: re-defining to work with Framework's Mutable 
+//!!!!!!!!!!!!!!!!!
+//mutable initialLoadQuestions = (/* reload everything on choice change */ survey, false)
+const initialLoadQuestions = Mutable(/* reload everything on choice change */ survey, false)
+const setInitialLoadQuestions = (value) => (initialLoadQuestions.value = value);
 ```
 
-```js
-const initialQuestionLoader = {
+```js echo
+//!!!!!!!!!!!!!!!!!
+// NOTE: re-defining to work with Framework's Mutable 
+//!!!!!!!!!!!!!!!!!
+//const initialQuestionLoader = {
+//  if (!initialLoadQuestions) {
+//    mutable initialLoadQuestions = true;
+//    viewof questions.value = await loadQuestions(settings.questions[settings.questions.length - 1])
+//    viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
+//  }
+//  return "Initial Question Loader"
+//}
+
+
+const initialQuestionLoader = async () => {
   if (!initialLoadQuestions) {
-    mutable initialLoadQuestions = true;
-    viewof questions.value = await loadQuestions(settings.questions[settings.questions.length - 1])
-    viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
+    // Mark that we've done the initial load
+    setInitialLoadQuestions(true);
+
+//NOTE: Adjusting for different definition of viewof
+    // Programmatically set the questions input’s value
+    questionsElement.value = await loadQuestions(
+      settings.questions[settings.questions.length - 1]
+    );
+
+    // Notify the reactive runtime that the input changed
+    questionsElement.dispatchEvent(new Event("input", {bubbles: true}));
   }
-  return "Initial Question Loader"
-}
+
+  display("Initial Question Loader");
+};
 ```
 
-```js
-md`### Import external CSV of questions`
-```
+### Import external CSV of questions
 
 ```js
 //viewof questionUpload = fileInput({prompt: "Drop questions as a CSV file here"})
@@ -717,10 +815,20 @@ display(questionUploadElement)
 ```
 
 ```js echo
-const onQuestionUpload = {
-  viewof questions.value = csvToQuestions(await questionUpload.csv());
-  viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
-}
+//!!!!!!!!!!!!!!!!!
+// NOTE: Need to re-work this as an async function due to await
+//!!!!!!!!!!!!!!!!!
+const onQuestionUpload = async () => {
+  //viewof questions.value = csvToQuestions(await questionUpload.csv());
+  //!!!! Experimental
+  //questions.value = csvToQuestions(await questionUpload.csv());
+  questionsElement.value = csvToQuestions(await questionUpload.csv());
+  //viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
+    //!!!! Experimental
+  //questions.dispatchEvent(new Event('input', {bubbles: true}));
+  questionsElement.dispatchEvent(new Event('input', {bubbles: true}));
+};
+display(onQuestionUpload)
 ```
 
 ```js echo
@@ -846,9 +954,7 @@ const questionsToCSV = (questions) =>
     },[])
 ```
 
-```js
-md`### Export questions to CSV`
-```
+### Export questions to CSV
 
 ```js
 const questionsCsvDataUri = URL.createObjectURL(new Blob([ d3.csvFormat(exportQuestionsCSV) ], { type: 'text/csv' }));
@@ -863,9 +969,15 @@ display(questionsCsvDataUriViewElement)
 ```
 
 ```js echo
-const updateQuestionsCsvDataUriView = {
-  viewof questionsCsvDataUriView.value = questionsCsvDataUri /* sync questionsCsvDataUri changes to the view */
-  viewof questionsCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+const updateQuestionsCsvDataUriView = () => {
+  //viewof questionsCsvDataUriView.value = questionsCsvDataUri /* sync questionsCsvDataUri changes to the view */
+  //NOTE: Adjusting for different definition of viewof
+  //questionsCsvDataUriView.value = questionsCsvDataUri /* sync
+  questionsCsvDataUriViewElement.value = questionsCsvDataUri /* sync questionsCsvDataUri changes to the view */
+  //viewof questionsCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+  //NOTE: Adjusting for different definition of viewof
+  //questionsCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+  questionsCsvDataUriViewElement.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
@@ -922,9 +1034,7 @@ display(layoutDataElement)
 
 ```
 
-```js
-md`### Import layout from CSV`
-```
+### Import layout from CSV
 
 ```js
 //viewof layoutUpload = fileInput({prompt: "Drop layout as a CSV file here"})
@@ -935,10 +1045,17 @@ display(layoutUploadElement)
 ```
 
 ```js echo
-const onLayoutUpload = {
-  viewof layoutData.value = {data: csvToLayout(await layoutUpload.csv())}
-  viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
-}
+const onLayoutUpload = async() => {
+  //viewof layoutData.value = {data: csvToLayout(await layoutUpload.csv())}
+  // NOTE: Changing due to re-definition of viewof
+// layoutData.value = {data: csvToLayout(await layoutUpload.csv())}
+ layoutDataElement.value = {data: csvToLayout(await layoutUpload.csv())}
+  //viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+  // NOTE: Changing due to re-definition of viewof
+//  layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+layoutDataElement.dispatchEvent(new Event('input', {bubbles: true}))
+};
+display(onLayoutUpload)
 ```
 
 ```js
@@ -966,9 +1083,15 @@ display(layoutCsvDataUriViewElement)
 ```
 
 ```js echo
-const updateLayoutCsvDataUriView = {
-  viewof layoutCsvDataUriView.value = layoutCsvDataUri
-  viewof layoutCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+const updateLayoutCsvDataUriView = () => {
+  //viewof layoutCsvDataUriView.value = layoutCsvDataUri
+  // Note: Adjusting due to different definition of viewof
+  //layoutCsvDataUriView.value = layoutCsvDataUri
+    layoutCsvDataUriViewElement.value = layoutCsvDataUri
+  //viewof layoutCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+  // Note: Adjusting due to different definition of viewof
+  //layoutCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+layoutCsvDataUriViewElement.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
@@ -981,17 +1104,37 @@ ${exportLayoutProblems.length > 0 ? md`<mark> Warning, some layouts are not expo
 ```
 
 ```js echo
-mutable initialLoadLayout = false
-```
+//!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!
 
-```js echo
-const initialLayoutLoader = {
-  if (!initialLoadLayout) {
-    mutable initialLoadLayout = true;
-    setLayout([...await loadLayout(settings.layout[settings.layout.length - 1])])
+//!!!! NOTE: This does not appear to have an appropriate setter.
+
+//!!!!!!!!!!!!!!!!!
+//!!!!!!!!!!!!!!!!!
+
+//!!!!!!!!!!!!!!!!!
+// NOTE: Adjusting this to define a Mutable and a setter function
+
+const initialLoadLayout = Mutable(false)
+
+//const initialLayoutLoader = {
+//  if (!initialLoadLayout) {
+//    mutable initialLoadLayout = true;
+//    setLayout([...await loadLayout(settings.layout[settings.layout.length - 1])])
+//  }
+//  return "Initial Layout Loader"
+//}
+const initialLayoutLoader = async () => {
+  if (!initialLoadLayout.value) {
+    initialLoadLayout.value = true; // mark as loaded
+
+    const latestLayoutKey = settings.layout[settings.layout.length - 1];
+    const layout = await loadLayout(latestLayoutKey);
+    setLayout([...layout]);
   }
-  return "Initial Layout Loader"
-}
+  return "Initial Layout Loader";
+};
 ```
 
 ```js echo
@@ -1000,12 +1143,15 @@ function setLayout(data) {
   
   menuOptions.data = choices["menu"]
   setOptions.data = choices["set"]
-  viewof menuOptions.dispatchEvent(new Event('input', {bubbles: true}))
-  viewof setOptions.dispatchEvent(new Event('input', {bubbles: true}))
+  //viewof menuOptions.dispatchEvent(new Event('input', {bubbles: true}))
+  menuOptions.dispatchEvent(new Event('input', {bubbles: true}))
+  //viewof setOptions.dispatchEvent(new Event('input', {bubbles: true}))
+  setOptions.dispatchEvent(new Event('input', {bubbles: true}))
   
   
   layoutData.data = data;
-  viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+  //viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+  layoutData.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
@@ -1036,7 +1182,7 @@ const sampleExportUi = exportUi()
 const exportUi = () => {
   const now = Date.now();
 
-  return view`<div class="space-y-3">
+  return viewUI`<div class="space-y-3">
   <div>
     <a href=${viewof questionsCsvDataUriView.value} download="questions_${Date.now()}.csv">Download Questions</a>
   </div>
@@ -1086,7 +1232,7 @@ const importUi = (afterSave) => {
   }
   const submit = Inputs.button(buttonLabel({label: "Save"}), {reduce: submitFiles});
   
-  const ui = view`<div class="space-y-3">
+  const ui = viewUI`<div class="space-y-3">
   <h3 class="f5">Questions CSV file</h3>
   ${['questionsCsv', fileInput({prompt: "Drop questions as a CSV file here"})]}
   <h3 class="f5">Layout CSV file</h3>
@@ -1113,7 +1259,7 @@ function selection(title) {
       [title]: (d) => Inputs.text({value: d, width: "400px", disabled: true}),
     },
   })
-  const addForm = view`<div style="display: flex;">
+  const addForm = viewUI`<div style="display: flex;">
     ${[title, Inputs.text({
       label: `Add ${title}`
     })]}
@@ -1126,7 +1272,7 @@ function selection(title) {
     })}
   `
 
-  return view`<div><details>
+  return viewUI`<div><details>
       <summary>Edit choices for <b>${title}</b></summary>
       ${['...', choices]}${cautious(() => addForm)}
   `
@@ -1282,7 +1428,8 @@ const exportLayoutProblems  = {
 Config is additional data that might be useful such as the menu display titles.
 
 ```js echo
-viewof latestConfig = editor({
+//viewof latestConfig = editor({
+const latestConfigElement = editor({
   type: "object",
   title: "Config",
   properties: {
@@ -1291,7 +1438,7 @@ viewof latestConfig = editor({
     },
     menuSegmentLabels: {
       type: "object",
-      additionalProperties: { "type": "string" }
+      additionalProperties: { type: "string" }
     }
   }
 }, {
@@ -1301,21 +1448,57 @@ viewof latestConfig = editor({
   iconlib: "spectre",
   show_errors: "always",
   prompt_before_delete: "false"
-})
+});
+const latestConfig = Generators.input(latestConfigElement);
+display(latestConfigElement)
 ```
 
 ```js echo
-const save_config = {
-  
-  if (viewof surveyConfig.value && !_.isEqual(latestConfig, viewof surveyConfig.value)) {
-    yield md`Saving...`
-    viewof surveyConfig.value = latestConfig;
+//!!!!!!!!!!!!!!!!!
+// NOTE: Re-worked as an async function (no generator) due to await
+//!!!!!!!!!!!!!!!!!
+// NOTE: Original (Observable notebook style):
+// viewof save_config = async function* () {
+//   if (viewof surveyConfig.value && !_.isEqual(latestConfig, viewof surveyConfig.value)) {
+//     yield md`Saving...`
+//     viewof surveyConfig.value = latestConfig;
+//     await saveConfig(latestConfig);
+//     await files.save("settings.json", viewof settings.value);
+//     yield md`saved`
+//   } else {
+//     yield md`no changes`
+//   }
+// }
+
+
+//!! This is an experimental departure. Check.
+const save_config = async () => {
+  //if (viewof surveyConfig.value && !_.isEqual(latestConfig, viewof surveyConfig.value)) {
+  // NOTE: Adjusting due to different definition of viewof
+  // NOTE: Using surveyConfigElement instead of viewof surveyConfig
+  if (surveyConfigElement.value && !_.isEqual(latestConfig, surveyConfigElement.value)) {
+    //yield md`Saving...`
+    // NOTE: No yield here; caller is responsible for showing "Saving..." state
+
+    //viewof surveyConfig.value = latestConfig;
+    // NOTE: Changing due to different definition of viewof
+    surveyConfigElement.value = latestConfig;
+
     await saveConfig(latestConfig);
-    yield md`saved`
+
+    //await files.save("settings.json", viewof settings.value);
+    // NOTE: Changing due to different definition of viewof
+    await files.save("settings.json", settings.value);
+
+    //yield md`saved`
+    // NOTE: Return status instead of yielding markdown
+    return "saved";
   } else {
-    yield md`no changes`
+    //yield md`no changes`
+    // NOTE: Return status instead of yielding markdown
+    return "no changes";
   }
-}
+};
 ```
 
 ```js echo
@@ -1327,22 +1510,34 @@ display(surveyConfigElement)
 ```
 
 ```js echo
-const sync_ui = {
-  viewof latestConfig.value = surveyConfig
+const sync_ui = () => {
+  //viewof latestConfig.value = surveyConfig
+  // latestConfig.value = surveyConfig
+  // !!!!!!!!!!!!!
+   // NOTE: Check if this works
+  latestConfigElement.value = surveyConfig
 }
 ```
 
 ```js echo
-const load_config = {
-  viewof surveyConfig.value = settings.configs?.length > 0 
+const load_config = async () => {
+  //viewof surveyConfig.value = settings.configs?.length > 0 
+  // Note: Adjusting due to different definition of config element
+  //surveyConfig.value = settings.configs?.length > 0 
+  surveyConfigElement.value = settings.configs?.length > 0 
                                 ? await loadConfig(settings.configs[settings.configs.length - 1])
                                 : {};
-  viewof surveyConfig.dispatchEvent(new Event('input', {bubbles: true}))
+  //viewof surveyConfig.dispatchEvent(new Event('input', {bubbles: true}))
+  // Note: Adjusting due to different definition of config element
+  //surveyConfig.dispatchEvent(new Event('input', {bubbles: true}))
+  surveyConfigElement.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
 ```js echo
-import {editor} from "@a10k/hello-json-editor"
+//import {editor} from "@a10k/hello-json-editor"
+import {editor} from "/components/hello-json-editor.js"
+display(editor)
 ```
 
 ## Styles
@@ -1477,7 +1672,7 @@ const REGION = 'us-east-2'
 
 ```js echo
 //import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, viewof mfaCode, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} with {REGION as REGION} from '@tomlarkworthy/aws'
-import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, viewof manualCredentials, viewof mfaCode, saveCreds, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} with {REGION as REGION} from '/components/aws.js'
+import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, manualCredentials, manualCredentialsElement, mfaCode, saveCreds, saveCredsElement, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup} from '/components/aws.js'
 ```
 
 ```js echo
@@ -1527,6 +1722,11 @@ import {dataEditor} from '/components/dataeditor.js'
 import {pageHeader, pageFooter, buttonLabel} from "/components/common-components.js"
 ```
 
+```js echo
+//import {localStorageView} from '@tomlarkworthy/local-storage-view'
+import {localStorageView} from '/components/local-storage-view.js';
+display(localStorageView)
+```
 ---
 
 ```js echo
