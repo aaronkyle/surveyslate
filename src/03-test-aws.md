@@ -37,7 +37,9 @@ display(saveCredsElement);
 display(saveCreds);
 ```
 
-
+```js 
+const login = applyCredentials(manualCredentials)
+```
 
 ---
 
@@ -60,7 +62,8 @@ display(getUser)
 
 Note that directly invoking `getuser` returns a promise.
 ```js echo
-const me = getUser()
+login
+const me = await getUser()
 display(me)
 ```
 
@@ -81,7 +84,8 @@ display(surveys)
 ```
 
 ```js echo
-display(listObjects)
+login
+display(await listObjects)
 ```
 
 ---
@@ -89,6 +93,7 @@ display(listObjects)
 Error start when trying to use anything that relies the `credentials` function, for example the helpers that are tied to S3:
 
 ```js echo
+login
 display(await listObjects())
 ```
 ---
@@ -96,7 +101,7 @@ display(await listObjects())
 Import statement:
 
 ```js echo
-import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, mfaCode, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup, manualCredentialsElement, manualCredentials, saveCredsElement, saveCreds} from '/components/aws.js';
+import {listObjects, getObject, putObject, listUsers, createUser, deleteUser, getUser, listAccessKeys, createAccessKey, deleteAccessKey, mfaCode, listUserTags, tagUser, untagUser, iam, s3, listGroups, listGroupsForUser, addUserToGroup, removeUserFromGroup, manualCredentialsElement, manualCredentials, saveCredsElement, saveCreds, applyCredentials} from '/components/aws.js';
 ```
 
 ```js echo
