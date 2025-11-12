@@ -1,5 +1,12 @@
 # Data Editor 
 
+<div class="tip" label>
+  This ports a notebook by <a href="https://observablehq.com/@tomlarkworthy/">Tom Larkworthy</a> [@tomlarkworthy] called
+  <a href="https://observablehq.com/@tomlarkworthy/dataeditor">Data Editor</a>.
+  All mistakes and deviations from the original are my own.
+</div>
+
+
 Reorderable, editable, selectable, table of views that is also backwritable. 
 
       ~~~js
