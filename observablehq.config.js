@@ -36,11 +36,11 @@ export default {
          //missing
          //{name: "Guide for Survey Designers", path: "/user-guide-for-gesi-survey-designer"},
          
-         { name: "Admin Tools", path: "/surveyslate-admin-tools.md" },
-         { name: "Admin UI", path: "/surveyslate-admin-ui.md" },
+         { name: "Admin Tools", path: "/surveyslate-admin-tools" },
+         { name: "Admin UI", path: "/surveyslate-admin-ui" },
 
          { name: "Designer Tools", path: "/surveyslate-designer-tools" },
-         { name: "Designer UI", path: "/surveyslate-designer-ui.md" },
+         { name: "Designer UI", path: "/surveyslate-designer-ui" },
 
          
          // identify and remove duplicate
@@ -118,6 +118,6 @@ export default {
   // search: true, // activate search
   // linkify: true, // convert URLs in Markdown to links
   // typographer: false, // smart quotes and other typographic improvements
-  // preserveExtension: false, // drop .html from URLs
+   preserveExtension: true, // drop .html from URLs
   // preserveIndex: false, // drop /index from URLs
 };

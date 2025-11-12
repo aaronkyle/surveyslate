@@ -23,7 +23,9 @@ function md(strings) {
 }
 ```
 
-${await FileAttachment("viewroutine.png").image()}
+```js
+FileAttachment("viewroutine.png").image()
+```
 
 Sometimes you want to put a sequence of UI steps in a single cell. Using inspiration drawn from Unity and Golang ([_coroutines_](https://docs.unity3d.com/Manual/Coroutines.html) and _goroutines_) checkout the _viewroutine_. A _viewroutine_ leans on Javascript's _async generator functions_ to compose views across time.
 

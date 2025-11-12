@@ -976,12 +976,12 @@ import {randomId} from '/components/randomid.js'
 
 ```js echo
 //import {localStorageView} from '@tomlarkworthy/local-storage-view'
-import {localStorageView} from '/contents/local-storage-view.js'
+import {localStorageView} from '/components/local-storage-view.js'
 ```
 
 ```js echo
-//import {enableJavasscriptSnippet} from '@categorise/gesi-styling'
-import {enableJavasscriptSnippet} from '/components/gesi-styling.js'
+//import {enableJavasscriptSnippet} from '@categorise/survey-slate-styling'
+import {enableJavasscriptSnippet} from '/components/survey-slate-styling.js'
 
 ```
 

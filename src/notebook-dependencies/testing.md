@@ -1,9 +1,9 @@
 # Reactive Unit Testing and Reporting Framework
-
+<!--
 <center>
 <img width="30%" src=${await FileAttachment("noun_test_2404407.svg").url()}></img>
 </center>
-
+-->
 A test suite that updates as you fix bugs in realtime. Combines with [healthcheck](https://observablehq.com/@endpointservices/healthcheck) to create a CI.
 
   - Monitorable with [healthcheck](https://observablehq.com/@endpointservices/healthcheck)

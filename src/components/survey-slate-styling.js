@@ -27,13 +27,13 @@ import {
   load_config,
   createQuestion,
   bindLogic
-} from "/components/gesi-survey-designer-tools.js";
+} from "/components/surveyslate-designer-tools.js";
 
 //import {styles as componentStyles, pagination} from '@adb/gesi-survey-components'
 import {
   styles as componentStyles,
   pagination
-} from "/components/gesi-survey-components.js";
+} from "/components/survey-components.js";
 
 //import {button, text} from "@jashkenas/inputs";
 import { button, text } from "/components/inputs.js";
@@ -48,7 +48,7 @@ import { mainColors, accentColors } from "/components/brand.js";
 import { loadStyles } from "/components/tachyons-and-some-extras.js";
 
 //import {pageHeader, pageFooter} from "@adb/gesi-survey-common-components"
-import { pageHeader, pageFooter } from "/components/gesi-survey-common-components.js";
+import { pageHeader, pageFooter } from "/components/surveyslate-common-components.js";
 
 
 //======================================
@@ -83,7 +83,7 @@ function md(strings) {
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 //const loaders = initialQuestionLoader, initialLayoutLoader, load_config
 //const loaders = [initialQuestionLoader, initialLayoutLoader, load_config];
-import { loaders } from "/components/gesi-survey-designer-tools.js";
+import { loaders } from "/components/surveyslate-designer-tools.js";
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 

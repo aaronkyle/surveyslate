@@ -903,7 +903,7 @@ import {loadStyles} from '/components/tachyons-and-some-extras.js'
 ```
 
 ```js echo
-//import { pageHeader, pageFooter } from "@categorise/gesi-survey-common-components"
+//import { pageHeader, pageFooter } from "@categorise/surveyslate-common-components"
 import { pageHeader, pageFooter } from "/components/surveyslate-common-components.js"
 ```
 
