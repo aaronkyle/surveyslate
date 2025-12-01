@@ -21,14 +21,13 @@ Observable supports version pinning by appending the version number to the noteb
 
 These functions make it easier to look up the most recent version of notebooks, and to use pinned versions in your own documentation. Example:`
 
-```js echo
+```js
 md`\`\`\`js
 import {getCurrentPinnedName} from '${await getCurrentPinnedName()}'
 \`\`\``
 ```
 
-```js
-md`---
+---
 ## Current Notebook
 Functions that can be used to obtain information about the currently viewed notebook. Metadata and the pinned name will be available once you have shared or published your notebook. Reload the page after publishing to see the updated version number.
 
@@ -41,28 +40,27 @@ ${dataTable([
   ['getCurrentComparePath', await getCurrentComparePath(299)]
 ])}
 
-`
-```
+---
 
-```js
+```js echo
 function getCurrentLocalPath() {
   return html`<a href="#">`.pathname;
 }
 ```
 
-```js
+```js echo
 function getCurrentPath() {
   return formatPath(getCurrentName());
 }
 ```
 
-```js
+```js echo
 function getCurrentName() {
   return getCurrentLocalPath().replace(/^\/(d\/)?/, '');
 }
 ```
 
-```js
+```js echo
 async function getCurrentPinnedName() {
   const data = await getCurrentMetadata();
   if(data && data.version) return formatName(getCurrentName(), data.version);
@@ -70,14 +68,14 @@ async function getCurrentPinnedName() {
 }
 ```
 
-```js
-const getCurrentMetadata = {
+```js echo
+const getCurrentMetadata = (() => {
   let data;
   return async function getCurrentMetadata(refetch = false) {
     if(data === undefined || refetch) data = await getMetadata(getCurrentName());
     return data;
   }
-}
+})()
 ```
 
 ```js
@@ -88,23 +86,35 @@ async function getCurrentComparePath(version1 = null, version2 = null) {
 }
 ```
 
-```js
-md`---
+---
+
 ## Other Notebooks
 Functions for retrieving information about any notebooks.
-`
-```
+
 
 ```js
-viewof preview_name = {
+//viewof preview_name = { ... }
+const preview_nameElement = (() => {
   const submit = html`<input type="button" value="Submit">`;
   const input = html`<input type="text" value="@jashkenas/inputs">`;
   const view = html`<form>${input} ${submit}`;
+  
   input.oninput = e => e.stopPropagation();
-  submit.onclick = () => { view.value = input.value; view.dispatchEvent(new Event('input')) };
+  submit.onclick = () => {
+    view.value = input.value;
+    view.dispatchEvent(new Event("input"));
+  };
+  
   view.value = input.value;
   return view;
-}
+})();
+
+const preview_name = Generators.input(preview_nameElement);
+display(preview_nameElement);
+```
+
+```js
+//preview_name
 ```
 
 ```js
@@ -119,43 +129,45 @@ dataTable([
 ])
 ```
 
-```js
+---
+
+```js echo
 function formatLocalPath(name, version = null) {
   return '/' + (name.match(/^@/) ? name : 'd/' + name) + (version ? '@' + version : '');
 }
 ```
 
-```js
+```js echo
 function formatPath(name, version = null) {
   return `https://${domain}${formatLocalPath(name, version)}`;
 }
 ```
 
-```js
+```js echo
 function formatSourcePath(name, version = null) {
   return `https://${apiDomain}${formatLocalPath(name, version)}.js`;
 }
 ```
 
-```js
+```js echo
 function formatName(name, version = null) {
   return name + (version ? '@' + version : '');
 }
 ```
 
-```js
+```js echo
 function formatId(id, version = null) {
   return id + (version ? '@' + version : '');
 }
 ```
 
-```js
+```js echo
 function formatComparePath(id1, version1, id2, version2) {
   return `https://${domain}/compare/${formatId(id1, version1)}...${formatId(id2, version2)}`;
 }
 ```
 
-```js
+```js echo
 async function getPinnedName(name) {
   const data = await getMetadata(name);
   if(data && data.version) return name + '@' + data.version;
@@ -163,7 +175,7 @@ async function getPinnedName(name) {
 }
 ```
 
-```js
+```js echo
 async function getPinnedPath(name) {
   const data = await getMetadata(name);
   if(data && data.version) return formatPath(name, data.version);
@@ -171,7 +183,7 @@ async function getPinnedPath(name) {
 }
 ```
 
-```js
+```js echo
 async function getComparePath(name, version1 = null, version2 = null) {
   const data = await getMetadata(name);
   if(data) return formatComparePath(data.id, version1, data.id, version2);
@@ -179,7 +191,7 @@ async function getComparePath(name, version1 = null, version2 = null) {
 }
 ```
 
-```js
+```js echo
 async function getSource(name, version = null) {
   const path = formatSourcePath(name, version);
   try {
@@ -190,7 +202,7 @@ async function getSource(name, version = null) {
 }
 ```
 
-```js
+```js echo
 async function getMetadata(name, version = null) {
   const map = {
     'URL': 'url',
@@ -216,15 +228,15 @@ async function getMetadata(name, version = null) {
 
 ---
 
-```js
+```js echo
 const domain = 'observablehq.com'
 ```
 
-```js
+```js echo
 const apiDomain = 'api.observablehq.com'
 ```
 
-```js
+```js echo
 function dataTable(rows) {
   const style = 'padding:.5em;vertical-align:top';
   const n = rows.map(([l,d]) => {

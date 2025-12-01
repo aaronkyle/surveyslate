@@ -1,5 +1,21 @@
 # Notebook Deploy to S3
 
+
+```js
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+}
+```
+
 Reads Notebook code (the tar.gz file from the "Download Code" feature), unpacks, and uploads the individual files to S3, guesses MIME type based on file extension and invalidates CloudFront cache if applicable.
 
 For utility notebooks like this one, you can run them directly from AWS, For example, I uploaded *this* notebook to S3, see:-
@@ -40,11 +56,19 @@ const notebookURLElement = Inputs.bind(
 );
 const notebookURL = Generators.input(notebookURLElement);
 display(notebookURLElement)
-
 ```
 
 ```js echo
-const notebook = notebookURL.replace('https://observablehq.com/', '')
+notebookURL
+```
+
+```js echo
+display(localStorageView(`deploy_to_s3_notebookURL`))
+```
+
+```js echo
+const notebook = notebookURL.replace('https://observablehq.com/', '');
+display(notebook)
 ```
 
 ```js echo
@@ -60,6 +84,9 @@ const cellsElement = Inputs.bind(
 const cells = Generators.input(cellsElement);
 display(cellsElement)
 ```
+```js 
+display(cells)
+```
 
 ```js echo
 //viewof s3Target = Inputs.bind(
@@ -74,19 +101,31 @@ const s3TargetElement = Inputs.bind(
 const s3Target = Generators.input(s3TargetElement);
 display(s3TargetElement)
 ```
+```js 
+display(s3Target)
+```
 
 ```js echo
 const bucket = s3Target.split("/")[0]
+display(bucket)
 ```
 
 ```js echo
 const path = s3Target.substring(bucket.length).replace(/^\//, '')
+display(path)
 ```
 
 ```js echo
 //viewof manualCredentials
 manualCredentialsElement
-viewof manualCredentials
+```
+
+```js echo
+manualCredentials
+```
+
+```js echo
+saveCredsElement
 ```
 
 ```js echo
@@ -107,18 +146,27 @@ display(API_KEYElement)
 ```
 
 ```js echo
+API_KEY
+```
+
+
+```js echo
 //viewof CLOUD_FRONT_DISTRIBUTION_ID = Inputs.bind(
-const INVALIDATION_PATHElement = Inputs.bind(
+const CLOUD_FRONT_DISTRIBUTION_IDElement = Inputs.bind(
   Inputs.text({
     width: "1vu",
-    label: "[Optional] Cloud Front paths",
-    placeholder: "/notebooks/1/index.*"
+    label: "[Optional] Cloud Front distribution ID"
   }),
-  localStorageView(`deploy_to_s3_cf_path`)
+  localStorageView(`deploy_to_s3_cf_d_id`)
 );
-const INVALIDATION_PATH = Generators.input(INVALIDATION_PATHElement);
-display(INVALIDATION_PATHElement)
+const CLOUD_FRONT_DISTRIBUTION_ID = Generators.input(CLOUD_FRONT_DISTRIBUTION_IDElement);
+display(CLOUD_FRONT_DISTRIBUTION_IDElement)
 ```
+
+```js echo
+CLOUD_FRONT_DISTRIBUTION_ID
+```
+
 
 ```js echo
 //viewof INVALIDATION_PATH = Inputs.bind(
@@ -130,7 +178,14 @@ const INVALIDATION_PATHElement = Inputs.bind(
   }),
   localStorageView(`deploy_to_s3_cf_path`)
 )
+const INVALIDATION_PATH = Generators.input(INVALIDATION_PATHElement);
+display(INVALIDATION_PATHElement)
 ```
+
+```js echo
+INVALIDATION_PATH
+```
+
 
 ```js echo
 //viewof indexHtml = Inputs.bind(
@@ -156,8 +211,10 @@ const uploadButtonElement = Inputs.button("Deploy", {
     const response = await fetch(url);
     if (response.status !== 200)
       throw new Error(`${response.status} ${await response.text()}`);
-    mutable gzTarBytes = response.arrayBuffer();
-    mutable deployed = false;
+    //mutable gzTarBytes = response.arrayBuffer();
+    setGzTarBytes(await response.arrayBuffer());
+    //mutable deployed = false;
+    setDeployed(false);
   }
 });
 const uploadButton = Generators.input(uploadButtonElement);
@@ -165,24 +222,34 @@ display(uploadButtonElement)
 ```
 
 ```js echo
-mutable gzTarBytes = undefined
+//mutable gzTarBytes = undefined
+const gzTarBytes = new Mutable(undefined);
+
+function setGzTarBytes(bytes) {
+  gzTarBytes.value = bytes; // triggers reactive dependents
+}
 ```
 
 ```js echo
-const tarBytes = () => {
+const tarBytes = (async() => {
   const buffer = new Uint8Array(gzTarBytes);
   return await pako.ungzip(buffer);
-};
+})();
 display(tarBytes)
 ```
 
 ```js echo
-files = await untar(tarBytes.buffer);
+const files = await untar(tarBytes.buffer);
 display(files)
 ```
 
 ```js echo
-mutable deployed = false
+//mutable deployed = false
+const deployed = new Mutable(false);
+
+function setDeployed(value) {
+  deployed.value = value;
+}
 ```
 
 ```js echo
@@ -190,7 +257,20 @@ md`Current: ${files[index].name}`
 ```
 
 ```js echo
-mutable index = (files, 0)
+//mutable index = (files, 0)
+const index = Mutable(0);
+
+const setIndex = (x) => (index.value = x);
+const incIndex = () => (index.value = index.value + 1);
+```
+
+```js
+display(index)
+```
+
+```js echo
+/// adding in dependency-reset behavior from original mutable definition
+{ files; setIndex(0) }
 ```
 
 ```js echo
@@ -199,7 +279,7 @@ display(currentFile )
 ```
 
 ```js echo
-const uploader = {
+const uploader = (async () => {
   // upload current file
   const filename = files[index].name.replace("./", "");
   if (filename === "index.html" && indexHtml.length > 0) {
@@ -211,7 +291,8 @@ const uploader = {
 
   if (index < files.length - 1) {
     // next file
-    mutable index = mutable index + 1;
+    //mutable index = mutable index + 1;
+    incIndex();
   } else {
     // done!
     // Invalidate cloud front cache if needed.
@@ -220,9 +301,10 @@ const uploader = {
         INVALIDATION_PATH
       ]);
     }
-    mutable deployed = true;
+    //mutable deployed = true;
+    setDeployed(true);
   }
-}
+})()
 ```
 
 ```js echo
@@ -251,30 +333,36 @@ import {
 
 ```js echo
 //import { localStorageView } from '@tomlarkworthy/local-storage-view'
-import { localStorageView } from '/components/local-storage-view.js'
+import { localStorageView } from '/components/local-storage-view.js';
+display(localStorageView)
 ```
 
 ```js echo
-import { getMetadata } from '@mootari/notebook-data'
+//import { getMetadata } from '@mootari/notebook-data'
+import { getMetadata } from '/components/notebook-data.js';
+display(getMetadata )
 ```
 
 ```js echo
 //mimetypes = import('https://cdn.skypack.dev/mime-types@2.1.32?min')
 import mimetypes from "https://cdn.skypack.dev/mime-types@2.1.32?min";
-
+display(mimetypes)
 ```
 
 ```js echo
 //jszip = require("jszip@3/dist/jszip.min.js")
 import jszip from "jszip/dist/jszip.min.js";
+display(jszip)
 ```
 
 ```js echo
 //const pako = require('https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.es5.min.js')
 import * as pako from "https://cdnjs.cloudflare.com/ajax/libs/pako/2.0.3/pako.es5.min.js";
+display(pako)
 ```
 
 ```js echo
 //untar = require('js-untar')
 import untar from "js-untar";
+display(untar)
 ```

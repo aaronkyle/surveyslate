@@ -449,7 +449,7 @@ const firebaseConfig = (
 ```js
 md`## Allowing the Pop-up  
 You will need to add __observableusercontent.com__ to the authorized domains on the Firebase Providers:  https://console.firebase.google.com/project/_/authentication/providers)
- <img width=500px src="${await FileAttachment("Screen Shot 2019-11-06 at 12.16.34 AM.png").url()}">
+ <img width=500px src="${FileAttachment("Screen Shot 2019-11-06 at 12.16.34 AM.png").url()}">
 `
 ```
 
