@@ -1,21 +1,14 @@
-//# Tachyons CSS and some extras
+# Tachyons CSS and some extras
 
+```js echo
 import {html} from "htl";
+```
 
+```js
 const invalidation = { then: () => {} };
+```
 
-const defaultOptions = {};
-
-const tachyonsVersion = "4.12.0"
-
-const cssVariables = (colors = {}) => {
-  const keys = Object.keys(colors);
-  if (!keys.length) return "";
-
-  const vars = keys.map(k => `  --${k}: ${colors[k]};`).join("\n");
-  return `:root {\n${vars}\n}`;
-};
-
+```js echo
 const tokens = ({
   spaces: {
     '0': '0', // none
@@ -28,37 +21,26 @@ const tokens = ({
     '7': '16rem', // extra-extra-extra-large
   }
 })
+```
 
+```js echo
 const colorUtils = ({colors}) => {
   const keys = Object.keys(colors || {})
 
   if (keys.length === 0) return "";
-
-    const cssVariables = `:root {
-    ${keys.reduce((acc,k) => `${acc}--${k}: ${colors[k]};`, "")}
-    }`
-        
-    const utilClasses = keys.reduce((acc, k) => {
-        return `${acc}
-    .${k} { color: var(--${k}); }
-    .hover-${k}:hover, .hover-${k}:focus { color: var(--${k}); }
-    .bg-${k} { background-color: var(--${k}); }
-    .hover-bg-${k}:hover, .hover-bg-${k}:focus { background-color: var(--${k}); }
-    .b--${k} { border-color: var(--${k}); }
-    `}, "")
-
-      return cssVariables + "\n" + utilClasses;
 }
-      
+```
+
+```js echo
 const fontUtils = ({fonts}) => {
   const keys = Object.keys(fonts || {})
 
   if (keys.length === 0) return "";
 
-    const cssVariables = `:root {
+  const cssVariables = `:root {
 ${keys.reduce((acc,k) => `${acc}--${k}: ${fonts[k]};`, "")}
 }`
-  
+
   const utilClasses = keys.reduce((acc, k) => {
     return `${acc}
 .${k} { font-family: ${fonts[k]}; }
@@ -66,9 +48,9 @@ ${keys.reduce((acc,k) => `${acc}--${k}: ${fonts[k]};`, "")}
 
   return cssVariables + "\n" +utilClasses;
 }
+```
 
-
-
+```js echo
 const spaceBetweenUtils = () => Object.keys(tokens.spaces).reduce((acc, k) => {
   const v = tokens.spaces[k];
   return `${acc}
@@ -87,8 +69,9 @@ const spaceBetweenUtils = () => Object.keys(tokens.spaces).reduce((acc, k) => {
   margin: calc(0.5 * ${v});
 }`
 }, "")
+```
 
-
+```js echo
 const boxShadowUtils = () => `
 .solid-shadow-1 {
   box-shadow: 0.125rem 0.125rem rgba(0,0,0,0.08);
@@ -114,11 +97,17 @@ const boxShadowUtils = () => `
   box-shadow: 0 0.5rem rgba(0,0,0,0.06);
 }
 `
+```
 
+```js echo
 const trackedUtils = () => `.tracked-light { letter-spacing: .025em; }`
+```
 
+```js echo
 const positionUtils = () => `.sticky { position: sticky }`
+```
 
+```js echo
 const scrollUtils = () =>`.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -127,9 +116,38 @@ const scrollUtils = () =>`.no-scrollbar {
 .no-scrollbar::-webkit-scrollbar {
   display: none; // Safari and Chrome
 }`;
+```
 
+```js echo
+const tachyonsVersion = "4.12.0"
+```
 
-export const loadStyles = (() => {
+```js echo
+const defaultOptions = ({})
+```
+
+```js echo
+const cssVariables = `:root {
+${keys.reduce((acc,k) => `${acc}--${k}: ${colors[k]};`, "")}
+}`
+```
+
+```js echo
+const utilClasses = keys.reduce((acc, k) => {
+    return `${acc}
+.${k} { color: var(--${k}); }
+.hover-${k}:hover, .hover-${k}:focus { color: var(--${k}); }
+.bg-${k} { background-color: var(--${k}); }
+.hover-bg-${k}:hover, .hover-bg-${k}:focus { background-color: var(--${k}); }
+.b--${k} { border-color: var(--${k}); }
+`}, "")
+
+  return cssVariables + "\n" + utilClasses;
+}
+```
+
+```js echo
+const loadStyles = (() => {
   let elements = new Set();
 
   function detach(elements) {
@@ -169,18 +187,39 @@ export const loadStyles = (() => {
   
     attach(newStyleElements);
   }
-})
+})();
+```
 
-
+```js echo
 const tachyons = loadStyles // Original name, deprecated
+```
 
-export const tachyonsExt = loadStyles
+```js echo
+//export const tachyonsExt = loadStyles
+const tachyonsExt = loadStyles
+```
 
+```js echo
+loadStyles({
+  colors: {
+    brand: "#007DB7",
+    accent: "#FDB515"
+  },
+  fonts: {
+    roboto: `"Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"`
+  },
+})
+```
+
+```js echo
 const addElementsToDOM = (elements) => elements.forEach(n => document.querySelector("head").prepend(n));
+```
 
+```js echo
 const removeElementsFromDOM = (elements) => elements.forEach(n => n.parentNode && n.parentNode.removeChild(n))
+```
 
-
+```js echo
 const demoStyles = html`<style>.box {
   background-color: var(--brand);
   color: white;
@@ -197,3 +236,4 @@ const demoStyles = html`<style>.box {
   flex: 1;
 }
 </style>`
+```

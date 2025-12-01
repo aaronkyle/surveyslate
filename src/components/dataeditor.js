@@ -5,7 +5,7 @@
 import { Generators } from "observablehq:stdlib";
 
 import * as Inputs from "/components/inputs_observable.js";
-
+import _ from "npm:lodash";
 
 //import { view } from "@tomlarkworthy/view"
 import { viewUI } from "/components/view.js"

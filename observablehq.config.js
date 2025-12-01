@@ -36,8 +36,8 @@ export default {
          //missing
          //{name: "Guide for Survey Designers", path: "/user-guide-for-gesi-survey-designer"},
          
-         { name: "Admin Tools", path: "/surveyslate-admin-tools" },
-         { name: "Admin UI", path: "/surveyslate-admin-ui" },
+         //{ name: "Admin Tools", path: "/surveyslate-admin-tools" },
+         //{ name: "Admin UI", path: "/surveyslate-admin-ui" },
 
          { name: "Designer Tools", path: "/surveyslate-designer-tools" },
          { name: "Designer UI", path: "/surveyslate-designer-ui" },

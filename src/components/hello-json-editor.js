@@ -5,6 +5,20 @@
 import * as htl from "/components/htl@0.3.1.js";
 const html = htl.html
 
+
+import markdownit from "markdown-it";
+const Markdown = new markdownit({html: true});
+function md(strings) {
+  let string = strings[0];
+  for (let i = 1; i < arguments.length; ++i) {
+    string += String(arguments[i]);
+    string += strings[i];
+  }
+  const template = document.createElement("template");
+  template.innerHTML = Markdown.render(string);
+  return template.content.cloneNode(true);
+};
+
 //const JSONEditor = (await require("@json-editor/json-editor@2.5.4")).JSONEditor
 //import JSONEditor from "@json-editor/json-editor";
 const { JSONEditor } = await import("npm:@json-editor/json-editor@2.5.4")

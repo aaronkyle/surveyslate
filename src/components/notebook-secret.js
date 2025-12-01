@@ -2,7 +2,7 @@
 // <!-- https://observablehq.com/@endpointservices/notebook-secret -->
 
 //import {Textarea, Text} from "@observablehq/inputs";
-import {Textarea, Text} from "https://cdn.jsdelivr.net/npm/@observablehq/inputs@0.12/+esm";
+import {textarea as Textarea, text as Text} from "/components/inputs_observable.js";
 //import {html} from "@observablehq/htl";
 import {html} from "https://cdn.jsdelivr.net/npm/htl@0.3.1/+esm"
 import {pbcopy} from "./copier.js"; // assumes pbcopy is exported from copier.js
