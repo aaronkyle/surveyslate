@@ -52,59 +52,142 @@ function md(strings) {
 
 
 ```js
-toc()
+const document_toc = toc("h2, h3")
+```
+
+
+${document_toc}
+
+
+## Login
+
+
+These tools help survey designers interact with the AWS backend.  Login is required. You may use the test credentials below for `demoEditor`:
+
+
+```js
+const accessKeyId = 'AKIAQO7DBPIFETPNCNEF'
 ```
 
 ```js
-const loginTitle = md`## Login`
+const secretAccessKey = 'rldqyLNCyckm31sF9tYRXmfIVXZeDwPZL6pXGvAa'
 ```
 
-test credentials for demoEditor
 
-    ~~~js
-    {
-      "accessKeyId": "AKIAQO7DBPIFDAUBK4SL",
-      "secretAccessKey": "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"
-    }
-
-    ~~~
+<pre><code>
+{
+  "accessKeyId": "${accessKeyId}",
+  "secretAccessKey": "${secretAccessKey}"
+}
+</code></pre>
 
 ```js
-viewof login = viewof manualCredentials
+//viewof login = viewof manualCredentials
+const login_manual_credentials = display(manualCredentialsElement)
+```
+
+Verify that your credentials are loaded here:
+
+```js
+display(manualCredentials)
+```
+
+For convenience, you may save your credentials to `LocalStorage` for persistence across browser sessions.
+
+```js
+const credStore = saveCredsElement;
+display(credStore)
+```
+
+---
+
+## Survey Chooser
+
+
+
+```js
+//const surveyChooserTitle = md`## Survey Chooser`
+//display(surveyChooserTitle)
+```
+
+After login, you may select a survey to work on from a list of all surveys to which you have access.
+
+```js
+display(surveys)
 ```
 
 ```js
-const credStore = saveCreds
-```
-
-```js
-const surveyChooserTitle = md`## Survey Chooser`
-```
-
-```js
-//viewof survey = Inputs.select(surveys)
-const surveyElement = Inputs.select(surveys);
+//viewof survey = Inputs.bind(Inputs.select(surveys, {label: "survey"}), localStorageView("designer-project", {
+const surveyElement = Inputs.bind(
+  Inputs.select(surveys, { label: "survey" }),
+  localStorageView("designer-project", {
+    defaultValue:
+      new URLSearchParams(location.search).get("survey") ||
+      surveys[0]
+  })
+);
 const survey = Generators.input(surveyElement);
 display(surveyElement)
-
 ```
 
-```js
-const surveys = myTags['designer'].split(" ")
+```js 
+const surveys = myTags['designer'].split(" ");
+//display(surveys)
 ```
+
+---
+
 
 ## Designer UI
 
 ```js
-import {surveyEditor, styles as designUiStyles, tachyons} from '@categorise/surveyslate-designer-ui'
+//import {surveyEditor, styles as designUiStyles, tachyons} from '@categorise/surveyslate-designer-ui'
+import {surveyEditor, styles as designUiStyles} from '/components/surveyslate-designer-ui.js';
+import {tachyonsExt} from "/components/tachyons-and-some-extras.js"
+const tachyons = tachyonsExt()
 ```
 
 ```js
-const loadStyles = (tachyons, designUiStyles)
+//!!! Note, this has to be invoked separate from the definition for styles to load.
+designUiStyles
 ```
 
+```js
+//const loadStyles = (tachyons, designUiStyles)
+const loadStyles = ((tachyons, designUiStyles))
+```
+
+```js
+//!!! Note, this has to be invoked separate from the definition for styles to load.
+loadStyles
+```
+
+```js
+surveyUiElement
+```
+
+
+
+<!-- ADDING A HELPER; MOVE THIS LATER TO MAIN CSS --->
+<style>
+.survey-ui {
+  max-height: 85vh;        /* or 100vh if you want full viewport */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;       /* prevents double scrollbars */
+}
+
+.survey-ui > main {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+</style>
+
+
+
 ```js echo
-viewof surveyUi = {
+//viewof surveyUi = {
+const surveyUiElement = (() => {
   (initialLoadQuestions, initialLoadLayout, load_config)
 
   console.log("Executing surveyUi")
@@ -115,7 +198,8 @@ viewof surveyUi = {
   };
   const resetEditorState = () => updateEditorState('editor');
 
-  const ui = view`<div
+  //const ui = view`<div
+  const ui = viewUI`<div
   class="[ survey-ui ][ brand-font bg-near-white ba b--light-gray ]"
   data-survey-editor-state="editor">
   <div class="solid-shadow-y-1">${pageHeader(['Survey Designer'])}</div>
@@ -157,7 +241,8 @@ viewof surveyUi = {
 </div>`
 
   return ui;
-}
+})();
+const surveyUi = Generators.input(surveyUiElement);
 ```
 
 ```js
@@ -193,7 +278,8 @@ function questionToUiCell(source) {
     return Object.fromEntries(Object.entries(source).map(questionAttribute).filter(e => e))
   else 
     return source
-} 
+};
+display(questionToUiCell) 
 ```
 
 ```js
@@ -225,7 +311,8 @@ function uiCellToQuestion(args) {
     return String(args)
   else 
     return args
-}
+};
+display(uiCellToQuestion)
 ```
 
 ```js echo
@@ -233,7 +320,8 @@ questionsNoLayout
 ```
 
 ```js
-viewof surveyUiInput = {
+//viewof surveyUiInput = {
+const surveyUiInputElement = await(() => {
   console.log("Executing viewof surveyUiInput")
   // Go through the layout *in order* and build up pages with cells *in order*
   const pagesByMenu = {};
@@ -287,14 +375,15 @@ viewof surveyUiInput = {
     },
     pages: Object.entries(pagesByMenu).map(([menu, page]) => page)
   }))  
-}
+})();
+const surveyUiInput = Generators.input(surveyUiInputElement);
 ```
 
 ```js echo
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const syncSurveyUiInputToSurveyUi = {
+const syncSurveyUiInputToSurveyUi = await (() => {
   console.log("syncSurveyUiInputToSurveyUi");
   if (!_.isEqual(viewof surveyUi.value, viewof surveyUiInput.value)) {
     console.log("syncSurveyUiInputToSurveyUi: change detected");
@@ -303,22 +392,26 @@ const syncSurveyUiInputToSurveyUi = {
     // viewof surveyUi.applyValueUpdates();
     viewof surveyUi.dispatchEvent(new Event('input', {bubbles: true}))
   }
-}
+})();
+display(syncSurveyUiInputToSurveyUi)
 ```
 
 ```js
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const syncSurveyUIToSurveyUiOutput = {
+const syncSurveyUIToSurveyUiOutput = (() => {
   console.log("syncSurveyUIToSurveyUiOutput")
   // Reactive to UI changes (i.e. surveyUi)
   if (!_.isEqual(viewof surveyUiOutput.value, surveyUi)) {
     console.log("syncSurveyUIToSurveyUiOutput: change detected");
-    viewof surveyUiOutput.value = _.cloneDeep(surveyUi);
-    viewof surveyUiOutput.dispatchEvent(new Event('input', {bubbles: true}))
+    //viewof surveyUiOutput.value = _.cloneDeep(surveyUi);
+    surveyUiOutputElement.value = _.cloneDeep(surveyUi);
+    //viewof surveyUiOutput.dispatchEvent(new Event('input', {bubbles: true}))
+    surveyUiOutputElement.dispatchEvent(new Event('input', {bubbles: true}))
   }
-}
+})();
+display(syncSurveyUIToSurveyUiOutput)
 ```
 
 ```js
@@ -333,7 +426,7 @@ display(surveyUiOutputElement)
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const syncSurveyOutput = {
+const syncSurveyOutput = await (() => {
   console.log("surveyOutput")
   // convert ui representation (pages -> cells) to {questions, layout, config} for storage.
 
@@ -369,17 +462,21 @@ const syncSurveyOutput = {
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
   const config = {
-    ...viewof surveyConfig.value, // carry over initial state
+  //  ...viewof surveyConfig.value, // carry over initial state
+    ...surveyConfigElement.value, // carry over initial state
     pageTitle: surveyUiOutput.metadata.title
   };
   
-  viewof surveyOutput.value = {
+  // viewof surveyOutput.value = {
+  surveyOutputElement.value = {
     questions,
     layout,
     config
   };
-  viewof surveyOutput.dispatchEvent(new Event('input', {bubbles: true}))
-}
+  //viewof surveyOutput.dispatchEvent(new Event('input', {bubbles: true}))
+  surveyOutputElement.dispatchEvent(new Event('input', {bubbles: true}))
+})();
+display(syncSurveyOutput)
 ```
 
 ```js
@@ -390,7 +487,9 @@ display(surveyOutputElement)
 ```
 
 ```js
-const diff = require('https://bundle.run/json-diff@0.5.4')
+//const diff = require('https://bundle.run/json-diff@0.5.4')
+import { diff } from "just-diff";
+display(diff)
 ```
 
 ```js
@@ -406,19 +505,19 @@ display(selectedQuestionDiffElement)
 ```
 
 ```js
-md`
-question: <b>${selectedQuestionDiff}</b>
+display(md`
+question: <b>${selectedQuestionDiffElement.value}</b>
 
-Question Input to UI questions
-~~~js
-${JSON.stringify(questions.get(selectedQuestionDiff), null, 2)}
-~~~
+Question Input to UI questions<br/>
+<code>
+        ${JSON.stringify(questions.get(selectedQuestionDiff), null, 2)}
+</code>
 
-Question Output to UI
-~~~js
-${JSON.stringify(surveyOutput.questions.get(selectedQuestionDiff), null, 2)}
-~~~
-`
+Question Output to UI<br/>
+<code>
+        ${JSON.stringify(surveyOutput.questions.get(selectedQuestionDiff), null, 2)}
+</pre>
+`)
 ```
 
 ```js
@@ -438,19 +537,34 @@ const logicalQuestionDiff = Object.fromEntries(Object.entries(
 
 ## Autosave UI
 
+
+```js
+///!!! attempting to initiatlize autosave
+//autosave()
+const autosaveStatus = autosave();   // <-- CALL IT
+```
+
+```js
+autosaveStatus
+```
+
 ```js
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
 ///!!! Check if this should self-execute
 ///!!!!!!!!!!!!!!!!!!!!!!!!!
-const autosave = {
+const autosave = (() => {
   async function saveState() {
     console.log("saveState")
     await Promise.all([
-      saveQuestions(viewof surveyOutput.value.questions),
-      saveLayout(viewof surveyOutput.value.layout),
-      saveConfig(viewof surveyOutput.value.config)
+      //saveQuestions(viewof surveyOutput.value.questions),
+      saveQuestions(surveyOutputElement.value.questions),
+      //saveLayout(viewof surveyOutput.value.layout),
+      saveLayout(surveyOutputElement.value.layout),
+      //saveConfig(viewof surveyOutput.value.config)
+      saveConfig(surveyOutputElement.value.config)
     ]);
-    await files.save("settings.json", viewof settings.value);
+    //await files.save("settings.json", viewof settings.value);
+    await files.save("settings.json", settingsElement.value);
     return "Saved " + new Date()
   }
   console.log("Initializing autosave");
@@ -508,7 +622,7 @@ const autosave = {
     next("Autosave initialized")
   })
   
-}
+});
 ```
 
 ## Export
@@ -518,6 +632,9 @@ const exportDataUri = URL.createObjectURL(new Blob([ JSON.stringify({
   ...surveyOutput,
   questions: Object.fromEntries(surveyOutput.questions.entries())
 }) ], { type: 'application/json' }));
+```
+```js
+exportDataUri
 ```
 
 ```js
@@ -549,7 +666,8 @@ const files = ({
   load: async (key, object) => {
     return JSON.parse(await getObject(config.PRIVATE_BUCKET, `surveys/${survey}/${key}`))
   }
-})
+});
+display(files)
 ```
 
 ```js
@@ -559,15 +677,19 @@ const files = ({
 const saveQuestions = async (questions) => {
   const name = `questions_${Date.now()}.json`
   await files.save(name, Array.from(questions.entries()))
-  viewof settings.value = {
-    ...viewof settings.value,
+  //viewof settings.value = {
+  settingsElement.value = {
+  //  ...viewof settings.value,
+  ...settingsElement.value,
     questions: [
-      ...(viewof settings.value.questions || []),
+      //...(viewof settings.value.questions || []),
+      ...(settingsElement.value.questions || []),
       name
     ]
   }
   return name;
-}
+};
+display(saveQuestions)
 ```
 
 ```js
@@ -584,10 +706,13 @@ const loadQuestions = async (name) => {
 const saveLayout = async (layout) => {
   const name = `layout_${Date.now()}.json`
   await files.save(name, layout);
-  viewof settings.value = {
-    ...viewof settings.value,
+  //viewof settings.value = {
+  settingsElement.value = {
+    //...viewof settings.value,
+    ...settingsElement.value,
     layout: [
-      ...(viewof settings.value.layout || []),
+      //...(viewof settings.value.layout || []),
+      ...(settingsElement.value.layout || []),
       name
     ]
   };
@@ -629,57 +754,78 @@ async function saveVersion() {
   const name = `version_${Date.now()}.json`
   
   const version = ({
-    layout: viewof settings.value.layout.at(-1),
-    questions: viewof settings.value.questions.at(-1),
-    config: viewof settings.value.configs.at(-1)
+    //layout: viewof settings.value.layout.at(-1),
+    layout: settingsElement.value.layout.at(-1),
+    //questions: viewof settings.value.questions.at(-1),
+    questions: settingsElement.value.questions.at(-1),
+    //config: viewof settings.value.configs.at(-1)
+    config: settingsElement.value.configs.at(-1)
   });
   
   await files.save(name, version)
   
-  viewof settings.value = {
-    ...viewof settings.value,
+  //viewof settings.value = {
+  settingsElement.value = {
+    //...viewof settings.value,
+    ...settingsElement.value,
     versions: [
-      ...(viewof settings.value.versions || []),
+      //...(viewof settings.value.versions || []),
+      ...(settingsElement.value.versions || []),
       name
     ]
   };
   
-  await files.save("settings.json", viewof settings.value);
+  //await files.save("settings.json", viewof settings.value);
+  await files.save("settings.json", settingsElement.value);
   
   return name;
 }
 ```
 
 ```js echo
-viewof settings.value.versions.at(-1)
+//viewof settings.value.versions.at(-1)
+settings.value.versions.at(-1)
 ```
 
 ```js
 const revertChanges = async function() {
   const version = await files.load(viewof settings.value.versions.at(-1))
-  viewof settings.value = {
-    ...viewof settings.value,
+  //viewof settings.value = {
+  settingsElement.value = {
+    //...viewof settings.value,
+    ...settingsElement.value,
     configs: [
-      ...(viewof settings.value.configs || []),
+      //...(viewof settings.value.configs || []),
+      ...(settingsElement.value.configs || []),
       version.config
     ],
     questions: [
-      ...(viewof settings.value.questions || []),
+      //...(viewof settings.value.questions || []),
+      ...(settingsElement.value.questions || []),
       version.questions
     ],
     layout: [
-      ...(viewof settings.value.layout || []),
+      //...(viewof settings.value.layout || []),
+      ...(settingsElement.value.layout || []),
       version.layout
     ]
   };
   
-  await files.save("settings.json", viewof settings.value);
+  //await files.save("settings.json", viewof settings.value);
+  await files.save("settings.json", settingsElement.value);
+  survey.dispatchEvent(new Event('input', {bubbles: true})) // reload everything
 }
 ```
 
-```js
-md`## Questions`
-```
+---
+
+## Questions
+
+<br/>
+Both questions and layouts (addressed below) are core requirements for generating surveys.  In an attempt to ease question writing for non-coders (with mixed results), the main survey data input is expected as a CSV file. 
+
+Initial survey questions are loaded by retrieving the most recent questions CSV, populating the questions input element, and notifying the reactive system that the input has changed.
+
 
 ```js
 //viewof questions = Inputs.input(new Map())
@@ -690,23 +836,37 @@ display(questionsElement)
 ```
 
 ```js
-mutable initialLoadQuestions = (/* reload everything on choice change */ survey, false)
+//mutable initialLoadQuestions = (/* reload everything on choice change */ survey, false)
+const initialLoadQuestions = Mutable((/* reload everything on choice change */ survey, false))
+const setInitialLoadQuestions = (value) => (initialLoadQuestions.value = value);
 ```
 
 ```js
-const initialQuestionLoader = {
+const initialQuestionLoader = await (async() => {
   if (!initialLoadQuestions) {
-    mutable initialLoadQuestions = true;
-    viewof questions.value = await loadQuestions(settings.questions[settings.questions.length - 1])
-    viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
+    //mutable initialLoadQuestions = true;
+    //viewof questions.value = await loadQuestions(settings.questions[settings.questions.length - 1])
+    //viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
+    setInitialLoadQuestions(true);
+
+    const latestQuestionsKey = settings.questions[settings.questions.length - 1];
+    questionsElement.value = await loadQuestions(latestQuestionsKey);
+
+    // Tell the reactive runtime the input changed
+    questionsElement.dispatchEvent(new Event("input", { bubbles: true }));
   }
-  return "Initial Question Loader"
-}
+  return "Initial questions are loaded."
+})();
+```
+```js
+display(initialQuestionLoader)
 ```
 
-```js
-md`### Import external CSV of questions`
-```
+
+---
+
+### Import external CSV of questions
+
 
 ```js
 //viewof questionUpload = fileInput({prompt: "Drop questions as a CSV file here"})
