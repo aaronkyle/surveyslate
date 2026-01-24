@@ -61,7 +61,6 @@ export default {
   open: false,
   pages: [
     { name: "Accessing a Notebook's Runtime", path: "/notebook-dependencies/access-runtime" },
-    { name: "AWS Helpers", path: "/notebook-dependencies/aws" },
     { name: "aws4fetch", path: "/notebook-dependencies/aws4fetch" },
     { name: "Color Legend", path: "/notebook-dependencies/color-legend" },
     { name: "Copier", path: "/notebook-dependencies/copier" },
@@ -90,6 +89,7 @@ export default {
     { name: "Safe Local Storage", path: "/notebook-dependencies/safe-local-storage" },
     { name: "Signature - A Documentation Toolkit", path: "/notebook-dependencies/signature" },
     { name: "RxJS inspired stream operators for views", path: "/notebook-dependencies/stream-operators" },
+    { name: "Survey Slate Configuration", path: "/notebook-dependencies/survey-slate-configuration" },
     { name: "Reactive Unit Testing and Reporting Framework", path: "/notebook-dependencies/testing" },
     { name: "TOC", path: "/notebook-dependencies/toc" },
     { name: "URL querystrings and hash parameters", path: "/notebook-dependencies/url-querystrings-and-hash-parameters" },

@@ -877,10 +877,13 @@ display(questionUploadElement)
 ```
 
 ```js echo
-const onQuestionUpload = {
-  viewof questions.value = csvToQuestions(await questionUpload.csv());
-  viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
-}
+const onQuestionUpload = (async () => {
+  //viewof questions.value = csvToQuestions(await questionUpload.csv());
+  questionsElement.value = csvToQuestions(await questionUpload.csv());
+  //viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
+  questionsElement.dispatchEvent(new Event('input', {bubbles: true}));
+});
+//display(onQuestionUpload)
 ```
 
 ```js echo
@@ -1006,12 +1009,14 @@ const questionsToCSV = (questions) =>
     },[])
 ```
 
-```js
-md`### Export questions to CSV`
-```
+### Export questions to CSV
+<br/>
+
+Exports are generated as [Blobs](https://developer.mozilla.org/en-US/docs/Web/API/Blob) with URLs.
 
 ```js
-const questionsCsvDataUri = URL.createObjectURL(new Blob([ d3.csvFormat(exportQuestionsCSV) ], { type: 'text/csv' }));
+const questionsCsvDataUri = URL.createObjectURL(new Blob([ await d3.csvFormat(exportQuestionsCSV) ], { type: 'text/csv' }));
+display(questionsCsvDataUri)
 ```
 
 ```js
@@ -1023,24 +1028,34 @@ display(questionsCsvDataUriViewElement)
 ```
 
 ```js echo
-const updateQuestionsCsvDataUriView = {
-  viewof questionsCsvDataUriView.value = questionsCsvDataUri /* sync questionsCsvDataUri changes to the view */
-  viewof questionsCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+const updateQuestionsCsvDataUriView= () => {
+  //viewof questionsCsvDataUriView.value = questionsCsvDataUri /* sync questionsCsvDataUri changes to the view */
+  questionsCsvDataUriView.value = questionsCsvDataUri 
+  //viewof questionsCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+  questionsCsvDataUriViewElement.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
-```js echo
-const downloadQuestionsCsv = htl.html`<a href=${viewof questionsCsvDataUriView.value} download="questions_${Date.now()}.csv">
-  Download questions.csv
-</a>
+```js
+const downloadQuestionsCsv = htl.html`<a href=${questionsCsvDataUriView} download="questions_${Date.now()}.csv">Download questions.csv</a>
 ${exportQuestionsProblems.length > 0 ? md`<mark> Warning, some questions are not exporting properly, you may lose data in export` : null}
 `
 ```
 
+---
+
+CSV data integrity is evaluated on file upload.
+
+<br>
+Questions:
+
+
 ```js
 const exportQuestionsCSV = questionsToCSV(questions)
-
+display(exportQuestionsCSV)
 ```
+
+Questions with problems:
 
 ```js
 const exportQuestionsProblems = {
@@ -1073,18 +1088,40 @@ const exportQuestionsProblems = {
 ```
 
 ## Layout
+<br/>
 
 ```js
 //viewof layoutData = Inputs.input([]);
 const layoutDataElement = Inputs.input([]);
 const layoutData = Generators.input(layoutDataElement);
 display(layoutDataElement)
-
 ```
+
+LayoutElements listen for CSV data file inputs. The availability of initial state data is checked and, if present, a layout element is populated with its contents, and an input event is triggered so the reactive system recognizes the change. Layout are stored in state and we display a confirmation string.
 
 ```js
-md`### Import layout from CSV`
+display(await initialLayoutLoader)
 ```
+
+---
+
+### Layout Data
+
+
+```js 
+//viewof layout = Inputs.input(layoutData)
+const layoutElement = Inputs.input(layoutData);
+const layout = Generators.input(layoutElement);
+```
+```js
+display(layoutElement)
+```
+
+
+---
+
+### Import layout from CSV
+
 
 ```js
 //viewof layoutUpload = fileInput({prompt: "Drop layout as a CSV file here"})
@@ -1095,10 +1132,12 @@ display(layoutUploadElement)
 ```
 
 ```js echo
-const onLayoutUpload = {
-  viewof layoutData.value = {data: csvToLayout(await layoutUpload.csv())}
-  viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
-}
+const onLayoutUpload = await(async() => {
+  //viewof layoutData.value = {data: csvToLayout(await layoutUpload.csv())}
+  layoutDataElement.value = {data: csvToLayout(await layoutUpload.csv())}
+  //viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+  layoutDataElement.dispatchEvent(new Event('input', {bubbles: true}))
+})();
 ```
 
 ```js
@@ -1116,6 +1155,7 @@ function csvToLayout(csv) {
 
 ```js echo
 const layoutCsvDataUri = URL.createObjectURL(new Blob([ d3.csvFormat(exportLayoutCSV) ], { type: 'text/csv' }));
+///display(layoutCsvDataUri)
 ```
 
 ```js echo
@@ -1126,14 +1166,16 @@ display(layoutCsvDataUriViewElement)
 ```
 
 ```js echo
-const updateLayoutCsvDataUriView = {
-  viewof layoutCsvDataUriView.value = layoutCsvDataUri
-  viewof layoutCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
-}
+const updateLayoutCsvDataUriView = (() => {
+  //viewof layoutCsvDataUriView.value = layoutCsvDataUri
+  layoutCsvDataUriView.value = layoutCsvDataUri
+  //viewof layoutCsvDataUriView.dispatchEvent(new Event('input', {bubbles: true}))
+  layoutCsvDataUriViewElement.dispatchEvent(new Event('input', {bubbles: true}))
+})()
 ```
 
 ```js echo
-const downloadLayoutCsv = htl.html`<a href=${viewof layoutCsvDataUriView.value} download="layout_${Date.now()}.csv">
+const downloadLayoutCsv = htl.html`<a href=${layoutCsvDataUriView} download="layout_${Date.now()}.csv">
   Download layout.csv
 </a>
 ${exportLayoutProblems.length > 0 ? md`<mark> Warning, some layouts are not exporting properly, you may lose data in export` : null}
@@ -1141,31 +1183,44 @@ ${exportLayoutProblems.length > 0 ? md`<mark> Warning, some layouts are not expo
 ```
 
 ```js echo
-mutable initialLoadLayout = false
+//mutable initialLoadLayout = false
+const initialLoadLayout = Mutable(false)
+const setInitialLoadLayout = (value) => (initialLoadLayout.value = value);
 ```
 
 ```js echo
-const initialLayoutLoader = {
+const initialLayoutLoader = (async () => {
   if (!initialLoadLayout) {
-    mutable initialLoadLayout = true;
-    setLayout([...await loadLayout(settings.layout[settings.layout.length - 1])])
+    //mutable initialLoadLayout = true;
+    //setLayout([...await loadLayout(settings.layout[settings.layout.length - 1])])
+        setInitialLoadLayout(true);
+        setLayout([...await loadLayout(settings.layout[settings.layout.length - 1])])
   }
-  return "Initial Layout Loader"
-}
+  return "Initial layout data are loaded.";
+})();
 ```
+
+
+
 
 ```js echo
 function setLayout(data) {
   const choices = learnChoices(data);
   
-  menuOptions.data = choices["menu"]
-  setOptions.data = choices["set"]
-  viewof menuOptions.dispatchEvent(new Event('input', {bubbles: true}))
-  viewof setOptions.dispatchEvent(new Event('input', {bubbles: true}))
+  //menuOptions.data = choices["menu"]
+  menuOptionsElement.data = choices["menu"]
+  //setOptions.data = choices["set"]
+  setOptionsElement.data = choices["set"]
+  //viewof menuOptions.dispatchEvent(new Event('input', {bubbles: true}))
+  menuOptionsElement.dispatchEvent(new Event('input', {bubbles: true}))
+  //viewof setOptions.dispatchEvent(new Event('input', {bubbles: true}))
+  setOptionsElement.dispatchEvent(new Event('input', {bubbles: true}))
   
   
-  layoutData.data = data;
-  viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+  //layoutData.data = data;
+  layoutDataElement.value.data = data;
+  //viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+  layoutDataElement.dispatchEvent(new Event('input', {bubbles: true}))
 }
 ```
 
