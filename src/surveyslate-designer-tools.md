@@ -1244,23 +1244,29 @@ const learnChoices = (data) => {
 ### Export UI
 
 ```js echo
-const sampleExportUi = exportUi()
+//const sampleExportUi = exportUi()
+const sampleExportUi = () => {
+  questionsCsvDataUriView
+  layoutCsvDataUriView
+  return exportUi()
+}
 ```
 
 ```js echo
-const exportUi = () => {
+const exportUi = (() => {
   const now = Date.now();
 
   return view`<div class="space-y-3">
   <div>
-    <a href=${viewof questionsCsvDataUriView.value} download="questions_${Date.now()}.csv">Download Questions</a>
+    <a href=${questionsCsvDataUriViewElement.value} download="questions_${Date.now()}.csv">Download Questions</a>
   </div>
 
   <div>
-    <a href=${viewof layoutCsvDataUriView.value} download="layout_${Date.now()}.csv">Download Layout</a>
+    <a href=${layoutCsvDataUriViewElement.value} download="layout_${Date.now()}.csv">Download Layout</a>
   </div>
 </div>`
-}
+})();
+display(exportUi)
 ```
 
 ### Import UI
@@ -1282,17 +1288,21 @@ const importUi = (afterSave) => {
   const submitFiles = async ()  => {
     if (ui.value.questionsCsv) {
       console.log('Updating questions CSV')
-      viewof questions.value = csvToQuestions(await ui.value.questionsCsv.csv());
+      //viewof questions.value = csvToQuestions(await ui.value.questionsCsv.csv());
+      questionsElement.value = csvToQuestions(await ui.value.questionsCsv.csv());
     }
 
     if (ui.value.layoutCsv) {
       console.log('Updating layout CSV')
-      viewof layoutData.value = {data: csvToLayout(await ui.value.layoutCsv.csv())}
+      //viewof layoutData.value = {data: csvToLayout(await ui.value.layoutCsv.csv())}
+      layoutDataElement.value = {data: csvToLayout(await ui.value.layoutCsv.csv())}
     }
 
     if (ui.value.questionsCsv || ui.value.layoutCsv) {
-      viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
-      viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+      //viewof questions.dispatchEvent(new Event('input', {bubbles: true}));
+      questionsElement.dispatchEvent(new Event('input', {bubbles: true}));
+      //viewof layoutData.dispatchEvent(new Event('input', {bubbles: true}))
+      layoutDataElement.dispatchEvent(new Event('input', {bubbles: true}))
     }
 
     if (typeof afterSave === 'function') {
@@ -1301,7 +1311,8 @@ const importUi = (afterSave) => {
   }
   const submit = Inputs.button(buttonLabel({label: "Save"}), {reduce: submitFiles});
   
-  const ui = view`<div class="space-y-3">
+  //const ui = view`<div class="space-y-3">
+  const ui = viewUI`<div class="space-y-3">
   <h3 class="f5">Questions CSV file</h3>
   ${['questionsCsv', fileInput({prompt: "Drop questions as a CSV file here"})]}
   <h3 class="f5">Layout CSV file</h3>
@@ -1311,7 +1322,8 @@ const importUi = (afterSave) => {
   </div>`
   
   return ui;
-}
+};
+display(importUi)
 ```
 
 
@@ -1328,7 +1340,8 @@ function selection(title) {
       [title]: (d) => Inputs.text({value: d, width: "400px", disabled: true}),
     },
   })
-  const addForm = view`<div style="display: flex;">
+  //const addForm = view`<div style="display: flex;">
+   const addForm = viewUI`<div style="display: flex;">
     ${[title, Inputs.text({
       label: `Add ${title}`
     })]}
@@ -1341,7 +1354,8 @@ function selection(title) {
     })}
   `
 
-  return view`<div><details>
+  //return view`<div><details>
+  return viewUI`<div><details>
       <summary>Edit choices for <b>${title}</b></summary>
       ${['...', choices]}${cautious(() => addForm)}
   `
@@ -1364,10 +1378,12 @@ display(setOptionsElement)
 
 ```
 
-### Layout Data\
+### Layout Data
 
 ```js echo
-viewof layout = Inputs.input(layoutData)
+//viewof layout = Inputs.input(layoutData)
+const layoutElement = Inputs.input(layoutData);
+const layout = Generators.input(layoutElement);
 /*
 { 
   const menuOptionsArr = menuOptions.data.map(d => d["menu"]);
@@ -1399,13 +1415,18 @@ viewof layout = Inputs.input(layoutData)
   })
 }*/
 ```
+```js
+display(layoutElement)
+```
 
 ## Data Quality Checks
+
+<br/>
 
 ### Questions that have no layout
 
 ```js echo
-{
+(() => {
   const results = [...questionsNoLayout.entries()].map(([k, v]) => ({id: k, ...v}));
   if (results.length > 0) {
     return dataEditor(results, {
@@ -1414,24 +1435,24 @@ viewof layout = Inputs.input(layoutData)
   } else {
     return md`✅ The are no questions with no layout`
   }
-}
+})()
 ```
 
 ```js echo
 questionsNoLayout.values().next()
 ```
 
-### Layouts with no question\
+### Layouts with no question
 
 ```js echo
-{
+(() => {
   const results = layoutsNoQuestion.map(([name, layoutArray]) => layoutArray[0]);
   if (results.length > 0) {
     return dataEditor(results)
   } else {
     return md`✅ The are no layouts with no questions`
   }
-}
+})()
 ```
 
 ### Questions with options but some of the options do not have a 'value'
@@ -1440,14 +1461,14 @@ All options need value's defined, this is the key used to ensure updates to ques
 
 
 ```js echo
-{
+(() => {
   if (optionsWithoutValue.length > 0) {
     return md`⚠️ There are ${optionsWithoutValue.length} mistakes
   ${optionsWithoutValue.map(mistake => `\n- ${mistake[1].cell_name}`)}`
   } else {
     return md`✅ All options have a value defined`
   }
-}
+})()
 ```
 
 ```js echo
@@ -1475,16 +1496,19 @@ const exportLayoutCSV = surveyOutput.layout
 ```
 
 ```js echo
-const exportLayoutProblems  = {
+const exportLayoutProblems  = () => {
   const exportedLayout = csvToLayout(exportLayoutCSV);
   
   const problems = [];
+  //for (var i = 0; i < Math.max(surveyOutput.layout.length, exportedLayout.length); i++) {
   for (var i = 0; i < Math.max(surveyOutput.layout.length, exportedLayout.length); i++) {
-    if (!_.isEqual(layout.data[i], exportedLayout[i])) {
+    //if (!_.isEqual(layout.data[i], exportedLayout[i])) {
+    if (!_.isEqual(layout[i], exportedLayout[i])) {
       problems.push({
         row: i,
-        layout: layout.data[i],
-        exportedLayout: exportedLayout[1]
+        //layout: layout.data[i],
+       layout: layout[i],
+       exportedLayout: exportedLayout[1]
       })
     }
   }
@@ -1496,8 +1520,17 @@ const exportLayoutProblems  = {
 
 Config is additional data that might be useful such as the menu display titles.
 
-```js echo
-viewof latestConfig = editor({
+
+```js
+//viewof surveyConfig = Inputs.input()
+const surveyConfigElement = Inputs.input()
+const surveyConfig = Generators.input(surveyConfigElement);
+//display(surveyConfigElement)
+```
+
+```js
+//viewof latestConfig = editor({
+const latestConfigElement = editor({
   type: "object",
   title: "Config",
   properties: {
@@ -1506,7 +1539,7 @@ viewof latestConfig = editor({
     },
     menuSegmentLabels: {
       type: "object",
-      additionalProperties: { "type": "string" }
+      additionalProperties: { type: "string" }
     }
   }
 }, {
@@ -1516,22 +1549,45 @@ viewof latestConfig = editor({
   iconlib: "spectre",
   show_errors: "always",
   prompt_before_delete: "false"
-})
+});
+const latestConfig = Generators.input(latestConfigElement);
+```
+
+```js
+display(latestConfigElement)
 ```
 
 ```js echo
-const save_config = {
-  
-  if (viewof surveyConfig.value && !_.isEqual(latestConfig, viewof surveyConfig.value)) {
-    yield md`Saving...`
-    viewof surveyConfig.value = latestConfig;
+//const save_config = {
+//  
+//  if (viewof surveyConfig.value && !_.isEqual(latestConfig, viewof surveyConfig.value)) {
+//    yield md`Saving...`
+//    viewof surveyConfig.value = latestConfig;
+//    await saveConfig(latestConfig);
+//    yield md`saved`
+//  } else {
+//    yield md`no changes`
+//  }
+//}
+const save_config = await (async () => {
+  if (surveyConfigElement.value && !_.isEqual(latestConfig, surveyConfigElement.value)) {
+    return md`Saving...`
+    surveyConfigElement.value = latestConfig;
     await saveConfig(latestConfig);
-    yield md`saved`
+    //await files.save("settings.json", settings.value);
+    await files.save("settings.json", settingsElement.value);
+    return md`saved`
   } else {
-    yield md`no changes`
+    return md`no changes`
   }
-}
+})();
 ```
+
+```js
+display(save_config)
+```
+
+
 
 ```js echo
 //viewof surveyConfig = Inputs.input()
@@ -1542,28 +1598,47 @@ display(surveyConfigElement)
 ```
 
 ```js echo
-const sync_ui = {
-  viewof latestConfig.value = surveyConfig
-}
+const sync_ui = (() => {
+//  viewof latestConfig.value = surveyConfig
+latestConfigElement.value = surveyConfig
+})()
 ```
 
 ```js echo
-const load_config = {
-  viewof surveyConfig.value = settings.configs?.length > 0 
-                                ? await loadConfig(settings.configs[settings.configs.length - 1])
-                                : {};
-  viewof surveyConfig.dispatchEvent(new Event('input', {bubbles: true}))
-}
+//const load_config = {
+//  viewof surveyConfig.value = settings.configs?.length > 0 
+//                                ? await loadConfig(settings.configs[settings.configs.length - 1])
+//                                : {};
+//  viewof surveyConfig.dispatchEvent(new Event('input', {bubbles: true}))
+//}
+
+const load_config = await (async () => {
+  surveyConfigElement.value = settings.configs?.length > 0 
+     ? await loadConfig(settings.configs[settings.configs.length - 1])
+     : {};
+  surveyConfigElement.dispatchEvent(new Event('input', {bubbles: true}))
+})();
 ```
 
 ```js echo
-import {editor} from "@a10k/hello-json-editor"
+//import {editor} from "@a10k/hello-json-editor"
+import {editor} from "/components/hello-json-editor.js"
 ```
 
 ## Styles
 
 ```js echo
 styles = html`<style>
+
+  :root {
+    --lh-copy: 1.3;
+    --theme-foreground-focus: var(--brand);
+  }
+
+  header nav a[href] {
+    color: #fff;
+  }
+
 /* Survey Editor */
 
 .survey-editor__import,
@@ -1587,6 +1662,16 @@ styles = html`<style>
 </style>`
 ```
 
+
+```js
+styles
+```
+
+```js
+custom_css
+```
+
+
 ### Styles for the in notebook demo
 
 ```html echo
@@ -1599,41 +1684,66 @@ styles = html`<style>
 </style>
 ```
 
+
+
+---
+
+## Survey Preview
+
+
 ```js echo
-const surveyPreviewTitle = md`## Survey Preview`
+//const surveyPreviewTitle = md`## Survey Preview`
 ```
 
 ```js echo
 //viewof responses = {
-const responsesElement = (() => {
-  addMenuBehaviour;
-  const view = surveyView(
-    surveyOutput.questions,
-    surveyOutput.layout,
-    surveyOutput.config,
-    new Map(),
-    {
-      putFile: (name) => console.log("mock save " + name),
-      getFile: (name) => console.log("mock get " + name)
-    }
-  );
-  return view;
-})();
+//const responsesElement = (() => {
+//  addMenuBehaviour;
+ // const view = surveyView(
+ //   surveyOutput.questions,
+ //   surveyOutput.layout,
+ //   surveyOutput.config,
+ //   new Map(),
+ //  {
+ //     putFile: (name) => console.log("mock save " + name),
+ //     getFile: (name) => console.log("mock get " + name)
+ //   }
+ // );
+ // return view;
+//})();
+
+const responsesElement = surveyView(
+  surveyOutput.config.style,
+  surveyOutput.questions,
+  surveyOutput.layout,
+  surveyOutput.config,
+  new Map(),
+  {
+    putFile: (name) => console.log("mock save " + name),
+    getFile: (name) => console.log("mock get " + name)
+  }
+);
+
 const responses = Generators.input(responsesElement);
-display(responsesElement)
-``
-
+//display(responsesElement)
 ```
 
-```js echo
-responses
-```
+
 
 ```js echo
-import {surveyView, addMenuBehaviour} from '@categorise/surveyslate-styling'
+//import {surveyView, addMenuBehaviour} from '@categorise/surveyslate-styling'
+import {surveyView, addMenuBehaviour} from '/components/survey-slate-styling.js'
 ```
+
+
+
 
 ## Preview Answers
+
+
+```js
+responsesElement
+```
 
 ```js echo
 responses
@@ -1656,8 +1766,13 @@ display(reollbackButtonElement)
 ```
 
 ```js echo
-const deployTitle = md`## Deploy Survey Version`
+//const deployTitle = md`## Deploy Survey Version`
 ```
+
+
+---
+
+## Deploy Survey Version
 
 <!--
 Last deployed: ${new Date(Number.parseInt(viewof settings.value.versions.at(-1).replace("version_", "").replace(".json", "")))}
